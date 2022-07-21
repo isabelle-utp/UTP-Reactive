@@ -3,7 +3,7 @@ section \<open> Reactive Programs \<close>
 (* NOTE: virtually all of this theory is commented out right now. *)
 
 theory utp_rea_prog
-  imports utp_rea_cond "Shallow-Expressions.Shallow_Expressions" "Optics.Optics" 
+  imports utp_rea_cond "Shallow-Expressions.Shallow_Expressions" "Optics.Optics" "UTP2.utp" "UTP2.utp_pred" 
 begin
 
 subsection \<open> Stateful reactive alphabet \<close>
@@ -15,41 +15,43 @@ text \<open> @{term R3} as presented in the UTP book and related publications is
   observational variable that capture the program state that we call $st$. Upon this foundation,
   we can define operators for reactive programs~\cite{Foster17c}. \<close>
 
-alphabet ('t, 's) rsp_vars = "'t::trace rea_vars" +
+(* Changes from UTP1: renamed to reflect the 'rea' naming convention and line up with lemmata. *)
+alphabet ('t, 's) srea_vars = "'t::trace rea_vars" +
   st :: 's
 
 (* TODO(@MattWindsor91): do we need the type synonyms and translations? *)
 
-type_synonym ('s,'t,'\<alpha>) rsp = "('t, 's, '\<alpha>) rsp_vars_scheme" \<comment> \<open> Reactive state predicate \<close>
-type_synonym ('s,'t,'\<alpha>,'\<beta>) rel_rsp  = "(('s,'t,'\<alpha>) rsp \<leftrightarrow> ('s,'t,'\<beta>) rsp)" \<comment> \<open> Relation on the above \<close>
+type_synonym ('s,'t,'\<alpha>) rsp = "('t, 's, '\<alpha>) srea_vars_scheme" \<comment> \<open> Reactive state predicate \<close>
+type_synonym ('s,'t,'\<alpha>,'\<beta>) rel_rsp  = "('s,'t,'\<alpha>) rsp \<leftrightarrow> ('s,'t,'\<beta>) rsp" \<comment> \<open> Relation on the above \<close>
 type_synonym ('s,'t,'\<alpha>) hrel_rsp  = "('s,'t,'\<alpha>,'\<alpha>) rel_rsp" \<comment> \<open> Homogeneous relation on the above \<close>
 type_synonym ('s,'t) rdes = "('s,'t,unit) hrel_rsp" \<comment> \<open> Reactive design? \<close>
 
-(* TODO(@MattWindsor91): probably remove or replace with core version *)
-type_synonym ('t,'\<alpha>) rp = "('t,'\<alpha>) rea_vars_scheme"
-type_synonym ('t,'\<alpha>,'\<beta>) rel_rp  = "(('t,'\<alpha>) rp \<leftrightarrow> ('t,'\<beta>) rp)"
-
+(* Needed to have a bidirectional mapping on the shorthands.
+   TODO(@MattWindsor91): should these be called srea etc.? *)
 translations
-  (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) rsp_vars_ext) rp"
-  (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) rsp_vars_scheme) rp"
-  (type) "('s,'t,unit) rsp" <= (type) "('t, 's rsp_vars) rp"
+  (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) srea_vars_ext) rp"
+  (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) srea_vars_scheme) rp"
+  (type) "('s,'t,unit) rsp" <= (type) "('t, 's srea_vars) rp"
   (type) "('s,'t,'\<alpha>,'\<beta>) rel_rsp" <= (type) "(('s,'t,'\<alpha>) rsp \<leftrightarrow> ('s1,'t1,'\<beta>) rsp)"
   (type) "('s,'t,'\<alpha>) hrel_rsp"  <= (type) "(('s, 't, '\<alpha>) rsp \<leftrightarrow> ('s1,'t1,'\<alpha>1) rsp)" (* ? *)
   (type) "('s,'t) rdes" <= (type) "('s, 't, unit) hrel_rsp"
 
-text \<open> Shorthand for the alphabet of a stateful reactive program \<close>
+text \<open> Analogously to vR, vS is shorthand for the alphabet of a stateful reactive program. \<close>
 
-notation rsp_vars.more\<^sub>L ("\<^bold>v\<^sub>S")
+notation srea_vars.more\<^sub>L ("\<^bold>v\<^sub>S")
 
 syntax
-  "_svid_st_alpha"  :: "svid" ("\<^bold>v\<^sub>S")
+  "_svid_srea_alpha"  :: "svid" ("\<^bold>v\<^sub>S")
 
 translations
-  "_svid_st_alpha" => "CONST rsp_vars.more\<^sub>L"
+  "_svid_srea_alpha" => "CONST srea_vars.more\<^sub>L"
 
+text \<open> The alphabet of a reactive stateful design less its operational variables can be seen as
+the equivalent alphabet of a reactive design augmented with the state variable. \<close>
 lemma rea_lens_equiv_st_rest: "\<^bold>v\<^sub>R \<approx>\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S"
   by simp
 
+text \<open> Pairing the reactive stateful alphabet with its control variables forms a bijective lens. \<close>
 lemma srea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S)"
 proof -
   have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S \<approx>\<^sub>L ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R"
@@ -121,14 +123,14 @@ lemma unrest_st'_R5 [unrest]:
 
 subsection \<open> State Lifting \<close>
 
-(* TODO(@MattWindsor91): neither of these want to work either; subst overloading problems
-definition lift_state_rel :: "('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" ("\<lceil>_\<rceil>\<^sub>S")
-  where "\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> (\<Sigma>\<^sub>S\<^sup>2)"
+(* these don't typecheck
+definition lift_srea :: "('\<alpha> \<leftrightarrow> '\<beta>) \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" ("\<lceil>_\<rceil>\<^sub>S") where
+"\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> (\<^bold>v\<^sub>S\<^sup>2)"
 
 term lift_state_rel
 
-definition drop_state_rel :: "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("\<lfloor>_\<rfloor>\<^sub>S")
-where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<Sigma>\<^sub>S\<^sup>2)"
+definition drop_state_rel :: "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha> \<leftrightarrow> '\<beta>)" ("\<lfloor>_\<rfloor>\<^sub>S")
+where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
 *)
 
 (* TODO(@MattWindsor91): depends on nonexistent lifting?
@@ -437,8 +439,8 @@ text \<open> The following is an intuitive definition of the @{term st} functori
 definition map_st_lens ::
   "('\<sigma> \<Longrightarrow> '\<psi>) \<Rightarrow>
    (('\<sigma>, '\<tau>::trace, '\<alpha>) rsp \<Longrightarrow> ('\<psi>, '\<tau>::trace, '\<alpha>) rsp)" ("map'_st\<^sub>L") where
-"map_st_lens l = inv\<^sub>L (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L rsp_vars.more\<^sub>L) ;\<^sub>L 
-                 (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L (l ;\<^sub>L st) +\<^sub>L rsp_vars.more\<^sub>L)"
+"map_st_lens l = inv\<^sub>L (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S) ;\<^sub>L 
+                 (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L (l ;\<^sub>L st) +\<^sub>L \<^bold>v\<^sub>S)"
 
 text \<open> The above definition is intuitive, but unhelpful in proof automaton. Consequently,
   we the following optimised definition below. \<close>

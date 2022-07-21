@@ -1,5 +1,5 @@
 theory utp_rea_core
-  imports "UTP-Designs.utp_des_core" "UTP2.utp" "Shallow-Expressions.Shallow_Expressions"
+  imports "UTP-Designs.utp_des_core" "UTP2.utp" "UTP2.utp_pred" "Shallow-Expressions.Shallow_Expressions"
 begin
 
 alphabet 'e rea_vars = des_vars +
@@ -74,6 +74,7 @@ subsection \<open> Reactive Lemmas \<close>
 lemma des_lens_equiv_wait_tr_rest: "\<^bold>v\<^sub>D \<approx>\<^sub>L (wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R)"
   by simp
 
+text \<open> Pairing the reactive alphabet with its control variables forms a bijective lens. \<close>
 lemma rea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R)"
 proof -
   have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R \<approx>\<^sub>L ok +\<^sub>L \<^bold>v\<^sub>D"
