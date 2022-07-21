@@ -1,5 +1,5 @@
 theory utp_rea_core
-  imports utp_designs utp utp_pred "Shallow-Expressions.Shallow_Expressions"
+  imports "UTP-Designs.utp_des_core" "UTP2.utp" "UTP2.utp_pred" "Shallow-Expressions.Shallow_Expressions"
 begin
 
 alphabet 'e rea_vars = des_vars +
@@ -68,6 +68,8 @@ lemma unrest_ok_lift_rea [unrest]:
   apply (simp add: unrest_aext_pred_lens) 
   done
 
+(*
+
 (*Needs trace algebra*)
 definition tcontr :: "'t \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("tt") where
   [lens_defs]:
@@ -90,3 +92,27 @@ translations
   "_svid_itrace" == "CONST itrace"
   "iter[n](P)"   == "CONST uop (CONST tr_iter n) P"
   
+*)
+
+(* Added by @MattWindsor91, to be merged into Ziggy's work *)
+
+(* TODO(@MattWindsor91): should be in designs *)
+text \<open> Pairing the design alphabet with the 'ok' variable forms a bijective lens. \<close>
+lemma des_lens_bij: "bij_lens (ok +\<^sub>L des_vars.more\<^sub>L)" by simp
+
+text \<open> The alphabet of a reactive process less its operational variables can be seen as
+the equivalent alphabet of a design augmented with the wait and trace variables. \<close>
+lemma des_lens_equiv_wait_tr_rest: "des_vars.more\<^sub>L \<approx>\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R" by simp
+
+text \<open> Pairing the reactive alphabet with its control variables forms a bijective lens. \<close>
+lemma rea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R)"
+proof -
+  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R \<approx>\<^sub>L ok +\<^sub>L des_vars.more\<^sub>L"
+    by (auto intro!:lens_plus_cong, rule lens_equiv_sym, simp add: des_lens_equiv_wait_tr_rest)
+  also have "... \<approx>\<^sub>L 1\<^sub>L"
+    using bij_lens_equiv_id[of "ok +\<^sub>L des_vars.more\<^sub>L"] by (simp add: des_lens_bij)
+  finally show ?thesis
+    by (simp add: bij_lens_equiv_id)
+qed
+
+end
