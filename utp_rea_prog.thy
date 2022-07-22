@@ -23,7 +23,7 @@ alphabet ('t, 's) srea_vars = "'t::trace rea_vars" +
 (* TODO(@MattWindsor91): do we need the type synonyms and translations? *)
 
 type_synonym ('s,'t,'\<alpha>) rsp = "('t, 's, '\<alpha>) srea_vars_scheme" \<comment> \<open> Reactive state predicate \<close>
-type_synonym ('s,'t,'\<alpha>,'\<beta>) rel_rsp  = "('s,'t,'\<alpha>) rsp \<leftrightarrow> ('s,'t,'\<beta>) rsp" \<comment> \<open> Relation on the above \<close>
+type_synonym ('s,'t,'\<alpha>,'\<beta>) rel_rsp  = "(('s,'t,'\<alpha>) rsp, ('s,'t,'\<beta>) rsp) urel" \<comment> \<open> Relation on the above \<close>
 type_synonym ('s,'t,'\<alpha>) hrel_rsp  = "('s,'t,'\<alpha>,'\<alpha>) rel_rsp" \<comment> \<open> Homogeneous relation on the above \<close>
 type_synonym ('s,'t) rdes = "('s,'t,unit) hrel_rsp" \<comment> \<open> Reactive design? \<close>
 
@@ -33,8 +33,8 @@ translations
   (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) srea_vars_ext) rp"
   (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) srea_vars_scheme) rp"
   (type) "('s,'t,unit) rsp" <= (type) "('t, 's srea_vars) rp"
-  (type) "('s,'t,'\<alpha>,'\<beta>) rel_rsp" <= (type) "(('s,'t,'\<alpha>) rsp \<leftrightarrow> ('s1,'t1,'\<beta>) rsp)"
-  (type) "('s,'t,'\<alpha>) hrel_rsp"  <= (type) "(('s, 't, '\<alpha>) rsp \<leftrightarrow> ('s1,'t1,'\<alpha>1) rsp)" (* ? *)
+  (type) "('s,'t,'\<alpha>,'\<beta>) rel_rsp" <= (type) "(('s,'t,'\<alpha>) rsp, ('s1,'t1,'\<beta>) rsp) urel"
+  (type) "('s,'t,'\<alpha>) hrel_rsp"  <= (type) "(('s, 't, '\<alpha>) rsp, ('s1,'t1,'\<alpha>1) rsp) urel" (* ? *)
   (type) "('s,'t) rdes" <= (type) "('s, 't, unit) hrel_rsp"
 
 text \<open> Shorthand for the non-control alphabet of a stateful reactive process. \<close>
@@ -50,25 +50,36 @@ translations
 text \<open> As a stateful reactive process adds 'st' to the alphabet of a reactive process, we can
   consider the continuation of its reactive alphabet as the sum of 'st' and the continuation of the
 stateful reactive alphabet. \<close>
-lemma rea_lens_equiv_st_rest: "\<Sigma>\<^sub>R \<approx>\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S" by simp
+lemma rea_lens_equiv_st_rest: "\<^bold>v\<^sub>R \<approx>\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S" by simp
 
 text \<open> Pairing the reactive stateful alphabet with its control variables forms a bijective lens. \<close>
 lemma srea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S)"
 proof -
-  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S \<approx>\<^sub>L ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R"
+  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S \<approx>\<^sub>L ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R"
     by (auto intro!:lens_plus_cong, rule lens_equiv_sym, simp add: rea_lens_equiv_st_rest)
   also have "... \<approx>\<^sub>L 1\<^sub>L"
-    using bij_lens_equiv_id[of "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R"] by (simp add: rea_lens_bij)
+    using bij_lens_equiv_id[of "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R"] by (simp add: rea_lens_bij)
   finally show ?thesis
     by (simp add: bij_lens_equiv_id)
 qed
 
 term "x ;\<^sub>L fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st)"
-term "st:x"
+term "((st\<^sup><):x)\<^sub>v"
 
-lemma st_qual_alpha [alpha]: "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = $st:x"
-  by (metis (no_types, opaque_lifting) in_var_def in_var_prod_lens lens_comp_assoc st_vwb_lens vwb_lens_wb)
-*)
+find_theorems "?a \<times>\<^sub>L ?b"
+find_theorems "?a +\<^sub>L ?b"
+find_theorems "?a ;\<^sub>L ?b"
+
+
+lemma st_qual_alpha (*[alpha]*): "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = ((st\<^sup><):x)\<^sub>v"
+proof -
+  have "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = x ;\<^sub>L fst\<^sub>L ;\<^sub>L (st ;\<^sub>L fst\<^sub>L +\<^sub>L st ;\<^sub>L snd\<^sub>L)"
+    by (simp add: prod_as_plus)
+  also have "\<dots> =  x ;\<^sub>L (fst\<^sub>L ;\<^sub>L (st ;\<^sub>L fst\<^sub>L +\<^sub>L st ;\<^sub>L snd\<^sub>L))" by (simp add: lens_comp_assoc)
+  also have "\<dots> = x ;\<^sub>L (st ;\<^sub>L fst\<^sub>L)" by (simp add: comp_wb_lens fst_lens_plus)
+  also have "\<dots> = ((st\<^sup><):x)\<^sub>v" by (simp add: ns_alpha_def) 
+  finally show ?thesis .
+qed
 
 (*
 interpretation alphabet_state:
@@ -127,14 +138,15 @@ lemma unrest_st'_R5 [unrest]:
 
 subsection \<open> State Lifting \<close>
 
-
-definition lift_srea :: "('\<alpha> \<leftrightarrow> '\<beta>) \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" ("\<lceil>_\<rceil>\<^sub>S") where
+(*
+definition lift_srea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" ("\<lceil>_\<rceil>\<^sub>S") where
 "\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> (\<^bold>v\<^sub>S\<^sup>2)"
 
 term lift_state_rel
 
-definition drop_state_rel :: "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha> \<leftrightarrow> '\<beta>)" ("\<lfloor>_\<rfloor>\<^sub>S")
+definition drop_state_rel :: "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>S")
 where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
+*)
 
 (* TODO(@MattWindsor91): depends on nonexistent lifting?
 abbreviation lift_state_pre ("\<lceil>_\<rceil>\<^sub>S\<^sub><")
