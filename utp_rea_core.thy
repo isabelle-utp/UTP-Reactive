@@ -15,19 +15,20 @@ type_synonym ('t, '\<alpha>) hrel_rp = "(('t,'\<alpha>) rea_vars_scheme, ('t,'\<
 translations
   (type) "('t,'\<alpha>) rp" <= (type) "('t, '\<alpha>) rea_vars_scheme"
   (type) "('t,'\<alpha>) rp" <= (type) "('t, '\<alpha>) rea_vars_ext"
-  (type) "('t,'\<alpha>,'\<beta>) rel_rp" <= (type) "('t,'\<alpha>) rea_vars_scheme \<leftrightarrow> ('\<gamma>,'\<beta>) rea_vars_scheme"
-  (type) "('t,'\<alpha>) hrel_rp"  <= (type) "('t,'\<alpha>) rea_vars_scheme \<leftrightarrow> ('\<gamma>,'\<beta>) rea_vars_scheme"
+  (type) "('t,'\<alpha>,'\<beta>) rel_rp" <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
+  (type) "('t,'\<alpha>) hrel_rp"  <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
 
-notation rea_vars.more\<^sub>L ("\<Sigma>\<^sub>R")
+notation rea_vars.more\<^sub>L ("\<^bold>v\<^sub>R")
+
+term "\<^bold>v\<^sub>R"
+
 
 syntax
-  "_svid_rea_alpha"  :: "svid" ("\<Sigma>\<^sub>R")
+  "_svid_rea_alpha"  :: "svid" ("\<^bold>v\<^sub>R")
 
 translations
   "_svid_rea_alpha" => "CONST rea_vars.more\<^sub>L"
 
-declare des_vars.splits [alpha_splits del]
-declare des_vars.splits [alpha_splits]
 (*declare zero_list_def [upred_defs]
 declare plus_list_def [upred_defs]*)
 declare prefixE [elim]
@@ -51,14 +52,15 @@ translations
 *)
 
 definition lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
-"\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> (\<Sigma>\<^sub>R\<^sup>2)"
+"\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> (\<^bold>v\<^sub>R\<^sup>2)"
 term "\<lceil>P\<rceil>\<^sub>R"
 
 definition drop_rea :: "('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
-"\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> (\<Sigma>\<^sub>R\<^sup>2)"
+"\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> (\<^bold>v\<^sub>R\<^sup>2)"
 term "\<lfloor>P\<rfloor>\<^sub>R"
 
-abbreviation rea_pre_lift :: "_ \<Rightarrow> _" ("\<lceil>_\<rceil>\<^sub>R\<^sub><") where "\<lceil>n\<rceil>\<^sub>R\<^sub>< \<equiv> \<lceil>n\<^sup><\<rceil>\<^sub>R"
+
+abbreviation rea_pre_lift :: "('d \<Rightarrow> 'e) \<Rightarrow> ('a, 'b, 'c) rel_rp"  ("\<lceil>_\<rceil>\<^sub>R\<^sub><") where "\<lceil>n\<rceil>\<^sub>R\<^sub>< \<equiv> \<lceil>n\<^sup><\<rceil>\<^sub>R"
 
 lemma unrest_ok_lift_rea [unrest]:
   "$ok\<^sup>< \<sharp> \<lceil>P\<rceil>\<^sub>R" "$ok\<^sup>> \<sharp> \<lceil>P\<rceil>\<^sub>R"
@@ -101,12 +103,12 @@ lemma des_lens_bij: "bij_lens (ok +\<^sub>L des_vars.more\<^sub>L)" by simp
 
 text \<open> The alphabet of a reactive process less its operational variables can be seen as
 the equivalent alphabet of a design augmented with the wait and trace variables. \<close>
-lemma des_lens_equiv_wait_tr_rest: "des_vars.more\<^sub>L \<approx>\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R" by simp
+lemma des_lens_equiv_wait_tr_rest: "des_vars.more\<^sub>L \<approx>\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R" by simp
 
 text \<open> Pairing the reactive alphabet with its control variables forms a bijective lens. \<close>
-lemma rea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R)"
+lemma rea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R)"
 proof -
-  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R \<approx>\<^sub>L ok +\<^sub>L des_vars.more\<^sub>L"
+  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R \<approx>\<^sub>L ok +\<^sub>L des_vars.more\<^sub>L"
     by (auto intro!:lens_plus_cong, rule lens_equiv_sym, simp add: des_lens_equiv_wait_tr_rest)
   also have "... \<approx>\<^sub>L 1\<^sub>L"
     using bij_lens_equiv_id[of "ok +\<^sub>L des_vars.more\<^sub>L"] by (simp add: des_lens_bij)
