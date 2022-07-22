@@ -54,7 +54,6 @@ translations
 abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
 "\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> (\<^bold>v\<^sub>R\<^sup>2)"
 
-
 definition drop_rea :: "('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
 "\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> (\<^bold>v\<^sub>R\<^sup>2)"
 
@@ -64,8 +63,8 @@ abbreviation rea_pre_lift :: "('d \<Rightarrow> 'e) \<Rightarrow> ('a, 'b, 'c) r
 lemma unrest_ok_lift_rea [unrest]:
   "$ok\<^sup>< \<sharp> \<lceil>P\<rceil>\<^sub>R" "$ok\<^sup>> \<sharp> \<lceil>P\<rceil>\<^sub>R"
   unfolding lift_rea_def
-  apply (simp add: unrest_aext_pred_lens)
-  apply (simp add: unrest_aext_pred_lens) 
+  apply (simp add: unrest_aext_expr_lens)
+  apply (simp add: unrest_aext_expr_lens) 
   done
 *)
 
