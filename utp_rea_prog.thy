@@ -37,7 +37,7 @@ translations
   (type) "('s,'t,'\<alpha>) hrel_rsp"  <= (type) "(('s, 't, '\<alpha>) rsp \<leftrightarrow> ('s1,'t1,'\<alpha>1) rsp)" (* ? *)
   (type) "('s,'t) rdes" <= (type) "('s, 't, unit) hrel_rsp"
 
-text \<open> Analogously to \<Sigma>\<^sub>R, \<^bold>v\<^sub>S is shorthand for the alphabet of a stateful reactive program. \<close>
+text \<open> Shorthand for the non-control alphabet of a stateful reactive process. \<close>
 
 notation srea_vars.more\<^sub>L ("\<^bold>v\<^sub>S")
 
@@ -47,8 +47,9 @@ syntax
 translations
   "_svid_srea_alpha" => "CONST srea_vars.more\<^sub>L"
 
-text \<open> The alphabet of a reactive stateful design less its operational variables can be seen as
-the equivalent alphabet of a reactive design augmented with the state variable. \<close>
+text \<open> As a stateful reactive process adds 'st' to the alphabet of a reactive process, we can
+  consider the continuation of its reactive alphabet as the sum of 'st' and the continuation of the
+stateful reactive alphabet. \<close>
 lemma rea_lens_equiv_st_rest: "\<Sigma>\<^sub>R \<approx>\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S" by simp
 
 text \<open> Pairing the reactive stateful alphabet with its control variables forms a bijective lens. \<close>
@@ -62,8 +63,10 @@ proof -
     by (simp add: bij_lens_equiv_id)
 qed
 
-(* TODO(@MattWindsor91): how to type this?
-lemma st_qual_alpha [alpha]: "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = st:x"
+term "x ;\<^sub>L fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st)"
+term "st:x"
+
+lemma st_qual_alpha [alpha]: "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = $st:x"
   by (metis (no_types, opaque_lifting) in_var_def in_var_prod_lens lens_comp_assoc st_vwb_lens vwb_lens_wb)
 *)
 
@@ -124,7 +127,7 @@ lemma unrest_st'_R5 [unrest]:
 
 subsection \<open> State Lifting \<close>
 
-(* these don't typecheck
+
 definition lift_srea :: "('\<alpha> \<leftrightarrow> '\<beta>) \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" ("\<lceil>_\<rceil>\<^sub>S") where
 "\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> (\<^bold>v\<^sub>S\<^sup>2)"
 
@@ -132,7 +135,6 @@ term lift_state_rel
 
 definition drop_state_rel :: "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha> \<leftrightarrow> '\<beta>)" ("\<lfloor>_\<rfloor>\<^sub>S")
 where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
-*)
 
 (* TODO(@MattWindsor91): depends on nonexistent lifting?
 abbreviation lift_state_pre ("\<lceil>_\<rceil>\<^sub>S\<^sub><")
@@ -197,6 +199,7 @@ subsubsection \<open> State Substitution \<close>
 text \<open> Lifting substitutions on the reactive state \<close>
 
 (* TODO(@MattWindsor91): should this (and the others) be going to [rel], or somewhere else? *)
+
 (* TODO(@MattWindsor91)
 definition subst_st_lift ::
   "'s subst \<Rightarrow> (('s,'t::trace,'\<alpha>) rsp \<times> ('s,'t,'\<beta>) rsp) subst"  ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<sigma>") where
@@ -266,6 +269,8 @@ done
 *)
 
 subsubsection \<open> Assignment \<close>
+
+text \<open> An assignment in the stateful reactive \<close>
 
 (* TODO(@MattWindsor91)
 definition rea_assigns :: "('s subst) \<Rightarrow> ('s, 't::trace, '\<alpha>) hrel_rsp" ("\<langle>_\<rangle>\<^sub>r") where
