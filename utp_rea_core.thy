@@ -1,5 +1,5 @@
 theory utp_rea_core
-  imports utp_designs utp utp_pred "Shallow-Expressions.Shallow_Expressions"
+  imports "UTP-Designs.utp_des_core" "UTP2.utp" "Shallow-Expressions.Shallow_Expressions"
 begin
 
 alphabet 'e rea_vars = des_vars +
