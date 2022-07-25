@@ -69,14 +69,78 @@ lemma R1_impl: "R1(P \<longrightarrow> Q) = ((\<not> R1(\<not> P)) \<longrightar
 lemma R1_inf: "R1(P \<sqinter> Q) = (R1(P) \<sqinter> R1(Q))"
   by pred_auto
 
-(*
 lemma R1_USUP:
-  "R1(\<Sqinter> i \<in> A \<bullet> P(i)) = (\<Sqinter> i \<in> A \<bullet> R1(P(i)))"
-  by (rel_auto)
+  "R1 (\<Sqinter>i \<in> A. P i) = (\<Sqinter> i \<in> A. R1 (P i))"
+  by (simp add: fun_eq_iff R1_def)
+
+(* Worse version without lattice expressions *)
+lemma R1_USUP':
+  "R1(SEXP(\<lambda> s. \<Sqinter> i. (i \<in> A \<and> P(i)(s)))) = SEXP(\<lambda> s. \<Sqinter> i. (i \<in> A \<and> (R1(P(i)))(s)))"
+  by (simp add: fun_eq_iff R1_def; pred_auto)
 
 lemma R1_Sup [closure]: "\<lbrakk> \<And> P. P \<in> A \<Longrightarrow> P is R1; A \<noteq> {} \<rbrakk> \<Longrightarrow> \<Sqinter> A is R1"
   using R1_Continuous by (auto simp add: Continuous_def Healthy_def)
 
+lemma R1_UINF:
+  assumes "A \<noteq> {}"
+  shows "R1(\<Squnion> i \<in> A. P(i)) = (\<Squnion> i \<in> A. R1(P(i)))"
+  by (pred_auto assms: assms)
+
+lemma R1_UINF_ind:
+  "R1(\<Squnion> i. P(i)) = (\<Squnion> i. R1(P(i)))"
+  by pred_auto
+
+lemma UINF_ind_R1_closed [closure]:
+  "\<lbrakk> \<And> i. P(i) is R1 \<rbrakk> \<Longrightarrow> (\<Sqinter> i. P(i)) is R1"
+  by (simp add: Healthy_def; pred_auto; blast)
+
+
+lemma UINF_R1_closed [closure]:
+  "\<lbrakk> \<And> i. P i is R1 \<rbrakk> \<Longrightarrow> (\<Sqinter> i \<in> A. P i) is R1"
+  by (simp add: Healthy_def; pred_auto; blast)
+
+
+lemma tr_ext_conj_R1 [closure]: 
+  "(tr\<^sup>> = tr\<^sup>< @ e)\<^sub>e \<and> P is R1"
+  by (simp add: Healthy_def; pred_auto)
+
+lemma tr_id_conj_R1 [closure]: 
+  "(tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> P is R1"
+  by (simp add: Healthy_def; pred_auto)
+
+lemma R1_extend_conj: "R1(P \<and> Q) = (R1(P) \<and> Q)"
+  by pred_auto
+
+lemma R1_extend_conj': "R1(P \<and> Q) = (P \<and> R1(Q))"
+  by pred_auto
+
+lemma R1_cond: "R1(P \<triangleleft> b \<triangleright> Q) = (R1(P) \<triangleleft> b \<triangleright> R1(Q))"
+  by pred_auto
+
+lemma R1_cond': "R1(P \<triangleleft> b \<triangleright> Q) = (R1(P) \<triangleleft> R1(b) \<triangleright> R1(Q))"
+  by pred_auto
+
+lemma R1_negate_R1: "R1(\<not> R1(P)) = R1(\<not> P)"
+  by pred_auto
+
+lemma R1_wait_true [usubst]: "(R1 P)\<^sub>t = R1(P)\<^sub>t"
+  by pred_auto
+
+lemma R1_wait_false [usubst]: "(R1 P) \<^sub>f = R1(P) \<^sub>f"
+  by pred_auto
+
+lemma R1_wait'_true [usubst]: "(R1 P)\<lbrakk>true/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>true/wait\<^sup>>\<rbrakk>)"
+  by pred_auto
+
+(*
+lemma R1_wait'_false [usubst]: "(R1 P)\<lbrakk>false/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>false/wait\<^sup>>\<rbrakk>)"
+  by pred_auto
+
+lemma R1_wait_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>false/$wait\<rbrakk> is R1"
+  by (rel_auto)
+
+lemma R1_wait'_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>false/$wait\<acute>\<rbrakk> is R1"
+  by (rel_auto)
 *)
 
 (* .... *)
