@@ -129,19 +129,52 @@ lemma R1_wait_true [usubst]: "(R1 P)\<^sub>t = R1(P)\<^sub>t"
 lemma R1_wait_false [usubst]: "(R1 P) \<^sub>f = R1(P) \<^sub>f"
   by pred_auto
 
-lemma R1_wait'_true [usubst]: "(R1 P)\<lbrakk>true/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>true/wait\<^sup>>\<rbrakk>)"
+lemma R1_wait'_true [usubst]: "(R1 P)\<lbrakk>True/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
   by pred_auto
 
-(*
-lemma R1_wait'_false [usubst]: "(R1 P)\<lbrakk>false/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>false/wait\<^sup>>\<rbrakk>)"
+term "P\<lbrakk>False/wait\<^sup>>\<rbrakk>"
+(* term "[wait\<^sup>> \<leadsto> false] \<dagger> P" *)
+
+lemma R1_wait'_false [usubst]: "(R1 P)\<lbrakk>False/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>False/wait\<^sup>>\<rbrakk>)"
   by pred_auto
 
-lemma R1_wait_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>false/$wait\<rbrakk> is R1"
-  by (rel_auto)
+lemma R1_wait_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>False/wait\<^sup><\<rbrakk> is R1"
+  by (simp add: Healthy_def; pred_auto)
+     (metis rea_vars.select_convs(2) rea_vars.surjective rea_vars.update_convs(1))
 
-lemma R1_wait'_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>false/$wait\<acute>\<rbrakk> is R1"
-  by (rel_auto)
-*)
+lemma R1_wait'_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>False/wait\<^sup>>\<rbrakk> is R1"
+  by (simp add: Healthy_def; pred_auto)
+     (metis rea_vars.select_convs(2) rea_vars.surjective rea_vars.update_convs(1))
+
+lemma R1_skip: "R1(II) = II"
+  by pred_auto
+
+lemma skip_is_R1 [closure]: "II is R1"
+  by (simp add: Healthy_def R1_skip)
+
+lemma usubst_apply_unrest:
+  "\<lbrakk> vwb_lens x; unrest_usubst \<lbrakk>x\<rbrakk>\<^sub>\<sim> \<sigma> \<rbrakk> \<Longrightarrow> \<langle>\<sigma>\<rangle>\<^sub>s x = var x"
+proof 
+  fix s
+  assume 1: "vwb_lens x"
+  assume 2: "unrest_usubst \<lbrakk>x\<rbrakk>\<^sub>\<sim> \<sigma>"
+  have "\<forall>s s'. \<sigma> (s \<oplus>\<^sub>L s' on x) = \<sigma> s \<oplus>\<^sub>L s' on x"
+    by (metis 1 2 lens_scene_override unrest_usubst_def vwb_lens_mwb)
+  thus "\<langle>\<sigma>\<rangle>\<^sub>s x s = get\<^bsub>x\<^esub> s"
+    by (metis 1 lens_override_def lens_override_idem mwb_lens_weak subst_lookup_def vwb_lens_mwb weak_lens.put_get)
+qed
+
+lemma subst_R1: "\<lbrakk> (unrest_usubst \<lbrakk>tr ;\<^sub>L fst\<^sub>L\<rbrakk>\<^sub>\<sim> \<sigma>); (unrest_usubst \<lbrakk> tr ;\<^sub>L snd\<^sub>L\<rbrakk>\<^sub>\<sim> \<sigma>) \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (R1 P) = R1(\<sigma> \<dagger> P)"
+proof -
+  assume "unrest_usubst \<lbrakk>tr ;\<^sub>L fst\<^sub>L\<rbrakk>\<^sub>\<sim> \<sigma>"
+  hence 1: "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L fst\<^sub>L) = var (tr ;\<^sub>L fst\<^sub>L)"
+    using comp_vwb_lens fst_vwb_lens tr_vwb_lens usubst_apply_unrest by blast
+  assume "unrest_usubst \<lbrakk>tr ;\<^sub>L snd\<^sub>L\<rbrakk>\<^sub>\<sim> \<sigma>"
+  hence 2: "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L snd\<^sub>L) = var (tr ;\<^sub>L snd\<^sub>L)"
+    using comp_vwb_lens snd_vwb_lens tr_vwb_lens usubst_apply_unrest by blast
+  show ?thesis
+    using 1 2 by (pred_auto)
+qed
 
 (* .... *)
 
