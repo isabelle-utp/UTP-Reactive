@@ -152,16 +152,17 @@ lemma R1_skip: "R1(II) = II"
 lemma skip_is_R1 [closure]: "II is R1"
   by (simp add: Healthy_def R1_skip)
 
+(* Belongs in UTP *)
+text \<open> If a variable is unrestricted in a substitution then it's application has no effect. \<close>
+
 lemma usubst_apply_unrest:
   "\<lbrakk> vwb_lens x; unrest_usubst \<lbrakk>x\<rbrakk>\<^sub>\<sim> \<sigma> \<rbrakk> \<Longrightarrow> \<langle>\<sigma>\<rangle>\<^sub>s x = var x"
-proof 
-  fix s
-  assume 1: "vwb_lens x"
-  assume 2: "unrest_usubst \<lbrakk>x\<rbrakk>\<^sub>\<sim> \<sigma>"
-  have "\<forall>s s'. \<sigma> (s \<oplus>\<^sub>L s' on x) = \<sigma> s \<oplus>\<^sub>L s' on x"
-    by (metis 1 2 lens_scene_override unrest_usubst_def vwb_lens_mwb)
-  thus "\<langle>\<sigma>\<rangle>\<^sub>s x s = get\<^bsub>x\<^esub> s"
-    by (metis 1 lens_override_def lens_override_idem mwb_lens_weak subst_lookup_def vwb_lens_mwb weak_lens.put_get)
+proof -
+  assume 1: "vwb_lens x" and "unrest_usubst \<lbrakk>x\<rbrakk>\<^sub>\<sim> \<sigma>"
+  hence "\<forall>s s'. \<sigma> (s \<oplus>\<^sub>L s' on x) = \<sigma> s \<oplus>\<^sub>L s' on x"
+    by (metis lens_scene_override unrest_usubst_def vwb_lens_mwb)
+  thus "\<langle>\<sigma>\<rangle>\<^sub>s x = get\<^bsub>x\<^esub>"
+    by (metis 1 fun_eq_iff lens_override_def lens_override_idem mwb_lens_weak subst_lookup_def vwb_lens_mwb weak_lens.put_get)
 qed
 
 lemma subst_R1: "\<lbrakk> (unrest_usubst \<lbrakk>tr ;\<^sub>L fst\<^sub>L\<rbrakk>\<^sub>\<sim> \<sigma>); (unrest_usubst \<lbrakk> tr ;\<^sub>L snd\<^sub>L\<rbrakk>\<^sub>\<sim> \<sigma>) \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (R1 P) = R1(\<sigma> \<dagger> P)"
