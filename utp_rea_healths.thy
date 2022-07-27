@@ -225,16 +225,15 @@ lemma R1_power [closure]: "P is R1 \<Longrightarrow> P\<^bold>^n is R1"
 lemma R1_true_comp [simp]: "(R1(true) ;; R1(true)) = R1(true)"
   by (pred_auto; metis order_refl rea_vars.select_convs(2))
 
-
+(*
 lemma R1_ok'_true: "(R1(P))\<^sup>t = R1(P\<^sup>t)"
   by pred_auto
 
-(*
 lemma R1_ok'_false: "(R1(P))\<^sup>f = R1(P\<^sup>f)"
   by pred_auto
 *)
 
-lemma R1_ok_true: "(R1(P))\<lbrakk>true/ok\<^sup><\<rbrakk> = R1(P\<lbrakk>true/ok\<^sup><\<rbrakk>)"
+lemma R1_ok_true: "(R1(P))\<lbrakk>True/ok\<^sup><\<rbrakk> = R1(P\<lbrakk>True/ok\<^sup><\<rbrakk>)"
   by pred_auto
 
 lemma R1_ok_false: "(R1(P))\<lbrakk>False/ok\<^sup><\<rbrakk> = R1(P\<lbrakk>False/ok\<^sup><\<rbrakk>)"
