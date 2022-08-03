@@ -48,7 +48,7 @@ lemma R1_conj: "R1(P \<and> Q) = (R1(P) \<and> R1(Q))"
   by pred_auto
 
 lemma conj_R1_closed_1 [closure]: "P is R1 \<Longrightarrow> (P \<and> Q) is R1"
-  by (simp add: Healthy_def, pred_auto)
+  by (pred_auto, blast)
 
 lemma conj_R1_closed_2 [closure]: "Q is R1 \<Longrightarrow> (P \<and> Q) is R1"
   by (simp add: Healthy_def, pred_auto)
@@ -105,7 +105,7 @@ lemma UINF_R1_closed [closure]:
 
 lemma tr_ext_conj_R1 [closure]: 
   "(tr\<^sup>> = tr\<^sup>< @ e)\<^sub>e \<and> P is R1"
-  by (simp add: Healthy_def; pred_auto)
+  by (pred_auto add: Prefix_Order.prefixI)
 
 lemma tr_id_conj_R1 [closure]: 
   "(tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> P is R1"
@@ -142,12 +142,10 @@ lemma R1_wait'_false [usubst]: "(R1 P)\<lbrakk>False/wait\<^sup>>\<rbrakk> = R1(
   by pred_auto
 
 lemma R1_wait_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>False/wait\<^sup><\<rbrakk> is R1"
-  by (simp add: Healthy_def; pred_auto)
-     (metis rea_vars.select_convs(2) rea_vars.surjective rea_vars.update_convs(1))
+  by pred_auto
 
 lemma R1_wait'_false_closed [closure]: "P is R1 \<Longrightarrow> P\<lbrakk>False/wait\<^sup>>\<rbrakk> is R1"
-  by (simp add: Healthy_def; pred_auto)
-     (metis rea_vars.select_convs(2) rea_vars.surjective rea_vars.update_convs(1))
+  by pred_auto
 
 lemma R1_skip: "R1(II) = II"
   by pred_auto
@@ -188,7 +186,7 @@ lemma subst_R1_closed [closure]: "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma
 
 lemma R1_by_refinement:
   "P is R1 \<longleftrightarrow> ((tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e \<sqsubseteq> P)"
-  by (simp add: Healthy_def; pred_auto)
+  by (pred_auto, blast+)
 
 lemma R1_trace_extension [closure]:
   "(tr\<^sup>> \<ge> tr\<^sup>< @ e)\<^sub>e is R1"
@@ -196,7 +194,7 @@ lemma R1_trace_extension [closure]:
 
 lemma tr_le_trans:
   "((tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e ;; (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e) = (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e"
-  by (pred_auto; metis order_refl rea_vars.select_convs(2))
+  by (pred_auto; metis order_refl)
 
 lemma R1_seqr:
   "R1(R1(P) ;; R1(Q)) = (R1(P) ;; R1(Q))"
@@ -246,7 +244,7 @@ lemma conj_R1_true_right: "(P;;R1(true) \<and> Q;;R1(true)) ;; R1(true) = (P;;R1
   apply (pred_auto)
   using dual_order.trans apply blast
   using dual_order.trans apply blast
-  by (metis order_refl rea_vars.select_convs(2))
+  by (metis order_refl)
 
 (* Why is this a lemma given the assumptions are not needed? *)
 lemma R1_extend_conj_unrest: "\<lbrakk> $tr\<^sup>< \<sharp> Q; $tr\<^sup>> \<sharp> Q \<rbrakk> \<Longrightarrow> R1 (P \<and> Q) = (R1 P \<and> Q)"
@@ -393,10 +391,7 @@ lemma R2a'_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2a'(P) \<sqsubseteq> R2a'
   by (pred_auto; metis des_vars.cases_scheme)
 
 lemma R2a'_weakening: "R2a'(P) \<sqsubseteq> P"
-  apply(pred_auto)
-  apply(rule_tac x="tr\<^sub>v \<lparr>ok\<^sub>v = ok, \<dots> = more\<rparr>" in exI)
-  apply(simp add: diff_add_cancel_left')
-  done
+  by(pred_auto, metis diff_add_cancel_left')
 
 lemma R2s_idem: "R2s(R2s(P)) = R2s(P)"
   by (pred_auto)
@@ -405,14 +400,13 @@ lemma R2_idem: "R2(R2(P)) = R2(P)"
   by (pred_auto)
 
 lemma R2_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2(P) \<sqsubseteq> R2(Q)"
-  apply (pred_auto)
-  by (metis rea_vars.surjective)
+  by (pred_auto)
 
 lemma R2_implies_R1 [closure]: "P is R2 \<Longrightarrow> P is R1"
-  by (simp add: Healthy_def; pred_auto)
+  by (pred_auto, blast)
 
 lemma R2_implies_R2c [closure]: "P is R2 \<Longrightarrow> P is R2c"
-  by (simp add: Healthy_def; pred_auto)
+  by (pred_auto, blast+)
 
 lemma R2c_Continuous: "Continuous R2c"
   by pred_auto
@@ -528,12 +522,9 @@ lemma R2c_wait': "R2c(wait\<^sup>>) = wait\<^sup>>"
 
 lemma R2c_wait'_true [usubst]: "(R2c P)\<lbrakk>True/wait\<^sup>>\<rbrakk> = R2c(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
   by pred_auto
-     (metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))+
   
 lemma R2c_wait'_false [usubst]: "(R2c P)\<lbrakk>False/wait\<^sup>>\<rbrakk> = R2c(P\<lbrakk>False/wait\<^sup>>\<rbrakk>)"
-  by pred_auto
-     (metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))+
-  
+  by pred_auto  
 
 lemma R2c_tr'_minus_tr: "R2c(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
   apply (pred_auto) using minus_zero_eq by blast
@@ -603,10 +594,7 @@ lemma R2c_skip_tr: "R2c(II\<restriction>\<^sub>\<alpha>tr) = II\<restriction>\<^
 *)
 
 lemma R2c_skip_r: "R2c(II) = II"
-  apply(pred_auto)
-  apply (metis des_vars.select_convs(1) rea_vars.surjective rea_vars.update_convs(2))
-  apply (metis des_vars.select_convs(1) rea_vars.surjective rea_vars.update_convs(2))
-  by (smt (z3) add.right_neutral des_vars.ext_inject diff_add_cancel_left' rea_vars.surjective rea_vars.update_convs(2))
+  by (pred_auto, metis add.right_neutral diff_add_cancel_left')
 (* Should use this nicer proof:
 proof -
   have "R2c(II) = R2c((tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> II\<restriction>\<^sub>\<alpha>tr)"
@@ -893,7 +881,7 @@ lemma R3_skipr: "R3(II) = II"
   by pred_auto
 
 lemma R3_form: "R3(P) = ((wait\<^sup>< \<and> II) \<or> (\<not> wait\<^sup>< \<and> P))\<^sub>e"
-  by pred_auto
+  by (pred_auto; metis (full_types))
 
 lemma wait_R3:
   "(wait\<^sup>< \<and> R3(P))\<^sub>e = (II \<and> wait\<^sup>>)\<^sub>e"
@@ -905,7 +893,7 @@ lemma nwait_R3:
 
 lemma R3_semir_form:
   "(R3(P) ;; R3(Q)) = R3(P ;; R3(Q))"
-  by pred_auto
+  by (pred_simp, safe; metis)
 
 lemma R3_semir_closure:
   assumes "P is R3" "Q is R3"
@@ -917,10 +905,7 @@ lemma R1_R3_commute: "R1(R3(P)) = R3(R1(P))"
   by pred_auto
 
 lemma R2_R3_commute: "R2(R3(P)) = R3(R2(P))"
-  apply (pred_auto)
-  apply (metis des_vars.select_convs(1) rea_vars.surjective rea_vars.update_convs(2))
-  apply (metis des_vars.select_convs(1) rea_vars.surjective rea_vars.update_convs(2)) 
-  by (smt (z3) add.right_neutral des_vars.select_convs(2) diff_add_cancel_left' rea_vars.surjective rea_vars.update_convs(2))
+  by (pred_auto, metis add.right_neutral diff_add_cancel_left')+
 
 subsection \<open> R4: The trace strictly increases \<close>
 
@@ -936,7 +921,7 @@ lemma R4_implies_R1 [closure]: "P is R4 \<Longrightarrow> P is R1"
 
 lemma R4_iff_refine:
   "P is R4 \<longleftrightarrow> (tr\<^sup>< < tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
-  by (simp add: Healthy_def; pred_auto)
+  by (pred_auto; blast)
 
 lemma R4_idem: "R4 (R4 P) = R4 P"
   by pred_auto
@@ -975,8 +960,7 @@ lemma seq_R4_closed_1 [closure]:
 
 lemma seq_R4_closed_2 [closure]:
   "\<lbrakk> P is R1; Q is R4 \<rbrakk> \<Longrightarrow> (P ;; Q) is R4"
-  apply (simp add: Healthy_def; pred_auto)
-  using order_le_less_trans by blast
+  by (simp add: Healthy_def; pred_auto, meson order_le_less_trans)
 
 subsection \<open> R5: The trace does not increase \<close>
 
@@ -986,7 +970,7 @@ definition R5 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<
 expr_ctr R5
 
 lemma R5_implies_R1 [closure]: "P is R5 \<Longrightarrow> P is R1"
-  by (simp add: Healthy_def; pred_auto; force)
+  by (pred_auto, metis order_refl)
 
 lemma R5_iff_refine:
   "P is R5 \<longleftrightarrow> (tr\<^sup>< = tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
@@ -1018,6 +1002,6 @@ lemma disj_R5_closed [closure]:
 
 lemma seq_R5_closed [closure]:
   "\<lbrakk> P is R5; Q is R5 \<rbrakk> \<Longrightarrow> (P ;; Q) is R5"
-  by (simp add: Healthy_def; pred_auto; force)
+  by (pred_auto, metis)
 
 end
