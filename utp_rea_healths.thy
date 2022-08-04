@@ -595,18 +595,6 @@ lemma R2c_skip_tr: "R2c(II\<restriction>\<^sub>\<alpha>tr) = II\<restriction>\<^
 
 lemma R2c_skip_r: "R2c(II) = II"
   by (pred_auto, metis add.right_neutral diff_add_cancel_left')
-(* Should use this nicer proof:
-proof -
-  have "R2c(II) = R2c((tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> II\<restriction>\<^sub>\<alpha>tr)"
-    by (subst skip_r_unfold[of tr]; simp_all)
-  also have "\<dots> = (R2c(tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> II\<restriction>\<^sub>\<alpha>tr)"
-    by (simp add: R2c_and R2c_skip_tr)
-  also have "\<dots> = ((tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> II\<restriction>\<^sub>\<alpha>tr)"
-    by (simp add: R2c_tr'_minus_tr)
-  finally show ?thesis
-    by (subst skip_r_unfold[of tr], simp_all)
-qed
-*)
 
 lemma R1_R2c_commute: "R1(R2c(P)) = R2c(R1(P))"
   by pred_auto
@@ -657,99 +645,99 @@ proof -
     by (simp add: Healthy_if assms)
 qed
 
-(*
 lemma R2_seqr_form:
   shows "(R2(P) ;; R2(Q)) =
-         (\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> ((P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk>) ;; (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>))
-                        \<and> ($tr\<acute> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>))"
+         (\<Sqinter> tt\<^sub>1 tt\<^sub>2. ((P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+                    \<and> (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e))"
 proof -
-  have "(R2(P) ;; R2(Q)) = (\<^bold>\<exists> tr\<^sub>0 \<bullet> (R2(P))\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<acute>\<rbrakk> ;; (R2(Q))\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<rbrakk>)"
+  have "(R2(P) ;; R2(Q)) = (\<Sqinter> tr\<^sub>0. (R2(P))\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; (R2(Q))\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>)"
     by (subst seqr_middle[of tr], simp_all)
-  also have "... =
-       (\<^bold>\<exists> tr\<^sub>0 \<bullet> \<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> ((P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk> \<and> \<guillemotleft>tr\<^sub>0\<guillemotright> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright>) ;;
-                                (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk> \<and> $tr\<acute> =\<^sub>u \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)))"
-    by (simp add: R2_form usubst unrest uquant_lift, rel_blast)
-  also have "... =
-       (\<^bold>\<exists> tr\<^sub>0 \<bullet> \<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> ((\<guillemotleft>tr\<^sub>0\<guillemotright> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> \<and> P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk>) ;;
-                                (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk> \<and> $tr\<acute> =\<^sub>u \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)))"
-    by (simp add: conj_comm)
-  also have "... =
-       (\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> \<^bold>\<exists> tr\<^sub>0 \<bullet> ((P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk>) ;; (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>))
-                                \<and> \<guillemotleft>tr\<^sub>0\<guillemotright> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> \<and> $tr\<acute> =\<^sub>u \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)"
-    by (rel_blast)
-  also have "... =
-       (\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> ((P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk>) ;; (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>))
-                        \<and> (\<^bold>\<exists> tr\<^sub>0 \<bullet> \<guillemotleft>tr\<^sub>0\<guillemotright> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> \<and> $tr\<acute> =\<^sub>u \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>))"
-    by (rel_auto)
-  also have "... =
-       (\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> ((P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk>) ;; (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>))
-                        \<and> ($tr\<acute> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>))"
-    by (rel_auto)
+  also have "\<dots> =
+       (\<Sqinter> tr\<^sub>0 tt\<^sub>1 tt\<^sub>2. ((P\<lbrakk>0, \<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright>)\<^sub>e) ;;
+                        (Q\<lbrakk>0, \<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> \<and> (tr\<^sup>> = \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)))"
+    by (simp add: R2_form, pred_auto; blast)
+  also have "\<dots> =
+       (\<Sqinter> tr\<^sub>0 tt\<^sub>1 tt\<^sub>2. (((\<guillemotleft>tr\<^sub>0\<guillemotright> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright>)\<^sub>e \<and> P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>) ;;
+                        (Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> \<and> (tr\<^sup>> = \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)))"
+    by pred_auto
+  also have "\<dots> =
+       (\<Sqinter> tr\<^sub>0 tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+                     \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright>)\<^sub>e \<and> (tr\<^sup>> = \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
+    by (pred_auto; blast)
+  also have "\<dots> =
+       (\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+                 \<and> (\<Sqinter> tr\<^sub>0. (\<guillemotleft>tr\<^sub>0\<guillemotright> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright>)\<^sub>e \<and> (tr\<^sup>> = \<guillemotleft>tr\<^sub>0\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e))"
+    by pred_auto
+  also have "\<dots> =
+             (\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+                 \<and> (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
+    by pred_auto
   finally show ?thesis .
 qed
 
 lemma R2_seqr_form':
   assumes "P is R2" "Q is R2"
   shows "P ;; Q =
-         (\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> ((P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk>) ;; (Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>))
-                        \<and> ($tr\<acute> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>))"
+         (\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+                   \<and> (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
   using R2_seqr_form[of P Q] by (simp add: Healthy_if assms)
 
+(* Not sure if this version of the lemma is still useful
 lemma R2_seqr_form'':
   assumes "P is R2" "Q is R2"
   shows "P ;; Q =
          (\<^bold>\<exists> (tt\<^sub>1, tt\<^sub>2) \<bullet> ((P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr,$tr\<acute>\<rbrakk>) ;; (Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr,$tr\<acute>\<rbrakk>))
                          \<and> ($tr\<acute> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>))"
   by (subst R2_seqr_form', simp_all add: assms, rel_auto)
+*)
 
 lemma R2_tr_middle:
   assumes "P is R2" "Q is R2"
-  shows "(\<^bold>\<exists> tr\<^sub>0 \<bullet> (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<rbrakk>) \<and> \<guillemotleft>tr\<^sub>0\<guillemotright> \<le>\<^sub>u $tr\<acute>) = (P ;; Q)"
+  shows "(\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> tr\<^sup>>)\<^sub>e) = (P ;; Q)"
 proof -
-  have "(P ;; Q) = (\<^bold>\<exists> tr\<^sub>0 \<bullet> (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<rbrakk>))"
+  have "(P ;; Q) = (\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>))"
     by (simp add: seqr_middle)
-  also have "... = (\<^bold>\<exists> tr\<^sub>0 \<bullet> ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<acute>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<rbrakk>))"
+  also have "... = (\<Sqinter> tr\<^sub>0. ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>))"
     by (simp add: assms Healthy_if)
-  also have "... = (\<^bold>\<exists> tr\<^sub>0 \<bullet> ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<acute>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<rbrakk>) \<and> \<guillemotleft>tr\<^sub>0\<guillemotright> \<le>\<^sub>u $tr\<acute>)"
-    by (rel_auto)
-  also have "... = (\<^bold>\<exists> tr\<^sub>0 \<bullet> (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/$tr\<rbrakk>) \<and> \<guillemotleft>tr\<^sub>0\<guillemotright> \<le>\<^sub>u $tr\<acute>)"
+  also have "... = (\<Sqinter> tr\<^sub>0. ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> tr\<^sup>>)\<^sub>e)"
+    by pred_auto
+  also have "... = (\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> tr\<^sup>>)\<^sub>e)"
     by (simp add: assms Healthy_if)
   finally show ?thesis ..
 qed
+
+lemma tr_contribution_sum: "\<And> tt\<^sub>1 tt\<^sub>2. (((tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e :: ('t,'\<alpha>,'\<gamma>) rel_rp)
+                                     = (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
+  apply (pred_auto)
+  apply (metis add.assoc diff_add_cancel_left')
+  apply (simp add: add.assoc)
+  apply (meson le_add order_trans)
+  done
 
 lemma R2_seqr_distribute:
   fixes P :: "('t::trace,'\<alpha>,'\<beta>) rel_rp" and Q :: "('t,'\<beta>,'\<gamma>) rel_rp"
   shows "R2(R2(P) ;; R2(Q)) = (R2(P) ;; R2(Q))"
 proof -
   have "R2(R2(P) ;; R2(Q)) =
-    ((\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> (P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>)\<lbrakk>($tr\<acute> - $tr)/$tr\<acute>\<rbrakk>
-      \<and> $tr\<acute> - $tr =\<^sub>u \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>) \<and> $tr\<acute> \<ge>\<^sub>u $tr)"
-    by (simp add: R2_seqr_form, simp add: R2s_def usubst unrest, rel_auto)
-  also have "... =
-    ((\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> (P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>)\<lbrakk>(\<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)/$tr\<acute>\<rbrakk>
-      \<and> $tr\<acute> - $tr =\<^sub>u \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>) \<and> $tr\<acute> \<ge>\<^sub>u $tr)"
-      by (subst subst_eq_replace, simp)
-  also have "... =
-    ((\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> (P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>)
-      \<and> $tr\<acute> - $tr =\<^sub>u \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>) \<and> $tr\<acute> \<ge>\<^sub>u $tr)"
-      by (rel_auto)
-  also have "... =
-    (\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> (P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>)
-      \<and> ($tr\<acute> - $tr =\<^sub>u \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> $tr\<acute> \<ge>\<^sub>u $tr))"
-    by pred_auto
-  also have "... =
-    ((\<^bold>\<exists> tt\<^sub>1 \<bullet> \<^bold>\<exists> tt\<^sub>2 \<bullet> (P\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>1\<guillemotright>/$tr\<acute>\<rbrakk> ;; Q\<lbrakk>0/$tr\<rbrakk>\<lbrakk>\<guillemotleft>tt\<^sub>2\<guillemotright>/$tr\<acute>\<rbrakk>)
-      \<and> $tr\<acute> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>))"
-  proof -
-    have "\<And> tt\<^sub>1 tt\<^sub>2. ((($tr\<acute> - $tr =\<^sub>u \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>) \<and> $tr\<acute> \<ge>\<^sub>u $tr) :: ('t,'\<alpha>,'\<gamma>) rel_rp)
-           = ($tr\<acute> =\<^sub>u $tr + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)"
-      apply (rel_auto)
-        apply (metis add.assoc diff_add_cancel_left')
-       apply (simp add: add.assoc)
-      apply (meson le_add order_trans)
-      done
-    thus ?thesis by simp
-  qed
+    ((\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)\<lbrakk>(tr\<^sup>> - tr\<^sup><)/tr\<^sup>>\<rbrakk>
+      \<and> (tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e) \<and> (tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e)"
+    by (simp add: R2_seqr_form; pred_auto)
+  also have "\<dots> =
+    ((\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)\<lbrakk>(\<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)/tr\<^sup>>\<rbrakk>
+      \<and> (tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e) \<and> (tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e)"
+      by pred_auto
+  also have "\<dots> =
+    ((\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+      \<and> (tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e) \<and> (tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e)"
+      by pred_auto
+  also have "\<dots> =
+    (\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+      \<and> (tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e)"
+    by (pred_auto; blast)
+  also have "\<dots> =
+    (\<Sqinter> tt\<^sub>1 tt\<^sub>2. (P\<lbrakk>0,\<guillemotleft>tt\<^sub>1\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>0,\<guillemotleft>tt\<^sub>2\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>)
+              \<and> (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
+    by (simp add: tr_contribution_sum)
   also have "... = (R2(P) ;; R2(Q))"
     by (simp add: R2_seqr_form)
   finally show ?thesis .
@@ -759,7 +747,6 @@ lemma R2_seqr_closure [closure]:
   assumes "P is R2" "Q is R2"
   shows "(P ;; Q) is R2"
   by (metis Healthy_def' R2_seqr_distribute assms(1) assms(2))
-*)
 
 lemma false_R2 [closure]: "false is R2"
   by (simp add: Healthy_def; pred_auto)
@@ -799,10 +786,8 @@ lemma R2c_H2_commute: "R2c(H2(P)) = H2(R2c(P))"
   by (simp add: H2_split R2c_disj R2c_def R2s_def usubst, rel_auto)
 *)
 
-(* Need R2_seqr_distribute
 lemma R2c_seq: "R2c(R2(P) ;; R2(Q)) = (R2(P) ;; R2(Q))"
   by (metis (no_types, lifting) R1_R2c_commute R1_R2c_is_R2 R2_seqr_distribute R2c_idem)
-*)
 
 lemma R2_R2c_def: "R2(P) = R1(R2c(P))"
   by pred_auto
@@ -810,17 +795,14 @@ lemma R2_R2c_def: "R2(P) = R1(R2c(P))"
 lemma R2_comp_def: "R2 = R1 \<circ> R2c"
   by (auto simp add: R2_R2c_def)
 
-(*
 lemma R2c_R1_seq: "R2c(R1(R2c(P)) ;; R1(R2c(Q))) = (R1(R2c(P)) ;; R1(R2c(Q)))"
   using R2c_seq[of P Q] by (simp add: R2_R2c_def)
-
 
 lemma R1_R2c_seqr_distribute:
   fixes P :: "('t::trace,'\<alpha>,'\<beta>) rel_rp" and Q :: "('t,'\<beta>,'\<gamma>) rel_rp"
   assumes "P is R1" "P is R2c" "Q is R1" "Q is R2c"
   shows "R1(R2c(P ;; Q)) = P ;; Q"
   by (metis Healthy_if R1_seqr R2c_R1_seq assms)
-*)
 
 lemma R2_R1_true:
   "R2(R1(true)) = R1(true)"
@@ -1003,5 +985,110 @@ lemma disj_R5_closed [closure]:
 lemma seq_R5_closed [closure]:
   "\<lbrakk> P is R5; Q is R5 \<rbrakk> \<Longrightarrow> (P ;; Q) is R5"
   by (pred_auto, metis)
+
+
+subsection {* RP laws *}
+
+definition RP_def [pred]: "RP(P) = R1(R2c(R3(P)))"
+
+expr_ctr RP
+
+lemma RP_comp_def: "RP = R1 \<circ> R2c \<circ> R3"
+  by (auto simp add: RP_def)
+
+lemma RP_alt_def: "RP(P) = R1(R2(R3(P)))"
+  by (metis R1_R2c_is_R2 R1_idem RP_def)
+
+lemma RP_intro: "\<lbrakk> P is R1; P is R2; P is R3 \<rbrakk> \<Longrightarrow> P is RP"
+  by (simp add: Healthy_def' RP_alt_def)
+
+lemma RP_idem: "RP(RP(P)) = RP(P)"
+  by (simp add: R1_R2c_is_R2 R2_R3_commute R2_idem R3_idem RP_def)
+
+lemma RP_Idempotent [closure]: "Idempotent RP"
+  by (simp add: Idempotent_def RP_idem)
+
+lemma RP_mono: "P \<sqsubseteq> Q \<Longrightarrow> RP(P) \<sqsubseteq> RP(Q)"
+  by (simp add: R1_R2c_is_R2 R2_mono R3_mono RP_def)
+
+lemma RP_Monotonic: "Monotonic RP"
+  by (simp add: mono_def, pred_auto)
+(* would be nice to reuse RP_mono
+ * apply (simp add: mono_def RP_mono) *)
+
+lemma RP_Continuous: "Continuous RP"
+  by (simp add: Continuous_comp R1_Continuous R2c_Continuous R3_Continuous RP_comp_def)
+
+lemma RP_skip:
+  "RP(II) = II"
+  by (simp add: R1_skip R2c_skip_r R3_skipr RP_def)
+
+lemma RP_skip_closure [closure]:
+  "II is RP"
+  by (simp add: Healthy_def' RP_skip)
+
+lemma RP_seq_closure [closure]:
+  assumes "P is RP" "Q is RP"
+  shows "(P ;; Q) is RP"
+proof (rule RP_intro)
+  show "(P ;; Q) is R1"
+    by (metis Healthy_def R1_seqr RP_def assms)
+  thus "(P ;; Q) is R2"
+    by (metis Healthy_def' R2_R2c_def R2c_R1_seq RP_def  assms)
+  show "(P ;; Q) is R3"
+    by (metis (no_types, lifting) Healthy_def' R1_R2c_is_R2 R2_R3_commute R3_idem R3_semir_form RP_def assms)
+qed
+
+(*
+subsection \<open> UTP theories \<close>
+
+interpretation rea_theory: utp_theory_continuous RP
+  rewrites "P \<in> carrier rea_theory.thy_order \<longleftrightarrow> P is RP"
+  and "le des_theory.thy_order = (\<sqsubseteq>)"
+  and "eq des_theory.thy_order = (=)"  
+proof -
+  show "utp_theory_continuous RP"
+    by (unfold_locales, simp_all add: RP_idem RP_Continuous)
+qed (simp_all)
+
+notation rea_theory.utp_top ("\<^bold>\<top>\<^sub>r")
+notation rea_theory.utp_bottom ("\<^bold>\<bottom>\<^sub>r")
+
+interpretation rea_theory_rel: utp_theory_unital RP skip_r
+  by (unfold_locales, simp_all add: closure)
+
+lemma rea_top: "\<^bold>\<top>\<^sub>r = ($wait \<and> II)"
+proof -
+  have "\<^bold>\<top>\<^sub>r = RP(false)"
+    by (simp add: rea_theory.healthy_top)
+  also have "... = ($wait \<and> II)"
+    by (rel_auto, metis minus_zero_eq)
+  finally show ?thesis .
+qed
+
+lemma rea_top_left_zero:
+  assumes "P is RP"
+  shows "(\<^bold>\<top>\<^sub>r ;; P) = \<^bold>\<top>\<^sub>r"
+proof -
+  have "(\<^bold>\<top>\<^sub>r ;; P) = (($wait \<and> II) ;; R3(P))"
+    by (metis (no_types, lifting) Healthy_def R1_R2c_is_R2 R2_R3_commute R3_idem RP_def assms rea_top)
+  also have "... = ($wait \<and> R3(P))"
+    by (rel_auto)
+  also have "... = ($wait \<and> II)"
+    by (metis R3_skipr wait_R3)
+  also have "... = \<^bold>\<top>\<^sub>r"
+    by (simp add: rea_top)
+  finally show ?thesis .
+qed
+
+lemma rea_bottom: "\<^bold>\<bottom>\<^sub>r = R1($wait \<Rightarrow> II)"
+proof -
+  have "\<^bold>\<bottom>\<^sub>r = RP(true)"
+    by (simp add: rea_theory.healthy_bottom)
+  also have "... = R1($wait \<Rightarrow> II)"
+    by (rel_auto, metis minus_zero_eq)
+  finally show ?thesis .
+qed
+*)
 
 end
