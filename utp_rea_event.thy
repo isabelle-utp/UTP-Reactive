@@ -43,15 +43,16 @@ text \<open>
 
 definition chan_apply ::
   "('a, '\<theta>) chan \<Rightarrow> ('a, '\<alpha>) expr \<Rightarrow> ('\<theta> event, '\<alpha>) expr" ("'(_\<cdot>/_')\<^sub>u") where
-[pred_core]: "(c\<cdot>e)\<^sub>u = build\<^bsub>c\<^esub> \<circ> e"
+[pred]: "(c\<cdot>e)\<^sub>u = build\<^bsub>c\<^esub> \<circ> e"
 
 lemma unrest_chan_apply [unrest]: "x \<sharp> e \<Longrightarrow> x \<sharp> (c\<cdot>e)\<^sub>u"
-  by (rel_auto)
+  by pred_auto
 
 lemma usubst_chan_apply [usubst]: "\<sigma> \<dagger> (c\<cdot>v)\<^sub>u = (c\<cdot>\<sigma> \<dagger> v)\<^sub>u"
-  by (rel_auto)
+  by pred_auto
 
-lemma aext_event [alpha]: "(c\<cdot>v)\<^sub>u \<up> a = (c\<cdot>v \<up> a)\<^sub>u"
-  by (pred_auto)
+(* TODO: what should this be added to: [alpha] *)
+lemma aext_event: "(c\<cdot>v)\<^sub>u \<up> a = (c\<cdot>v \<up> a)\<^sub>u"
+  by pred_auto
 
 end
