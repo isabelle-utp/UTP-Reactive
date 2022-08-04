@@ -95,7 +95,7 @@ lemma R1_UINF_ind:
 
 lemma UINF_ind_R1_closed [closure]:
   "\<lbrakk> \<And> i. P(i) is R1 \<rbrakk> \<Longrightarrow> (\<Sqinter> i. P(i)) is R1"
-  by (simp add: Healthy_def; pred_auto; blast)
+  by (pred_auto; blast)
 
 
 lemma UINF_R1_closed [closure]:
@@ -109,7 +109,7 @@ lemma tr_ext_conj_R1 [closure]:
 
 lemma tr_id_conj_R1 [closure]: 
   "(tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> P is R1"
-  by (simp add: Healthy_def; pred_auto)
+  by pred_auto
 
 lemma R1_extend_conj: "R1(P \<and> Q) = (R1(P) \<and> Q)"
   by pred_auto
@@ -385,10 +385,10 @@ lemma R2a'_idem: "R2a'(R2a'(P)) = R2a'(P)"
   by (pred_auto)
 
 lemma R2a_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2a(P) \<sqsubseteq> R2a(Q)"
-  by (pred_auto; metis des_vars.cases_scheme)
+  by (pred_auto, blast)
 
 lemma R2a'_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2a'(P) \<sqsubseteq> R2a'(Q)"
-  by (pred_auto; metis des_vars.cases_scheme)
+  by (pred_auto; blast)
 
 lemma R2a'_weakening: "R2a'(P) \<sqsubseteq> P"
   by(pred_auto, metis diff_add_cancel_left')
@@ -406,7 +406,7 @@ lemma R2_implies_R1 [closure]: "P is R2 \<Longrightarrow> P is R1"
   by (pred_auto, blast)
 
 lemma R2_implies_R2c [closure]: "P is R2 \<Longrightarrow> P is R2c"
-  by (pred_auto, blast+)
+  by (pred_auto; blast)
 
 lemma R2c_Continuous: "Continuous R2c"
   by pred_auto
@@ -415,7 +415,7 @@ lemma R2c_lit: "R2c(\<guillemotleft>x\<guillemotright>)\<^sub>e = (\<guillemotle
   by pred_auto
 
 lemma tr_strict_prefix_R2c_closed [closure]: "(tr\<^sup>< < tr\<^sup>>)\<^sub>e is R2c"
-  by (simp add: Healthy_def; pred_auto)
+  by pred_auto
 
 lemma R2s_conj: "R2s(P \<and> Q) = (R2s(P) \<and> R2s(Q))"
   by pred_auto
