@@ -9,7 +9,7 @@ subsection \<open> R1: Events cannot be undone \<close>
 definition R1 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 R1_def [pred]: "R1 (P) = (P \<and> (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
 
-expr_ctr R1
+expr_constructor R1
 
 lemma R1_idem: "R1(R1(P)) = R1(P)"
   by pred_auto
@@ -50,7 +50,6 @@ qed
 lemma R1_false: "R1(false) = false"
   by pred_auto
 
-
 lemma R1_conj: "R1(P \<and> Q) = (R1(P) \<and> R1(Q))"
   by pred_auto
 
@@ -66,18 +65,6 @@ lemma R1_disj: "R1(P \<or> Q) = (R1(P) \<or> R1(Q))"
 lemma disj_R1_closed [closure]: "\<lbrakk> P is R1; Q is R1 \<rbrakk> \<Longrightarrow> (P \<or> Q) is R1"
   by (simp add: Healthy_def R1_def; pred_auto; blast)
 
-lemma 1: "(P \<and> Q) = (\<lambda> s. P s \<and> Q s)"
-  by (metis conj_pred_def inf1E inf1I)
-
-lemma 2: "(P \<or> Q) = (\<lambda> s. P s \<or> Q s)"
-  by (metis disj_pred_def sup1CI sup1E)
-
-lemma 3: "(\<not> P) = (\<lambda> s. \<not> (P s))"
-  by (simp add: fun_Compl_def not_pred_def)
-
-lemma "((P::'s pred) \<longrightarrow> (Q::'s pred)) = (\<not>P \<or> Q)"
-  by (simp add: impl_pred_def fun_eq_iff 1 2 3)
-
 lemma R1_impl: "R1(P \<longrightarrow> Q) = ((\<not> R1(\<not> P)) \<longrightarrow> R1(Q))"
   by (simp add: R1_def; pred_auto)
 
@@ -86,7 +73,7 @@ lemma R1_inf: "R1(P \<sqinter> Q) = (R1(P) \<sqinter> R1(Q))"
 
 lemma R1_USUP:
   "R1 (\<Sqinter>i \<in> A. P i) = (\<Sqinter> i \<in> A. R1 (P i))"
-  by (simp add: fun_eq_iff R1_def 1)
+  by (simp add: fun_eq_iff R1_def conj_pred_def)
 
 lemma R1_Sup [closure]: "\<lbrakk> \<And> P. P \<in> A \<Longrightarrow> P is R1; A \<noteq> {} \<rbrakk> \<Longrightarrow> \<Sqinter> A is R1"
   using R1_Continuous by (auto simp add: Continuous_def Healthy_def)
@@ -159,19 +146,6 @@ lemma R1_skip: "R1(II) = II"
 
 lemma skip_is_R1 [closure]: "II is R1"
   by (simp add: Healthy_def R1_skip)
-
-(* Belongs in UTP *)
-text \<open> If a variable is unrestricted in a substitution then it's application has no effect. \<close>
-
-lemma usubst_apply_unrest:
-  "\<lbrakk> vwb_lens x; $x \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<langle>\<sigma>\<rangle>\<^sub>s x = var x"
-proof -
-  assume 1: "vwb_lens x" and "$x \<sharp>\<^sub>s \<sigma>"
-  hence "\<forall>s s'. \<sigma> (s \<oplus>\<^sub>L s' on x) = \<sigma> s \<oplus>\<^sub>L s' on x"
-    by (simp add: unrest_usubst_def)
-  thus "\<langle>\<sigma>\<rangle>\<^sub>s x = var x"
-    by (metis 1 lens_override_def lens_override_idem mwb_lens_weak subst_lookup_def vwb_lens_mwb weak_lens.put_get)
-qed
 
 lemma subst_R1:
   assumes "$tr\<^sup>< \<sharp>\<^sub>s \<sigma>" "$tr\<^sup>> \<sharp>\<^sub>s \<sigma>"
@@ -302,7 +276,7 @@ definition R2c :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\
 lemma R2c_expand_R1: "R2c(P) = (R2s(P) \<triangleleft> tr\<^sup>< \<le> tr\<^sup>> \<triangleright> P)"
   by (simp add: R2c_def R1_def)
 
-expr_ctr R2a R2a' R2s R2 R2c
+expr_constructor R2a R2a' R2s R2 R2c
 
 text \<open> @{term R2a} and @{term R2s} are the standard definitions from the UTP book~\cite{Hoare&98}.
   An issue with these forms is that their definition depends upon @{term R1} also being 
@@ -583,11 +557,11 @@ qed
 lemma R2c_impl: "R2c(P \<longrightarrow> Q) = (R2c(P) \<longrightarrow> R2c(Q))"
 proof -
   have "R2c(P \<longrightarrow> Q) = R2c(\<not> P \<or> Q)"
-    by (simp add: "2" "3" impl_pred_def)
+    by (simp add: impl_neg_disj)
   also have "\<dots> = (\<not> (R2c P) \<or> R2c Q)"
     by (simp add: R2c_disj R2c_not)
   also have "\<dots> = (R2c(P) \<longrightarrow> R2c(Q))"
-    by (simp add: "2" "3" impl_pred_def)
+    by (simp add: impl_neg_disj)
   finally show ?thesis .
 qed
 
@@ -839,7 +813,7 @@ subsection \<open> R3: No activity while predecessor is waiting \<close>
 definition R3 :: "('t::trace, '\<alpha>) hrel_rp \<Rightarrow> ('t, '\<alpha>) hrel_rp" where
 [pred]: "R3(P) = (II \<triangleleft> wait\<^sup>< \<triangleright> P)\<^sub>e"
 
-expr_ctr R3
+expr_constructor R3
 
 lemma R3_idem: "R3(R3(P)) = R3(P)"
   by pred_auto
@@ -910,7 +884,7 @@ subsection \<open> R4: The trace strictly increases \<close>
 definition R4 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "R4(P) = (P \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e)"
 
-expr_ctr R4
+expr_constructor R4
 
 lemma R4_implies_R1 [closure]: "P is R4 \<Longrightarrow> P is R1"
   apply(simp add: Healthy_def)
@@ -965,7 +939,7 @@ subsection \<open> R5: The trace does not increase \<close>
 definition R5 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "R5(P) = (P \<and> (tr\<^sup>< = tr\<^sup>>)\<^sub>e)"
 
-expr_ctr R5
+expr_constructor R5
 
 lemma R5_implies_R1 [closure]: "P is R5 \<Longrightarrow> P is R1"
   by (pred_auto, metis order_refl)
@@ -1007,7 +981,7 @@ subsection {* RP laws *}
 
 definition RP_def [pred]: "RP(P) = R1(R2c(R3(P)))"
 
-expr_ctr RP
+expr_constructor RP
 
 lemma RP_comp_def: "RP = R1 \<circ> R2c \<circ> R3"
   by (auto simp add: RP_def)
@@ -1050,12 +1024,12 @@ proof (rule RP_intro)
   show "(P ;; Q) is R1"
     by (metis Healthy_def R1_seqr RP_def assms)
   thus "(P ;; Q) is R2"
-    by (metis Healthy_def' R2_R2c_def R2c_R1_seq RP_def  assms)
+    by (metis Healthy_def' R2_R2c_def R2c_R1_seq RP_def assms)
   show "(P ;; Q) is R3"
     by (metis (no_types, lifting) Healthy_def' R1_R2c_is_R2 R2_R3_commute R3_idem R3_semir_form RP_def assms)
 qed
 
-
+(*
 subsection \<open> UTP theories \<close>
 
 interpretation rea_theory: utp_theory_continuous RP
