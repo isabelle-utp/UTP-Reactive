@@ -86,10 +86,10 @@ interpretation alphabet_state_rel: lens_interp "\<lambda>(ok, ok', wait, wait', 
   done
 *)
 
-(* TODO(@MattWindsor91): need RR, RC
+(*
 lemma unrest_st'_neg_RC [unrest]:
   assumes "P is RR" "P is RC"
-  shows "$st\<acute> \<sharp> P"
+  shows "$st\<^sup>> \<sharp> P"
 proof -
   have "P = (\<not>\<^sub>r \<not>\<^sub>r P)"
     by (simp add: closure rpred assms)

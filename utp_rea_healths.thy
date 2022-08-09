@@ -1,13 +1,13 @@
 section \<open> Reactive Healthiness Conditions \<close>
 
 theory utp_rea_healths
-  imports utp_rea_core
+  imports utp_rea_core "UTP-Designs.utp_des_healths"
 begin
 
 subsection \<open> R1: Events cannot be undone \<close>
 
 definition R1 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
-R1_def [pred]: "R1 (P) = (P \<and> tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e"
+R1_def [pred]: "R1 (P) = (P \<and> (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
 
 expr_ctr R1
 
@@ -28,17 +28,24 @@ lemma R1_Continuous: "Continuous R1"
   by (simp add: Continuous_def, pred_auto)
 
 (*
+Can use find_theorems to look for applicable theorems
+find_theorems "(\<bowtie>)" "(\<bowtie>\<^sub>S)" *)
+
+lemma lens_indep_impl_scene_indep_var [simp]:
+  "(X \<bowtie> Y) \<Longrightarrow> var_alpha X \<bowtie>\<^sub>S var_alpha Y"
+  by (simp add: var_alpha_def)
+
 lemma R1_unrest:
-  assumes "x \<bowtie> (tr ;\<^sub>L fst\<^sub>L)" "x \<bowtie> (tr ;\<^sub>L snd\<^sub>L)" "unrest ($x) P"
-  shows "unrest ($x) (R1 P)"
+  assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)" "$x \<sharp> P"
+  shows "$x \<sharp> (R1 P)"
 proof -
-  assume "mwb_lens x"
-  have 1: "unrest ($x) (tr\<^sup><)\<^sub>e"
-    using assms(1) apply(unrest)
-    oops
-    
+  have "$x \<sharp> tr\<^sup><"         
+    using assms(2) by (simp add: unrest_ssubst var_alpha_combine usubst_eval scene_indep_sym)
+  moreover have "$x \<sharp> tr\<^sup>>"         
+    using assms(3) by (simp add: unrest_ssubst var_alpha_combine usubst_eval scene_indep_sym)
+  ultimately show ?thesis
+    using assms by pred_auto
 qed
-*)
 
 lemma R1_false: "R1(false) = false"
   by pred_auto
@@ -79,7 +86,7 @@ lemma R1_inf: "R1(P \<sqinter> Q) = (R1(P) \<sqinter> R1(Q))"
 
 lemma R1_USUP:
   "R1 (\<Sqinter>i \<in> A. P i) = (\<Sqinter> i \<in> A. R1 (P i))"
-  by (simp add: fun_eq_iff R1_def)
+  by (simp add: fun_eq_iff R1_def 1)
 
 lemma R1_Sup [closure]: "\<lbrakk> \<And> P. P \<in> A \<Longrightarrow> P is R1; A \<noteq> {} \<rbrakk> \<Longrightarrow> \<Sqinter> A is R1"
   using R1_Continuous by (auto simp add: Continuous_def Healthy_def)
@@ -291,6 +298,9 @@ definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<
 
 definition R2c :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "R2c(P) = (R2s(P) \<triangleleft> R1(true) \<triangleright> P)"
+
+lemma R2c_expand_R1: "R2c(P) = (R2s(P) \<triangleleft> tr\<^sup>< \<le> tr\<^sup>> \<triangleright> P)"
+  by (simp add: R2c_def R1_def)
 
 expr_ctr R2a R2a' R2s R2 R2c
 
@@ -571,10 +581,19 @@ qed
 *)
 
 lemma R2c_impl: "R2c(P \<longrightarrow> Q) = (R2c(P) \<longrightarrow> R2c(Q))"
-  oops
+proof -
+  have "R2c(P \<longrightarrow> Q) = R2c(\<not> P \<or> Q)"
+    by (simp add: "2" "3" impl_pred_def)
+  also have "\<dots> = (\<not> (R2c P) \<or> R2c Q)"
+    by (simp add: R2c_disj R2c_not)
+  also have "\<dots> = (R2c(P) \<longrightarrow> R2c(Q))"
+    by (simp add: "2" "3" impl_pred_def)
+  finally show ?thesis .
+qed
 
-(* Need an implementation of alphabet restriction e.g.
+(* Need an implementation of alphabet restriction e.g. *)
 
+(*
 text \<open> We implement a poor man's version of alphabet restriction that hides a variable within 
   a relation. \<close>
 
@@ -758,15 +777,13 @@ lemma R1_R2_commute:
 lemma R2_R1_form: "R2(R1(P)) = R1(R2s(P))"
   by pred_auto
 
-(* Need rdes healthiness conditions
 lemma R2s_H1_commute:
   "R2s(H1(P)) = H1(R2s(P))"
   by pred_auto
 
 lemma R2s_H2_commute:
   "R2s(H2(P)) = H2(R2s(P))"
-  by (simp add: H2_split R2s_def usubst)
-*)
+  by pred_auto
 
 lemma R2_R1_seq_drop_left:
   "R2(R1(P) ;; R1(Q)) = R2(P ;; R1(Q))"
@@ -781,10 +798,9 @@ lemma R2c_Idempotent [closure]: "Idempotent R2c"
 lemma R2c_Monotonic [closure]: "Monotonic R2c"
   by (simp add: mono_def; pred_auto)
 
-(* 
 lemma R2c_H2_commute: "R2c(H2(P)) = H2(R2c(P))"
-  by (simp add: H2_split R2c_disj R2c_def R2s_def usubst, rel_auto)
-*)
+  by (simp add: H2_split R2c_disj R2c_def R2s_def)
+     (pred_auto)
 
 lemma R2c_seq: "R2c(R2(P) ;; R2(Q)) = (R2(P) ;; R2(Q))"
   by (metis (no_types, lifting) R1_R2c_commute R1_R2c_is_R2 R2_seqr_distribute R2c_idem)
@@ -1039,7 +1055,7 @@ proof (rule RP_intro)
     by (metis (no_types, lifting) Healthy_def' R1_R2c_is_R2 R2_R3_commute R3_idem R3_semir_form RP_def assms)
 qed
 
-(*
+
 subsection \<open> UTP theories \<close>
 
 interpretation rea_theory: utp_theory_continuous RP
