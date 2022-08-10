@@ -164,8 +164,8 @@ definition rea_diff :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,
 where [pred]: "rea_diff P Q = (P \<and> \<not>\<^sub>r Q)"
 
 definition rea_impl :: 
-  "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" (infixr "\<Rightarrow>\<^sub>r" 25) 
-where [pred]: "(P \<Rightarrow>\<^sub>r Q) = (\<not>\<^sub>r P \<or> Q)"
+  "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" (infixr "\<longrightarrow>\<^sub>r" 25) 
+where [pred]: "(P \<longrightarrow>\<^sub>r Q) = (\<not>\<^sub>r P \<or> Q)"
 
 definition rea_lift :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" ("[_]\<^sub>r") 
 where [pred]: "[P]\<^sub>r = R1(P)"
@@ -242,7 +242,7 @@ lemma rea_not_unrest [unrest]:
  
 lemma rea_impl_unrest [unrest]:
   assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)" "$x \<sharp> P" "$x \<sharp> Q"
-  shows "$x \<sharp> P \<Rightarrow>\<^sub>r Q"
+  shows "$x \<sharp> P \<longrightarrow>\<^sub>r Q"
   using assms by (simp add: rea_impl_def unrest)
 
 lemma rea_true_usubst [usubst]:
@@ -254,7 +254,7 @@ lemma rea_not_usubst [usubst]:
   by (simp add: rea_not_def R1_def usubst usubst_apply_unrest)
 
 lemma rea_impl_usubst [usubst]:
-  "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma>; $tr\<^sup>> \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (P \<Rightarrow>\<^sub>r Q) = (\<sigma> \<dagger> P \<Rightarrow>\<^sub>r \<sigma> \<dagger> Q)"
+  "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma>; $tr\<^sup>> \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (P \<longrightarrow>\<^sub>r Q) = (\<sigma> \<dagger> P \<longrightarrow>\<^sub>r \<sigma> \<dagger> Q)"
   by (simp add: rea_impl_def usubst R1_def)
 
 (*
@@ -309,16 +309,16 @@ lemma R2c_rea_not: "R2c(\<not>\<^sub>r P) = (\<not>\<^sub>r R2c(P))"
 lemma RR_rea_not: "RR(\<not>\<^sub>r RR(P)) = (\<not>\<^sub>r RR(P))"
   by pred_auto
     
-lemma R1_rea_impl: "R1(P \<Rightarrow>\<^sub>r Q) = (P \<Rightarrow>\<^sub>r R1(Q))"
+lemma R1_rea_impl: "R1(P \<longrightarrow>\<^sub>r Q) = (P \<longrightarrow>\<^sub>r R1(Q))"
   by pred_auto
 
-lemma R1_rea_impl': "R1(P \<Rightarrow>\<^sub>r Q) = (R1(P) \<Rightarrow>\<^sub>r R1(Q))"
+lemma R1_rea_impl': "R1(P \<longrightarrow>\<^sub>r Q) = (R1(P) \<longrightarrow>\<^sub>r R1(Q))"
   by pred_auto
     
-lemma R2c_rea_impl: "R2c(P \<Rightarrow>\<^sub>r Q) = (R2c(P) \<Rightarrow>\<^sub>r R2c(Q))"
+lemma R2c_rea_impl: "R2c(P \<longrightarrow>\<^sub>r Q) = (R2c(P) \<longrightarrow>\<^sub>r R2c(Q))"
   by pred_auto
 
-lemma RR_rea_impl: "RR(RR(P) \<Rightarrow>\<^sub>r RR(Q)) = (RR(P) \<Rightarrow>\<^sub>r RR(Q))"
+lemma RR_rea_impl: "RR(RR(P) \<longrightarrow>\<^sub>r RR(Q)) = (RR(P) \<longrightarrow>\<^sub>r RR(Q))"
   by pred_auto
  
 lemma rea_true_R1 [closure]: "true\<^sub>r is R1"
@@ -345,19 +345,19 @@ lemma rea_no_RR [closure]:
   by (metis Healthy_def' RR_rea_not)
 
 lemma rea_impl_R1 [closure]: 
-  "Q is R1 \<Longrightarrow> (P \<Rightarrow>\<^sub>r Q) is R1"
+  "Q is R1 \<Longrightarrow> (P \<longrightarrow>\<^sub>r Q) is R1"
   by (pred_auto; blast)
 
 lemma rea_impl_R2c [closure]: 
-  "\<lbrakk> P is R2c; Q is R2c \<rbrakk> \<Longrightarrow> (P \<Rightarrow>\<^sub>r Q) is R2c"
+  "\<lbrakk> P is R2c; Q is R2c \<rbrakk> \<Longrightarrow> (P \<longrightarrow>\<^sub>r Q) is R2c"
   by (simp add: rea_impl_def Healthy_def rea_not_def R1_R2c_commute[THEN sym] R2c_not R2c_disj)
 
 lemma rea_impl_R2 [closure]: 
-  "\<lbrakk> P is R2; Q is R2 \<rbrakk> \<Longrightarrow> (P \<Rightarrow>\<^sub>r Q) is R2"
+  "\<lbrakk> P is R2; Q is R2 \<rbrakk> \<Longrightarrow> (P \<longrightarrow>\<^sub>r Q) is R2"
   by (pred_auto; blast)
 
 lemma rea_impl_RR [closure]:
-  "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> (P \<Rightarrow>\<^sub>r Q) is RR"
+  "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> (P \<longrightarrow>\<^sub>r Q) is RR"
   by (metis Healthy_def' RR_rea_impl)
 
 (*
@@ -617,11 +617,11 @@ lemma rea_not_false [simp]: "(\<not>\<^sub>r false) = true\<^sub>r"
   by (simp add: rea_not_def)
     
 lemma rea_true_impl [rpred]:
-  "P is R1 \<Longrightarrow> (true\<^sub>r \<Rightarrow>\<^sub>r P) = P"
+  "P is R1 \<Longrightarrow> (true\<^sub>r \<longrightarrow>\<^sub>r P) = P"
   by (simp add: rea_not_def rea_impl_def R1_negate_R1 R1_false Healthy_if)
 
 lemma rea_true_impl' [rpred]:
-  "P is R1 \<Longrightarrow>(true \<Rightarrow>\<^sub>r P) = P"
+  "P is R1 \<Longrightarrow>(true \<longrightarrow>\<^sub>r P) = P"
   by (simp add: rea_not_def rea_impl_def R1_negate_R1 R1_false Healthy_if)
 
 (*
@@ -630,39 +630,39 @@ lemma rea_false_impl [rpred]:
   by (simp add: rea_impl_def rpred Healthy_if)
 *)  
  
-lemma rea_impl_true [simp]: "(P \<Rightarrow>\<^sub>r true\<^sub>r) = true\<^sub>r"
+lemma rea_impl_true [simp]: "(P \<longrightarrow>\<^sub>r true\<^sub>r) = true\<^sub>r"
   by pred_auto
     
-lemma rea_impl_false [simp]: "(P \<Rightarrow>\<^sub>r false) = (\<not>\<^sub>r P)"
+lemma rea_impl_false [simp]: "(P \<longrightarrow>\<^sub>r false) = (\<not>\<^sub>r P)"
   by pred_simp
 
-lemma rea_imp_refl [rpred]: "P is R1 \<Longrightarrow> (P \<Rightarrow>\<^sub>r P) = true\<^sub>r"
+lemma rea_imp_refl [rpred]: "P is R1 \<Longrightarrow> (P \<longrightarrow>\<^sub>r P) = true\<^sub>r"
   by (pred_auto; blast)
 
 lemma rea_impl_conj [rpred]: 
-  "(P \<Rightarrow>\<^sub>r Q \<Rightarrow>\<^sub>r R) = ((P \<and> Q) \<Rightarrow>\<^sub>r R)"
+  "(P \<longrightarrow>\<^sub>r Q \<longrightarrow>\<^sub>r R) = ((P \<and> Q) \<longrightarrow>\<^sub>r R)"
   by pred_auto
 
 lemma rea_impl_mp [rpred]:
-  "(P \<and> (P \<Rightarrow>\<^sub>r Q)) = (P \<and> Q)"
+  "(P \<and> (P \<longrightarrow>\<^sub>r Q)) = (P \<and> Q)"
   by pred_auto
 
 lemma rea_impl_conj_combine [rpred]: 
-  "((P \<Rightarrow>\<^sub>r Q) \<and> (P \<Rightarrow>\<^sub>r R)) = (P \<Rightarrow>\<^sub>r Q \<and> R)"
+  "((P \<longrightarrow>\<^sub>r Q) \<and> (P \<longrightarrow>\<^sub>r R)) = (P \<longrightarrow>\<^sub>r Q \<and> R)"
   by pred_auto
 
 lemma rea_impl_alt_def:
   assumes "Q is R1"
-  shows "(P \<Rightarrow>\<^sub>r Q) = R1(P \<longrightarrow> Q)"
+  shows "(P \<longrightarrow>\<^sub>r Q) = R1(P \<longrightarrow> Q)"
 proof -
-  have "(P \<Rightarrow>\<^sub>r R1(Q)) = R1(P \<longrightarrow> Q)"
+  have "(P \<longrightarrow>\<^sub>r R1(Q)) = R1(P \<longrightarrow> Q)"
     by pred_auto
   thus ?thesis
     by (simp add: assms Healthy_if)
 qed
 
 lemma rea_impl_disj:
-  "(P \<Rightarrow>\<^sub>r Q \<or> R) = (Q \<or> (P \<Rightarrow>\<^sub>r R))"
+  "(P \<longrightarrow>\<^sub>r Q \<or> R) = (Q \<or> (P \<longrightarrow>\<^sub>r R))"
   by pred_auto
 
 lemma rea_not_true [simp]: "(\<not>\<^sub>r true) = false"
@@ -717,7 +717,7 @@ lemma USUP_ind_rea_true [simp]: "(\<Squnion> i. true\<^sub>r) = true\<^sub>r"
 lemma UINF_ind_rea_true [rpred]: "A \<noteq> {} \<Longrightarrow> (\<Sqinter> i\<in>A. true\<^sub>r) = true\<^sub>r"
   by pred_auto
 
-lemma UINF_rea_impl: "(\<Sqinter> P\<in>A. F(P) \<Rightarrow>\<^sub>r G(P)) = ((\<Squnion> P\<in>A. F(P)) \<Rightarrow>\<^sub>r (\<Sqinter> P\<in>A. G(P)))"
+lemma UINF_rea_impl: "(\<Sqinter> P\<in>A. F(P) \<longrightarrow>\<^sub>r G(P)) = ((\<Squnion> P\<in>A. F(P)) \<longrightarrow>\<^sub>r (\<Sqinter> P\<in>A. G(P)))"
   by pred_auto  
 
 (*
