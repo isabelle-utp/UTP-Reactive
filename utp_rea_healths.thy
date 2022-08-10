@@ -239,10 +239,8 @@ lemma R1_tr_less_tr': "R1(tr\<^sup>< < tr\<^sup>>)\<^sub>e = (tr\<^sup>< < tr\<^
 lemma tr_strict_prefix_R1_closed [closure]: "(tr\<^sup>< < tr\<^sup>>)\<^sub>e is R1"
   by (simp add: Healthy_def; pred_auto)
 
-(* Need design healthiness conditions
 lemma R1_H2_commute: "R1(H2(P)) = H2(R1(P))"
   by (simp add: H2_split R1_def usubst, rel_auto)
-*)
 
 subsection \<open> R2: No dependence upon trace history \<close>
 
@@ -281,17 +279,38 @@ text \<open> @{term R2a} and @{term R2s} are the standard definitions from the U
   and otherwise has no effect. This latter healthiness condition can therefore be reasoned about
   independently of @{term R1}, which is useful in some circumstances. \<close>
 
-lemma unrest_ok_R2s [unrest]: "$ok\<^sup>< \<sharp> P \<Longrightarrow> $ok\<^sup>< \<sharp> R2s(P)"
-  apply (simp add: R2s_def unrest)
-  apply(unrest)
-  oops
+lemma unrest_ok_R2s [unrest]:
+  assumes "$ok\<^sup>< \<sharp> P"
+  shows "$ok\<^sup>< \<sharp> R2s(P)"
+proof - 
+  have "$ok\<^sup>< \<sharp> ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> P)"
+    using assms by pred_auto
+  thus ?thesis
+    by (simp add: R2s_def SEXP_def)
+qed
 
-lemma unrest_ok'_R2s [unrest]: "$ok\<^sup>> \<sharp> P \<Longrightarrow> $ok\<^sup>> \<sharp> R2s(P)"
-  oops
+lemma unrest_ok'_R2s [unrest]:
+  assumes "$ok\<^sup>> \<sharp> P"
+  shows "$ok\<^sup>> \<sharp> R2s(P)"
+proof - 
+  have "$ok\<^sup>> \<sharp> ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> P)"
+    using assms by pred_auto
+  thus ?thesis
+    by (simp add: R2s_def SEXP_def)
+qed
 
-lemma unrest_ok_R2c [unrest]: "$ok\<^sup>< \<sharp> P \<Longrightarrow> $ok\<^sup>< \<sharp> R2c(P)"
-  oops
+lemma cond_and: "(P \<triangleleft> b \<triangleright> Q) = ((P \<and> b) \<or> (Q \<and> \<not>b))"
+  by (pred_auto)
 
+lemma unrest_ok_R2c [unrest]:
+  assumes "$ok\<^sup>< \<sharp> P"
+  shows "$ok\<^sup>< \<sharp> R2c(P)"
+proof - 
+  have 1: "$ok\<^sup>< \<sharp> R1 true" and 2: "$ok\<^sup>< \<sharp> \<not> R1 true"
+    using assms by pred_auto+
+  thus ?thesis
+    by (simp add: R2c_def cond_and unrest_pred 1 2 assms unrest_ok_R2s)
+qed
 
 (* TODO: this should have a better proof *)
 lemma R2s_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (tr ;\<^sub>L fst\<^sub>L); x \<bowtie> (tr ;\<^sub>L snd\<^sub>L); $x \<sharp> P \<rbrakk> \<Longrightarrow> $x \<sharp> R2s(P)"
@@ -301,22 +320,16 @@ lemma R2s_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (tr ;\<^sub>L fst\
 term "$ok\<^sup>>"
 term "ok ;\<^sub>L fst\<^sub>L"
 
-(*
-lemma unrest_ok'_R2c [unrest]: "$ok\<^sup>> \<sharp> P \<Longrightarrow> $ok\<^sup>> \<sharp> R2c(P)"
-proof -
-  assume 1: "$ok\<^sup>> \<sharp> P"
-  have "R2c(P) = ((R2s(P) \<and> R1(true)) \<or> (P \<and> \<not> R1(true)))"
-    by (pred_auto)
-  have 2: "vwb_lens (ok ;\<^sub>L fst\<^sub>L)"
-    by (simp add: comp_vwb_lens) 
-  have 3: "\<And> a b. ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> $tr\<^sup>> - $tr\<^sup><] sset[$ok\<^sup>>, (a, b)] = [tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> $tr\<^sup>> - $tr\<^sup><])"
 
-  have "$ok\<^sup>> \<sharp> (R2s(P) \<and> R1(true))"
-    apply(simp add: R2s_def R1_def)
-    using 1 apply(subst_eval)
-    apply(pred_auto)
-    sledgehammer
-*)
+lemma unrest_ok'_R2c [unrest]:
+  assumes "$ok\<^sup>> \<sharp> P"
+  shows "$ok\<^sup>> \<sharp> R2c(P)"
+proof -
+  have 1: "$ok\<^sup>> \<sharp> R1 true" and 2: "$ok\<^sup>> \<sharp> \<not> R1 true"
+    using assms by pred_auto+
+  thus ?thesis
+    by (simp add: R2c_def cond_and unrest_pred 1 2 assms unrest_ok'_R2s)
+qed
 
 (* TODO: why can't the following set of lemmas be proved using simp e.g.
      by (simp add: R2_def R1_def R2s_def usubst unrest)
@@ -459,13 +472,11 @@ lemma true_is_R2s:
   "true is R2s"
   by (simp add: Healthy_def R2s_true)
 
-(*
 lemma R2s_lift_rea: "R2s(\<lceil>P\<rceil>\<^sub>R) = \<lceil>P\<rceil>\<^sub>R"
-  by (simp add: R2s_def usubst unrest)
+  by pred_auto
 
 lemma R2c_lift_rea: "R2c(\<lceil>P\<rceil>\<^sub>R) = \<lceil>P\<rceil>\<^sub>R"
-  by (simp add: R2c_def R2s_lift_rea cond_idem usubst unrest)
-*)
+  by pred_auto
 
 lemma R2c_true: "R2c(true) = true"
   by pred_auto
@@ -524,10 +535,12 @@ lemma R2c_condr: "R2c(P \<triangleleft> b \<triangleright> Q) = (R2c(P) \<triang
 lemma shAll_meet: "(\<Squnion> x. (\<guillemotleft>f\<guillemotright> \<guillemotleft>x\<guillemotright>)\<^sub>e) = (\<forall> x. \<guillemotleft>f\<guillemotright> x)\<^sub>e"
   by pred_auto
 
+(*
 lemma shAll_meet2: "(\<Squnion> x. f (P \<guillemotleft>x\<guillemotright>)\<^sub>e) = (\<forall> x. (\<guillemotleft>f\<guillemotright> P) x)\<^sub>e"
   apply pred_auto
   oops
   (* sledgehammer *)
+*)
 
 ML \<open>
   @{term "(R2c(P x))\<^sub>e"}
