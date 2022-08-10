@@ -18,6 +18,8 @@ translations
   (type) "('t,'\<alpha>,'\<beta>) rel_rp" <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
   (type) "('t,'\<alpha>) hrel_rp"  <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
 
+(* Now denoted as v\<^sub>R rather than \<Sigma>\<^sub>R *)
+
 notation rea_vars.more\<^sub>L ("\<^bold>v\<^sub>R")
 
 term "\<^bold>v\<^sub>R"
@@ -44,14 +46,11 @@ syntax
   "_wait_f"  :: "logic \<Rightarrow> logic" ("_\<^sub>f" [1000] 1000)
   "_wait_t"  :: "logic \<Rightarrow> logic" ("_\<^sub>t" [1000] 1000)
 
-
-
 translations
   "P \<^sub>f" \<rightleftharpoons> "CONST usubst (CONST subst_upd id\<^sub>s (CONST in_var CONST wait) false) P"
   "P \<^sub>t" \<rightleftharpoons> "CONST usubst (CONST subst_upd id\<^sub>s (CONST in_var CONST wait) true) P"
 *)
 
-(*
 abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
 "\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> (\<^bold>v\<^sub>R\<^sup>2)"
 
@@ -59,9 +58,8 @@ abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t, '\<alpha
 definition drop_rea :: "('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
 "\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> (\<^bold>v\<^sub>R\<^sup>2)"
 
-
+(*
 abbreviation rea_pre_lift :: "('d \<Rightarrow> 'e) \<Rightarrow> ('a, 'b, 'c) rel_rp"  ("\<lceil>_\<rceil>\<^sub>R\<^sub><") where "\<lceil>n\<rceil>\<^sub>R\<^sub>< \<equiv> \<lceil>n\<^sup><\<rceil>\<^sub>R"
-
 
 lemma unrest_ok_lift_rea [unrest]:
   "$ok\<^sup>< \<sharp> \<lceil>P\<rceil>\<^sub>R" "$ok\<^sup>> \<sharp> \<lceil>P\<rceil>\<^sub>R"
@@ -69,8 +67,32 @@ lemma unrest_ok_lift_rea [unrest]:
   apply (simp add: unrest_aext_pred_lens)
   apply (simp add: unrest_aext_pred_lens) 
   done
+*)
+
+subsection \<open> Reactive Lemmas \<close>
+
+lemma des_lens_equiv_wait_tr_rest: "\<^bold>v\<^sub>D \<approx>\<^sub>L (wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R)"
+  by simp
+
+lemma rea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R)"
+proof -
+  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R \<approx>\<^sub>L ok +\<^sub>L \<^bold>v\<^sub>D"
+    using des_lens_equiv_wait_tr_rest des_vars.indeps lens_equiv_sym lens_plus_eq_right by blast
+  also have "... \<approx>\<^sub>L 1\<^sub>L"
+    using bij_lens_equiv_id[of "ok +\<^sub>L \<^bold>v\<^sub>D"]
+    using des_vars.bij_lenses by blast
+  finally show ?thesis
+    by (simp add: bij_lens_equiv_id)
+qed
+
+lemma seqr_wait_true [usubst]: "(P ;; Q) \<^sub>t = (P \<^sub>t ;; Q)"
+  by pred_simp
+
+lemma seqr_wait_false [usubst]: "(P ;; Q) \<^sub>f = (P \<^sub>f ;; Q)"
+  by pred_simp
 
 (*Needs trace algebra*)
+(*
 definition tcontr :: "'t \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("tt") where
   [lens_defs]:
   "tcontr = \<lparr> lens_get = (\<lambda> s. get\<^bsub>tr\<^sup>>\<^esub> s - get\<^bsub>tr\<^sup><\<^esub> s) , 
