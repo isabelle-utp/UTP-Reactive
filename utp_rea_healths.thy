@@ -31,10 +31,6 @@ lemma R1_Continuous: "Continuous R1"
 Can use find_theorems to look for applicable theorems
 find_theorems "(\<bowtie>)" "(\<bowtie>\<^sub>S)" *)
 
-lemma lens_indep_impl_scene_indep_var [simp]:
-  "(X \<bowtie> Y) \<Longrightarrow> var_alpha X \<bowtie>\<^sub>S var_alpha Y"
-  by (simp add: var_alpha_def)
-
 lemma R1_unrest:
   assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)" "$x \<sharp> P"
   shows "$x \<sharp> (R1 P)"
