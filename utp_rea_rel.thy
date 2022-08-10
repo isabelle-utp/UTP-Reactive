@@ -84,53 +84,58 @@ lemma RR_unrests [unrest]:
   assumes "P is RR"
   shows "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"
 proof -
-  have "$ok\<^sup>< \<sharp> RR(P)" "$ok\<^sup>> \<sharp> RR(P)" "$wait\<^sup>< \<sharp> RR(P)" "$wait\<^sup>> \<sharp> RR(P)"
-    apply (simp_all add: RR_def R2_def R1_def R2s_def; unrest)
-       apply (subst_eval)
-    sledgehammer
+  have "$ok\<^sup>< \<sharp> R3(R2(P))" "$ok\<^sup>> \<sharp> RR(P)" "$wait\<^sup>< \<sharp> RR(P)" "$wait\<^sup>> \<sharp> RR(P)"
+    apply (simp_all add: RR_def R2_def R1_def R2s_def)
+       apply(pred_auto)
+    apply(unrest)
+    apply(subst_eval)
   thus "$ok \<sharp> P" "$ok\<acute> \<sharp> P" "$wait \<sharp> P" "$wait\<acute> \<sharp> P"
     by (simp_all add: assms Healthy_if)
 qed
+*)
 
 lemma RR_refine_intro:
-  assumes "P is RR" "Q is RR" "\<And> t. P\<lbrakk>0,\<guillemotleft>t\<guillemotright>/$tr,$tr\<acute>\<rbrakk> \<sqsubseteq> Q\<lbrakk>0,\<guillemotleft>t\<guillemotright>/$tr,$tr\<acute>\<rbrakk>"
+  assumes "P is RR" "Q is RR" "\<And> t. P\<lbrakk>0,\<guillemotleft>t\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> \<sqsubseteq> Q\<lbrakk>0,\<guillemotleft>t\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>"
   shows "P \<sqsubseteq> Q"
 proof -
-  have "\<And> t. (RR P)\<lbrakk>0,\<guillemotleft>t\<guillemotright>/$tr,$tr\<acute>\<rbrakk> \<sqsubseteq> (RR Q)\<lbrakk>0,\<guillemotleft>t\<guillemotright>/$tr,$tr\<acute>\<rbrakk>"
+  have "\<And> t. (RR P)\<lbrakk>0,\<guillemotleft>t\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> \<sqsubseteq> (RR Q)\<lbrakk>0,\<guillemotleft>t\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>"
     by (simp add: Healthy_if assms)
   hence "RR(P) \<sqsubseteq> RR(Q)"
-    by (rel_auto)
+    by pred_auto
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
 
+(*
 lemma RR_eq_transfer:
   assumes "P is RR" "Q is RR" 
-    "(\<And> t. U([$ok \<mapsto>\<^sub>s true, $ok\<acute> \<mapsto>\<^sub>s true, $wait \<mapsto>\<^sub>s false, $wait\<acute> \<mapsto>\<^sub>s false, $tr \<mapsto>\<^sub>s 0, $tr\<acute> \<mapsto>\<^sub>s \<guillemotleft>t\<guillemotright>] \<dagger> P) 
-          = U([$ok \<mapsto>\<^sub>s true, $ok\<acute> \<mapsto>\<^sub>s true, $wait \<mapsto>\<^sub>s false, $wait\<acute> \<mapsto>\<^sub>s false, $tr \<mapsto>\<^sub>s 0, $tr\<acute> \<mapsto>\<^sub>s \<guillemotleft>t\<guillemotright>] \<dagger> Q))"
+    "(\<And> t. U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> P) 
+          = U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> Q))"
   shows "P = Q"
 proof -
-  have "(\<And> t. U([$ok \<mapsto>\<^sub>s true, $ok\<acute> \<mapsto>\<^sub>s true, $wait \<mapsto>\<^sub>s false, $wait\<acute> \<mapsto>\<^sub>s false, $tr \<mapsto>\<^sub>s 0, $tr\<acute> \<mapsto>\<^sub>s \<guillemotleft>t\<guillemotright>] \<dagger> RR P) 
-            = U([$ok \<mapsto>\<^sub>s true, $ok\<acute> \<mapsto>\<^sub>s true, $wait \<mapsto>\<^sub>s false, $wait\<acute> \<mapsto>\<^sub>s false, $tr \<mapsto>\<^sub>s 0, $tr\<acute> \<mapsto>\<^sub>s \<guillemotleft>t\<guillemotright>] \<dagger> RR Q))"
+  have "(\<And> t. U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> RR P) 
+            = U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> RR Q))"
     by (metis Healthy_if assms(1) assms(2) assms(3))
   hence "RR P = RR Q"
-    by (rel_auto)
+    apply(simp add: RR_def)
+    oops
   thus ?thesis
     by (metis Healthy_if assms(1) assms(2))
 qed
 *)
 
-(*
 text \<open> Tailored proof strategy for reactive relations -- eliminates irrelevant variables like ok, wait, and tr. \<close>
 
+(*
 method rrel_auto uses cls = (rule RR_eq_transfer, simp add: closure cls, simp add: closure cls, rel_auto)
+*)
 
 lemma R4_RR_closed [closure]:
   assumes "P is RR"
   shows "R4(P) is RR"
 proof -
   have "R4(RR(P)) is RR"
-    by (rel_blast)
+    by pred_auto
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
@@ -140,11 +145,10 @@ lemma R5_RR_closed [closure]:
   shows "R5(P) is RR"
 proof -
   have "R5(RR(P)) is RR"
-    using minus_zero_eq by rel_auto
+    using minus_zero_eq by pred_auto
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
-*)
 
 subsection \<open> Reactive relational operators \<close>
 
@@ -367,9 +371,9 @@ lemma disj_RR [closure]:
 
 lemma USUP_mem_RR_closed [closure]:
   assumes "\<And> i. i \<in> A \<Longrightarrow> P i is RR" "A \<noteq> {}"
-  shows "(\<Squnion> i\<in>A \<bullet> P(i)) is RR"
+  shows "(\<Squnion> i\<in>A. P(i)) is RR"
 proof -
-  have 1:"(\<Squnion> i\<in>A \<bullet> P(i)) is R1"
+  have 1:"(\<Squnion> i\<in>A. P(i)) is R1"
     by (unfold Healthy_def, subst R1_UINF, simp_all add: Healthy_if assms closure cong: USUP_cong)
   have 2:"(\<Squnion> i\<in>A \<bullet> P(i)) is R2c"
     by (unfold Healthy_def, subst R2c_UINF, simp_all add: Healthy_if assms RR_implies_R2c closure cong: USUP_cong)
@@ -384,39 +388,45 @@ lemma USUP_ind_RR_closed [closure]:
 
 lemma UINF_mem_RR_closed [closure]:
   assumes "\<And> i. i \<in> A \<Longrightarrow> P i is RR"
-  shows "(\<Sqinter> i\<in>A \<bullet> P(i)) is RR"
+  shows "(\<Sqinter> i\<in>A. P(i)) is RR"
 proof -
-  have 1:"(\<Sqinter> i\<in>A \<bullet> P(i)) is R1"
+  have 1:"(\<Sqinter> i\<in>A. P(i)) is R1"
     by (unfold Healthy_def, subst R1_USUP, simp add: Healthy_if RR_implies_R1 assms cong: UINF_cong)
   have 2:"(\<Sqinter> i\<in>A \<bullet> P(i)) is R2c"
     by (unfold Healthy_def, subst R2c_USUP, simp add: Healthy_if RR_implies_R2c assms cong: UINF_cong)
   show ?thesis
     using 1 2 by (rule_tac RR_intro, simp_all add: unrest assms)
 qed
+*)
     
 lemma UINF_ind_RR_closed [closure]:
   assumes "\<And> i. P i is RR"
-  shows "(\<Sqinter> i \<bullet> P(i)) is RR"
+  shows "(\<Sqinter> i. P(i)) is RR"
   by (simp add: assms closure)
-    
+
+(*
 lemma USUP_elem_RR [closure]: 
   assumes "\<And> i. P i is RR" "A \<noteq> {}"
-  shows "(\<Squnion> i \<in> A \<bullet> P i) is RR"
+  shows "(\<Squnion> i \<in> A. P i) is RR"
 proof -
-  have 1:"(\<Squnion> i\<in>A \<bullet> P(i)) is R1"
+  have 1:"(\<Squnion> i\<in>A. P(i)) is R1"
     by (unfold Healthy_def, subst R1_UINF, simp_all add: Healthy_if assms closure)
-  have 2:"(\<Squnion> i\<in>A \<bullet> P(i)) is R2c"
+  have 2:"(\<Squnion> i\<in>A. P(i)) is R2c"
     by (unfold Healthy_def, subst R2c_UINF, simp_all add: Healthy_if assms RR_implies_R2c closure)
   show ?thesis
-    using 1 2 by (rule_tac RR_intro, simp_all add: unrest assms)
+    using 1 2 
+    apply(rule_tac RR_intro, simp_all add: unrest assms)
+    oops
 qed
+*)
 
+(*
 lemma seq_RR_closed [closure]: 
   assumes "P is RR" "Q is RR"
   shows "P ;; Q is RR"
   unfolding Healthy_def
-  by (simp add: RR_def  Healthy_if assms closure RR_implies_R2 ex_unrest unrest)
-    
+  by (simp add: RR_def  Healthy_if assms closure RR_implies_R2 unrest)
+ 
 lemma power_Suc_RR_closed [closure]:
   "P is RR \<Longrightarrow> P ;; P \<^bold>^ i is RR"
   by (induct i, simp_all add: closure upred_semiring.power_Suc)
@@ -437,36 +447,40 @@ lemma cond_tt_RR_closed [closure]:
   apply (simp_all add: Healthy_def) 
   apply (simp_all add: R1_cond R2c_condr Healthy_if assms RR_implies_R2c closure R2c_tr'_minus_tr)
 done
+*)
 
 lemma rea_skip_RR [closure]:
   "II\<^sub>r is RR"
-  apply (rel_auto) using minus_zero_eq by blast
+  apply pred_auto using minus_zero_eq by blast
 
-lemma tr_eq_tr'_RR_closed [closure]: "$tr =\<^sub>u $tr\<acute> is RR"
-  apply (rel_auto) using minus_zero_eq by auto
+lemma tr_eq_tr'_RR_closed [closure]: "(tr\<^sup>< = tr\<^sup>>)\<^sub>e is RR"
+  apply pred_auto using minus_zero_eq by auto
 
-lemma tr'_eq_tr_RR_closed [closure]: "$tr\<acute> =\<^sub>u $tr is RR"
-  apply (rel_auto) using minus_zero_eq by auto
+lemma tr'_eq_tr_RR_closed [closure]: "(tr\<^sup>> = tr\<^sup><)\<^sub>e is RR"
+  apply pred_auto using minus_zero_eq by auto
 
+(*
 lemma inf_RR_closed [closure]: 
   "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> P \<sqinter> Q is RR"
   by (simp add: disj_RR uinf_or)
+*)
 
 lemma conj_tr_strict_RR_closed [closure]: 
   assumes "P is RR"
-  shows "(P \<and> $tr <\<^sub>u $tr\<acute>) is RR"
+  shows "(P \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e) is RR"
 proof -
-  have "RR(RR(P) \<and> $tr <\<^sub>u $tr\<acute>) = (RR(P) \<and> $tr <\<^sub>u $tr\<acute>)"
-    by (rel_auto)
+  have "RR(RR(P) \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e) = (RR(P) \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e)"
+    by pred_auto
   thus ?thesis
-    by (metis Healthy_def assms)
+    by (metis (no_types, lifting) Healthy_def assms)  
 qed
 
+(*
 lemma rea_assert_RR_closed [closure]:
   assumes "b is RR"
   shows "{b}\<^sub>r is RR"
-  by (simp add: closure assms rea_assert_def)
-  
+  by (simp add: closure assms rea_assert_def)  
+
 lemma upower_RR_closed [closure]:
   "\<lbrakk> i > 0; P is RR \<rbrakk> \<Longrightarrow> P \<^bold>^ i is RR"
   apply (induct i, simp_all)
@@ -532,13 +546,14 @@ done
 
 lemma rea_subst_R1_closed [closure]: "P\<lbrakk>v\<rbrakk>\<^sub>r is R1"
   by (rel_auto)
+*)
 
 lemma R5_comp [rpred]:
   assumes "P is RR" "Q is RR"
   shows "R5(P ;; Q) = R5(P) ;; R5(Q)"
 proof -
   have "R5(RR(P) ;; RR(Q)) = R5(RR(P)) ;; R5(RR(Q))"
-    by (rel_auto; force)
+    by (pred_auto; force)
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
@@ -548,11 +563,12 @@ lemma R4_comp [rpred]:
   shows "R4(P ;; Q) = P ;; Q"
 proof -
   have "R4(R4(P) ;; RR(Q)) = R4(P) ;; RR(Q)"
-    by (rel_auto, blast)
+    by (pred_auto, blast)
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
 
+(*
 lemma rea_rename_RR_closed [closure]: 
   assumes "P is RR"
   shows "P\<lparr>f\<rparr>\<^sub>r is RR"
@@ -562,6 +578,7 @@ proof -
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
+*)
 
 subsection \<open> Reactive relational calculus \<close>
 
@@ -570,13 +587,14 @@ lemma rea_skip_unit [rpred]:
   shows "P ;; II\<^sub>r = P" "II\<^sub>r ;; P = P"
 proof -
   have 1: "RR(P) ;; II\<^sub>r = RR(P)"
-    by (rel_auto)
+    by pred_auto
   have 2: "II\<^sub>r ;; RR(P) = RR(P)"
-    by (rel_auto)
+    by pred_auto
   from 1 2 show "P ;; II\<^sub>r = P" "II\<^sub>r ;; P = P"
     by (simp_all add: Healthy_if assms)
 qed
-  
+
+(*
 lemma rea_true_conj [rpred]: 
   assumes "P is R1"
   shows "(true\<^sub>r \<and> P) = P" "(P \<and> true\<^sub>r) = P"
@@ -587,7 +605,8 @@ lemma rea_true_disj [rpred]:
   assumes "P is R1"
   shows "(true\<^sub>r \<or> P) = true\<^sub>r" "(P \<or> true\<^sub>r) = true\<^sub>r"
   using assms by (metis Healthy_def R1_disj disj_comm true_disj_zero)+
-  
+*)  
+
 lemma rea_not_not [rpred]: "P is R1 \<Longrightarrow> (\<not>\<^sub>r \<not>\<^sub>r P) = P"
   by (simp add: rea_not_def R1_negate_R1 Healthy_if)
     
@@ -604,110 +623,117 @@ lemma rea_true_impl [rpred]:
 lemma rea_true_impl' [rpred]:
   "P is R1 \<Longrightarrow>(true \<Rightarrow>\<^sub>r P) = P"
   by (simp add: rea_not_def rea_impl_def R1_negate_R1 R1_false Healthy_if)
-    
+
+(*
 lemma rea_false_impl [rpred]:
   "P is R1 \<Longrightarrow> (false \<Rightarrow>\<^sub>r P) = true\<^sub>r"
   by (simp add: rea_impl_def rpred Healthy_if)
-   
+*)  
+ 
 lemma rea_impl_true [simp]: "(P \<Rightarrow>\<^sub>r true\<^sub>r) = true\<^sub>r"
-  by (rel_auto)
+  by pred_auto
     
 lemma rea_impl_false [simp]: "(P \<Rightarrow>\<^sub>r false) = (\<not>\<^sub>r P)"
-  by (rel_simp)
+  by pred_simp
 
 lemma rea_imp_refl [rpred]: "P is R1 \<Longrightarrow> (P \<Rightarrow>\<^sub>r P) = true\<^sub>r"
-  by (rel_blast)
+  by (pred_auto; blast)
 
 lemma rea_impl_conj [rpred]: 
   "(P \<Rightarrow>\<^sub>r Q \<Rightarrow>\<^sub>r R) = ((P \<and> Q) \<Rightarrow>\<^sub>r R)"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_impl_mp [rpred]:
   "(P \<and> (P \<Rightarrow>\<^sub>r Q)) = (P \<and> Q)"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_impl_conj_combine [rpred]: 
   "((P \<Rightarrow>\<^sub>r Q) \<and> (P \<Rightarrow>\<^sub>r R)) = (P \<Rightarrow>\<^sub>r Q \<and> R)"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_impl_alt_def:
   assumes "Q is R1"
-  shows "(P \<Rightarrow>\<^sub>r Q) = R1(P \<Rightarrow> Q)"
+  shows "(P \<Rightarrow>\<^sub>r Q) = R1(P \<longrightarrow> Q)"
 proof -
-  have "(P \<Rightarrow>\<^sub>r R1(Q)) = R1(P \<Rightarrow> Q)"
-    by (rel_auto)
+  have "(P \<Rightarrow>\<^sub>r R1(Q)) = R1(P \<longrightarrow> Q)"
+    by pred_auto
   thus ?thesis
     by (simp add: assms Healthy_if)
 qed
 
 lemma rea_impl_disj:
   "(P \<Rightarrow>\<^sub>r Q \<or> R) = (Q \<or> (P \<Rightarrow>\<^sub>r R))"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_not_true [simp]: "(\<not>\<^sub>r true) = false"
-  by (rel_auto)
+  by pred_auto
     
 lemma rea_not_demorgan1 [simp]:
   "(\<not>\<^sub>r (P \<and> Q)) = (\<not>\<^sub>r P \<or> \<not>\<^sub>r Q)"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_not_demorgan2 [simp]:
   "(\<not>\<^sub>r (P \<or> Q)) = (\<not>\<^sub>r P \<and> \<not>\<^sub>r Q)"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_not_or [rpred]:
   "P is R1 \<Longrightarrow> (P \<or> \<not>\<^sub>r P) = true\<^sub>r"
-  by (rel_blast)
+  by (pred_auto; blast)
 
 lemma rea_not_and [simp]:
   "(P \<and> \<not>\<^sub>r P) = false"
-  by (rel_auto)
+  by pred_auto
 
+(*
 lemma truer_bottom_rpred [rpred]: "P is RR \<Longrightarrow> R1(true) \<sqsubseteq> P"
   by (metis Healthy_def R1_RR R1_mono utp_pred_laws.top_greatest)
+*)
 
 lemma ext_close_weakening: "P ;; true\<^sub>r \<sqsubseteq> P"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_not_INFIMUM [simp]:
   "(\<not>\<^sub>r (\<Squnion>i\<in>A. Q(i))) = (\<Sqinter>i\<in>A. \<not>\<^sub>r Q(i))"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_not_USUP [simp]:
-  "(\<not>\<^sub>r (\<Squnion>i\<in>A \<bullet> Q(i))) = (\<Sqinter>i\<in>A \<bullet> \<not>\<^sub>r Q(i))"
-  by (rel_auto)
+  "(\<not>\<^sub>r (\<Squnion>i\<in>A. Q(i))) = (\<Sqinter>i\<in>A. \<not>\<^sub>r Q(i))"
+  by pred_auto
     
 lemma rea_not_SUPREMUM [simp]:
   "A \<noteq> {} \<Longrightarrow> (\<not>\<^sub>r (\<Sqinter>i\<in>A. Q(i))) = (\<Squnion>i\<in>A. \<not>\<^sub>r Q(i))"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_not_UINF [simp]:
-  "A \<noteq> {} \<Longrightarrow> (\<not>\<^sub>r (\<Sqinter>i\<in>A \<bullet> Q(i))) = (\<Squnion>i\<in>A \<bullet> \<not>\<^sub>r Q(i))"
-  by (rel_auto)
+  "A \<noteq> {} \<Longrightarrow> (\<not>\<^sub>r (\<Sqinter>i\<in>A. Q(i))) = (\<Squnion>i\<in>A. \<not>\<^sub>r Q(i))"
+  by pred_auto
 
-lemma USUP_mem_rea_true [simp]: "A \<noteq> {} \<Longrightarrow> (\<Squnion> i \<in> A \<bullet> true\<^sub>r) = true\<^sub>r"
-  by (rel_auto)
+lemma USUP_mem_rea_true [simp]: "A \<noteq> {} \<Longrightarrow> (\<Squnion> i \<in> A. true\<^sub>r) = true\<^sub>r"
+  by pred_auto
 
-lemma USUP_ind_rea_true [simp]: "(\<Squnion> i \<bullet> true\<^sub>r) = true\<^sub>r"
-  by (rel_auto)
+lemma USUP_ind_rea_true [simp]: "(\<Squnion> i. true\<^sub>r) = true\<^sub>r"
+  by pred_auto
     
-lemma UINF_ind_rea_true [rpred]: "A \<noteq> {} \<Longrightarrow> (\<Sqinter> i\<in>A \<bullet> true\<^sub>r) = true\<^sub>r"
-  by (rel_auto)
+lemma UINF_ind_rea_true [rpred]: "A \<noteq> {} \<Longrightarrow> (\<Sqinter> i\<in>A. true\<^sub>r) = true\<^sub>r"
+  by pred_auto
 
-lemma UINF_rea_impl: "(\<Sqinter> P\<in>A \<bullet> F(P) \<Rightarrow>\<^sub>r G(P)) = ((\<Squnion> P\<in>A \<bullet> F(P)) \<Rightarrow>\<^sub>r (\<Sqinter> P\<in>A \<bullet> G(P)))"
-  by (rel_auto)  
+lemma UINF_rea_impl: "(\<Sqinter> P\<in>A. F(P) \<Rightarrow>\<^sub>r G(P)) = ((\<Squnion> P\<in>A. F(P)) \<Rightarrow>\<^sub>r (\<Sqinter> P\<in>A. G(P)))"
+  by pred_auto  
 
+(*
 lemma rea_not_shEx [rpred]: "(\<not>\<^sub>r shEx P) = (shAll (\<lambda> x. \<not>\<^sub>r P x))"
-  by (rel_auto)
+  by pred_auto
+*)
 
 lemma rea_assert_true:
   "{true\<^sub>r}\<^sub>r = II\<^sub>r"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_false_true:
   "{false}\<^sub>r = true\<^sub>r"
-  by (rel_auto)
+  by pred_auto
 
+(*
 lemma rea_rename_id [rpred]: 
   assumes "P is RR"
   shows "P\<lparr>id\<rparr>\<^sub>r = P"
@@ -786,6 +812,7 @@ proof -
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
+*)
 
 declare R4_idem [rpred]
 declare R4_false [rpred]
@@ -798,20 +825,21 @@ declare R5_R4 [rpred]
 declare R5_conj [rpred]
 declare R5_disj [rpred]
 
-lemma R4_USUP [rpred]: "I \<noteq> {} \<Longrightarrow> R4(\<Squnion> i\<in>I \<bullet> P(i)) = (\<Squnion> i\<in>I \<bullet> R4(P(i)))"
-  by (rel_auto)
+lemma R4_USUP [rpred]: "I \<noteq> {} \<Longrightarrow> R4(\<Squnion> i\<in>I. P(i)) = (\<Squnion> i\<in>I. R4(P(i)))"
+  by pred_auto
 
-lemma R5_USUP [rpred]: "I \<noteq> {} \<Longrightarrow> R5(\<Squnion> i\<in>I \<bullet> P(i)) = (\<Squnion> i\<in>I \<bullet> R5(P(i)))"
-  by (rel_auto)
+lemma R5_USUP [rpred]: "I \<noteq> {} \<Longrightarrow> R5(\<Squnion> i\<in>I. P(i)) = (\<Squnion> i\<in>I. R5(P(i)))"
+  by pred_auto
 
-lemma R4_UINF [rpred]: "R4(\<Sqinter> i\<in>I \<bullet> P(i)) = (\<Sqinter> i\<in>I \<bullet> R4(P(i)))"
-  by (rel_auto)
+lemma R4_UINF [rpred]: "R4(\<Sqinter> i\<in>I. P(i)) = (\<Sqinter> i\<in>I. R4(P(i)))"
+  by pred_auto
 
-lemma R5_UINF [rpred]: "R5(\<Sqinter> i\<in>I \<bullet> P(i)) = (\<Sqinter> i\<in>I \<bullet> R5(P(i)))"
-  by (rel_auto)
+lemma R5_UINF [rpred]: "R5(\<Sqinter> i\<in>I. P(i)) = (\<Sqinter> i\<in>I. R5(P(i)))"
+  by pred_auto
 
 subsection \<open> UTP theory \<close>
 
+(*
 text \<open> We create a UTP theory of reactive relations which in particular provides Kleene star theorems \<close>
 
 interpretation rrel_theory: utp_theory_kleene RR II\<^sub>r
