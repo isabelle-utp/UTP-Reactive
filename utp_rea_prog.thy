@@ -3,8 +3,7 @@ section \<open> Reactive Programs \<close>
 (* NOTE: virtually all of this theory is commented out right now. *)
 
 theory utp_rea_prog
-  (* TODO(@MattWindsor91): import utp_rea_cond instead *)
-  imports utp_rea_core "Shallow-Expressions.Shallow_Expressions" "Optics.Optics" 
+  imports utp_rea_cond "Shallow-Expressions.Shallow_Expressions" "Optics.Optics" 
 begin
 
 subsection \<open> Stateful reactive alphabet \<close>
@@ -40,37 +39,34 @@ translations
 
 text \<open> Shorthand for the alphabet of a stateful reactive program \<close>
 
-notation rsp_vars.more\<^sub>L ("\<Sigma>\<^sub>S")
+notation rsp_vars.more\<^sub>L ("\<^bold>v\<^sub>S")
 
 syntax
-  "_svid_st_alpha"  :: "svid" ("\<Sigma>\<^sub>S")
+  "_svid_st_alpha"  :: "svid" ("\<^bold>v\<^sub>S")
 
 translations
   "_svid_st_alpha" => "CONST rsp_vars.more\<^sub>L"
 
-(* TODO(@MattWindsor91): need \<Sigma>\<^sub>R
-lemma rea_lens_equiv_st_rest: "\<Sigma>\<^sub>R \<approx>\<^sub>L st +\<^sub>L \<Sigma>\<^sub>S"
+lemma rea_lens_equiv_st_rest: "\<^bold>v\<^sub>R \<approx>\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S"
   by simp
-*)
 
-(* TODO(@MattWindsor91): need \<Sigma>\<^sub>R
-lemma srea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<Sigma>\<^sub>S)"
+lemma srea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S)"
 proof -
-  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<Sigma>\<^sub>S \<approx>\<^sub>L ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R"
+  have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L \<^bold>v\<^sub>S \<approx>\<^sub>L ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R"
     by (auto intro!:lens_plus_cong, rule lens_equiv_sym, simp add: rea_lens_equiv_st_rest)
   also have "... \<approx>\<^sub>L 1\<^sub>L"
-    using bij_lens_equiv_id[of "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<Sigma>\<^sub>R"] by (simp add: rea_lens_bij)
+    using bij_lens_equiv_id[of "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R"]
+    by (simp add: rea_lens_bij)
   finally show ?thesis
     by (simp add: bij_lens_equiv_id)
 qed
-*)
 
 (* TODO(@MattWindsor91): how to type this?
 lemma st_qual_alpha [alpha]: "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = st:x"
   by (metis (no_types, opaque_lifting) in_var_def in_var_prod_lens lens_comp_assoc st_vwb_lens vwb_lens_wb)
 *)
 
-(*
+(* These were commented out in UTP1 too and (according to nitpick) are apparently now false
 interpretation alphabet_state:
   lens_interp "\<lambda>(ok, wait, tr, r). (ok, wait, tr, st\<^sub>v r, more r)"
   apply (unfold_locales)
@@ -86,44 +82,42 @@ interpretation alphabet_state_rel: lens_interp "\<lambda>(ok, ok', wait, wait', 
   done
 *)
 
-(*
 lemma unrest_st'_neg_RC [unrest]:
   assumes "P is RR" "P is RC"
   shows "$st\<^sup>> \<sharp> P"
 proof -
-  have "P = (\<not>\<^sub>r \<not>\<^sub>r P)"
+  have "P = (\<not>\<^sub>r (\<not>\<^sub>r P))"
     by (simp add: closure rpred assms)
   also have "... = (\<not>\<^sub>r (\<not>\<^sub>r P) ;; true\<^sub>r)"
     by (metis Healthy_if RC1_def RC_implies_RC1 assms(2) calculation)
-  also have "$st\<acute> \<sharp> ..."
-    by (rel_auto)
-  finally show ?thesis .
+  finally have "P = ..." .
+  moreover have "$st\<^sup>> \<sharp> ..."
+    by pred_auto
+  ultimately show "$st\<^sup>> \<sharp> P"
+    by simp
 qed
-*)
 
-(* TODO(@MattWindsor91): need RR
+(* TODO(@MattWindsor91): need RR *)
+(*
 lemma ex_st'_RR_closed [closure]: 
   assumes "P is RR"
-  shows "(\<exists> $st\<acute> \<bullet> P) is RR"
+  shows "(\<Sqinter> s. P\<lbrakk>s/st\<^sup>>\<rbrakk>) is RR"
 proof -
-  have "RR (\<exists> $st\<acute> \<bullet> RR(P)) = (\<exists> $st\<acute> \<bullet> RR(P))"
-    by (rel_auto)
+  have "RR (\<Sqinter> s. RR(P)\<lbrakk>s/st\<^sup>>\<rbrakk>) = (\<Sqinter> s. RR(P)\<lbrakk>s/st\<^sup>>\<rbrakk>)"
+    apply(simp add: RR_def R2_def)
+    oops
   thus ?thesis
     by (metis Healthy_def assms)
 qed
 *)
 
-(* TODO(@MattWindsor91): need R4
 lemma unrest_st'_R4 [unrest]:
-  "$st\<acute> \<sharp> P \<Longrightarrow> $st\<acute> \<sharp> R4(P)"
-  by (rel_auto)
-*)
+  "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R4(P)"
+  by pred_auto
 
-(* TODO(@MattWindsor91): need R5
 lemma unrest_st'_R5 [unrest]:
-  "$st\<acute> \<sharp> P \<Longrightarrow> $st\<acute> \<sharp> R5(P)"
-  by (rel_auto)
-*)
+  "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R5(P)"
+  by pred_auto
 
 subsection \<open> State Lifting \<close>
 
@@ -174,13 +168,13 @@ lemma out_alpha_unrest_st_lift_pre [unrest]:
   by (rel_auto)
 *)
 
+lemma R1_st'_unrest [unrest]: "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R1(P)"
+  by pred_auto
+
+lemma R2c_st'_unrest [unrest]: "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R2c(P)"
+  by pred_auto
+
 (*
-lemma R1_st'_unrest [unrest]: "$st\<acute> \<sharp> P \<Longrightarrow> $st\<acute> \<sharp> R1(P)"
-  by (simp add: R1_def unrest)
-
-lemma R2c_st'_unrest [unrest]: "$st\<acute> \<sharp> P \<Longrightarrow> $st\<acute> \<sharp> R2c(P)"
-  by (simp add: R2c_def unrest)
-
 lemma unrest_st_rea_rename [unrest]: 
   "$st \<sharp> P \<Longrightarrow> $st \<sharp> P\<lparr>f\<rparr>\<^sub>r"
   "$st\<acute> \<sharp> P \<Longrightarrow> $st\<acute> \<sharp> P\<lparr>f\<rparr>\<^sub>r" 
@@ -270,7 +264,8 @@ done
 
 subsubsection \<open> Assignment \<close>
 
-(* TODO(@MattWindsor91)
+(* TODO(@MattWindsor91) *)
+(*
 definition rea_assigns :: "('s subst) \<Rightarrow> ('s, 't::trace, '\<alpha>) hrel_rsp" ("\<langle>_\<rangle>\<^sub>r") where
 [rel]: "\<langle>\<sigma>\<rangle>\<^sub>r = (tr\<^sup>< = tr\<^sup>> \<and> \<lceil>\<langle>\<sigma>\<rangle>\<^sub>a\<rceil>\<^sub>S \<and> \<Sigma>\<^sub>S\<^sup>< = \<Sigma>\<^sub>S\<^sup>>)"
 

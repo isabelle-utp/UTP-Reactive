@@ -48,7 +48,7 @@ lemma RC_R2_def: "RC = RC1 \<circ> RR"
 lemma RC_implies_R2: "P is RC \<Longrightarrow> P is R2"
   by (metis Healthy_def' R2_RC)
     
-lemma RC_ex_ok_wait: "(\<Squnion> k k' w w'. (RC P)\<lbrakk>k,k',w,w'/ok\<^sup><,ok\<^sup>>,wait\<^sup><,wait\<^sup>>\<rbrakk>) = RC P"
+lemma RC_ex_ok_wait: "(\<Sqinter> k k' w w'. (RC P)\<lbrakk>k,k',w,w'/ok\<^sup><,ok\<^sup>>,wait\<^sup><,wait\<^sup>>\<rbrakk>) = RC P"
   by pred_auto
 
 text \<open> An important property of reactive conditions is they are monotonic with respect to the trace.
@@ -84,21 +84,22 @@ text \<open> Intuitive meaning of @{term RC2} \<close>
 (*
 lemma RC2_form_1:
   assumes "P is RR"
-  shows "RC2(P) = (\<Squnion> tr\<^sub>0. (\<Squnion> v\<^sub>0. P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
+  shows "RC2(P) = (\<Sqinter> tr\<^sub>0. (\<Sqinter> v\<^sub>0. P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
 proof -
-  have "RC2(RR(P)) = (\<Squnion> tr\<^sub>0. (\<Squnion> v\<^sub>0. RR P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
-    apply (pred_auto)
-    sledgehammer
+  have "RC2(RR(P)) = (\<Sqinter> tr\<^sub>0. (\<Sqinter> v\<^sub>0. RR P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
+    oops
   thus ?thesis
     by (metis (mono_tags, lifting) Healthy_if assms shEx_cong)
 qed
+*)
 
+(*
 lemma RC2_form_2:
   assumes "P is RR"  
-    shows "RC2(P) = (\<^bold>\<exists> (t\<^sub>0, t\<^sub>1) \<bullet> (\<exists> $\<Sigma>\<^sub>R\<acute> \<bullet> P)\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>/$tr,$tr\<acute>\<rbrakk> \<and> \<guillemotleft>t\<^sub>0\<guillemotright> \<le>\<^sub>u \<guillemotleft>t\<^sub>1\<guillemotright> \<and> $tr\<acute> =\<^sub>u $tr + \<guillemotleft>t\<^sub>0\<guillemotright>)"
+    shows "RC2(P) = (\<Sqinter> t\<^sub>0 t\<^sub>1. (\<Sqinter> v\<^sub>0. P)\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup><,tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (\<guillemotleft>t\<^sub>0\<guillemotright> \<le> \<guillemotleft>t\<^sub>1\<guillemotright> \<and> tr\<^sup>> = tr\<^sup>< + \<guillemotleft>t\<^sub>0\<guillemotright>)\<^sub>e)"
 proof -
-  have "RC2(RR(P)) = (\<^bold>\<exists> (t\<^sub>0, t\<^sub>1) \<bullet> (\<exists> $\<Sigma>\<^sub>R\<acute> \<bullet> RR(P))\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>/$tr,$tr\<acute>\<rbrakk> \<and> \<guillemotleft>t\<^sub>0\<guillemotright> \<le>\<^sub>u \<guillemotleft>t\<^sub>1\<guillemotright> \<and> $tr\<acute> =\<^sub>u $tr + \<guillemotleft>t\<^sub>0\<guillemotright>)"
-    apply (rel_auto)
+  have "RC2(RR(P)) = (\<Sqinter> t\<^sub>0 t\<^sub>1. (\<Sqinter> v\<^sub>0. RR P)\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup><,tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (\<guillemotleft>t\<^sub>0\<guillemotright> \<le> \<guillemotleft>t\<^sub>1\<guillemotright> \<and> tr\<^sup>> = tr\<^sup>< + \<guillemotleft>t\<^sub>0\<guillemotright>)\<^sub>e)"
+    apply (pred_auto)
     apply (metis diff_add_cancel_left' trace_class.add_le_imp_le_left)
     apply (metis le_add trace_class.add_diff_cancel_left trace_class.add_left_mono)
     done
