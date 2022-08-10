@@ -317,10 +317,6 @@ lemma R2s_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (tr ;\<^sub>L fst\
   apply (simp add: R2s_def unrest usubst lens_indep_sym)
   by (smt (z3) SEXP_def aext_var lens_indep.lens_put_comm lens_indep.lens_put_irr2 ns_alpha_def subst_SEXP subst_id_def subst_upd_def subst_var unrest_lens vwb_lens_mwb)
 
-term "$ok\<^sup>>"
-term "ok ;\<^sub>L fst\<^sub>L"
-
-
 lemma unrest_ok'_R2c [unrest]:
   assumes "$ok\<^sup>> \<sharp> P"
   shows "$ok\<^sup>> \<sharp> R2c(P)"
@@ -576,24 +572,33 @@ qed
 
 (* Need an implementation of alphabet restriction e.g. *)
 
-(*
 text \<open> We implement a poor man's version of alphabet restriction that hides a variable within 
   a relation. \<close>
 
 definition rel_var_res :: "'\<alpha> hrel \<Rightarrow> ('a \<Longrightarrow> '\<alpha>) \<Rightarrow> '\<alpha> hrel" (infix "\<restriction>\<^sub>\<alpha>" 80) where
-[rel]: "P \<restriction>\<^sub>\<alpha> x = (\<exists> y. \<exists> z. P\<lbrakk> y,z/x\<^sup><,x\<^sup>> \<rbrakk>)\<^sub>e"
+[rel]: "P \<restriction>\<^sub>\<alpha> x = (\<Sqinter> y z. (P\<lbrakk> \<guillemotleft>y\<guillemotright>,\<guillemotleft>z\<guillemotright>/x\<^sup><,x\<^sup>> \<rbrakk>))"
 
-expr_ctr rel_var_res
+expr_constructor rel_var_res
 
+lemma unrest_in_rel_var_res [unrest]:
+  "vwb_lens x \<Longrightarrow> $x\<^sup>< \<sharp> (P \<restriction>\<^sub>\<alpha> x)"
+  by (simp add: rel_var_res_def)
+     (pred_auto)
+
+lemma unrest_out_rel_var_res [unrest]:
+  "vwb_lens x \<Longrightarrow> $x\<^sup>> \<sharp> (P \<restriction>\<^sub>\<alpha> x)"
+  by (simp add: rel_var_res_def)
+     (pred_auto)
+
+(*
 lemma skip_r_unfold:
   "vwb_lens x \<Longrightarrow> II = ((tr\<^sup>> = tr\<^sup><)\<^sub>e \<and> II\<restriction>\<^sub>\<alpha>x)"
-  sorry
-(*  by (simp add: rel_var_res_def; pred_auto) *)
+  apply (simp add: rel_var_res_def)
+  oops
+*)
 
 lemma R2c_skip_tr: "R2c(II\<restriction>\<^sub>\<alpha>tr) = II\<restriction>\<^sub>\<alpha>tr"
   by (simp add: rel_var_res_def; pred_auto)
-
-*)
 
 lemma R2c_skip_r: "R2c(II) = II"
   by (pred_auto, metis add.right_neutral diff_add_cancel_left')
@@ -615,18 +620,25 @@ lemma R1_R2s_tr'_eq_tr:
   "R1 (R2s (tr\<^sup>> = tr\<^sup><)\<^sub>e) = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
   apply pred_auto using minus_zero_eq by blast
 
-(* Need to figure out how to prove (3) or a better proof
+(* Need to figure out how to prove (3) or a better proof *)
+(*
 lemma R1_R2s_tr'_extend_tr:
-  "\<lbrakk> $tr\<^sup>< \<sharp> v; $tr\<^sup>> \<sharp> v \<rbrakk> \<Longrightarrow> R1 (R2s (tr\<^sup>> = tr\<^sup>< @ v)\<^sub>e) = (tr\<^sup>> = tr\<^sup>< @ v)\<^sub>e"
+  assumes "$tr\<^sup>< \<sharp> v" "$tr\<^sup>> \<sharp> v"
+  shows "R1 (R2s (tr\<^sup>> = tr\<^sup>< @ (v :: 'a list list))\<^sub>e) = (tr\<^sup>> = tr\<^sup>< @ v)\<^sub>e"
 proof (simp add: R1_def R2s_def)
-  assume 1: "$tr\<^sup>< \<sharp> v" and 2: "$tr\<^sup>> \<sharp> v"
-  have 3:  "\<And>a b s s'. v (s \<lparr>tr\<^sub>v := a\<rparr>, s' \<lparr>tr\<^sub>v := b\<rparr>) = v (s, s')"
-    sorry
-  show "([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> (($tr)\<^sup>> = ($tr)\<^sup>< @ v) \<and> ($tr)\<^sup>< \<le> $tr\<^sup>>)\<^sub>e = (($tr)\<^sup>> = ($tr)\<^sup>< @ v)\<^sub>e"
-    apply (subst_eval)
+  have 1: "mwb_lens tr"
+    using tr_vwb_lens vwb_lens_mwb by blast
+  have "[tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> (($tr)\<^sup>> = $tr\<^sup>< @ v)\<^sub>e = (($tr)\<^sup>> - ($tr)\<^sup>< = 0 @ v)\<^sub>e"
+    using assms 1 apply(subst_eval)
+    oops
+  have "(($tr)\<^sup>> = ($tr)\<^sup>< @ v)\<^sub>e = (($tr)\<^sup>> - ($tr)\<^sup>< = v \<and> $tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e"
     apply(pred_auto)
-    apply(simp_all add: 3 zero_list_def)
-    using zero_list_def by force
+    apply (metis append_minus)
+    by (simp add: Prefix_Order.prefixI)
+
+  have "(([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> ($tr\<^sup>> = $tr\<^sup>< @ v \<and> ($tr)\<^sup>< \<le> ($tr)\<^sup>>)\<^sub>e))
+      = (($tr\<^sup>> - $tr\<^sup>< = 0 @ v \<and> ($tr)\<^sup>< \<le> ($tr)\<^sup>>)\<^sub>e)"
+    
 qed
 *)
 
