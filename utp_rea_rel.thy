@@ -80,7 +80,6 @@ proof (unfold Healthy_def)
 qed
 
 lemma RR_unrests [unrest]:
-  fixes P::"('t::trace, '\<alpha>) hrel_rp"
   assumes "P is RR"
   shows "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"
 proof -
@@ -352,30 +351,30 @@ lemma rea_impl_RR [closure]:
   "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> (P \<longrightarrow>\<^sub>r Q) is RR"
   by (metis Healthy_def' RR_rea_impl)
 
-(*
+
 lemma conj_RR [closure]:
   "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> (P \<and> Q) is RR"
-  by (meson RR_implies_R1 RR_implies_R2c RR_intro RR_unrests(1-4) conj_R1_closed_1 conj_R2c_closed unrest_conj)
+  by (meson RR_implies_R1 RR_implies_R2c RR_intro RR_unrests conj_R1_closed_1 conj_R2c_closed unrest_pred)
 
 lemma disj_RR [closure]:
   "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> (P \<or> Q) is RR"
-  by (metis Healthy_def' R1_RR R1_idem R1_rea_not' RR_rea_impl RR_rea_not disj_comm double_negation rea_impl_def rea_not_def)
+  by (metis Healthy_def' R1_RR R1_idem R1_rea_not' RR_rea_impl RR_rea_not pred_ba.boolean_algebra.double_compl rea_impl_def rea_not_def)
 
 lemma USUP_mem_RR_closed [closure]:
   assumes "\<And> i. i \<in> A \<Longrightarrow> P i is RR" "A \<noteq> {}"
   shows "(\<Squnion> i\<in>A. P(i)) is RR"
 proof -
   have 1:"(\<Squnion> i\<in>A. P(i)) is R1"
-    by (unfold Healthy_def, subst R1_UINF, simp_all add: Healthy_if assms closure cong: USUP_cong)
-  have 2:"(\<Squnion> i\<in>A \<bullet> P(i)) is R2c"
-    by (unfold Healthy_def, subst R2c_UINF, simp_all add: Healthy_if assms RR_implies_R2c closure cong: USUP_cong)
+    by (unfold Healthy_def, subst R1_UINF, simp_all add: Healthy_if assms closure cong: INF_cong)
+  have 2:"(\<Squnion> i\<in>A. P(i)) is R2c"
+    by (unfold Healthy_def, subst R2c_UINF, simp_all add: Healthy_if assms RR_implies_R2c closure cong: INF_cong)
   show ?thesis
     using 1 2 by (rule_tac RR_intro, simp_all add: unrest assms)
 qed
 
 lemma USUP_ind_RR_closed [closure]:
   assumes "\<And> i. P i is RR"
-  shows "(\<Squnion> i \<bullet> P(i)) is RR"
+  shows "(\<Squnion> i. P(i)) is RR"
   using USUP_mem_RR_closed[of UNIV P] by (simp add: assms)
 
 lemma UINF_mem_RR_closed [closure]:
@@ -383,34 +382,29 @@ lemma UINF_mem_RR_closed [closure]:
   shows "(\<Sqinter> i\<in>A. P(i)) is RR"
 proof -
   have 1:"(\<Sqinter> i\<in>A. P(i)) is R1"
-    by (unfold Healthy_def, subst R1_USUP, simp add: Healthy_if RR_implies_R1 assms cong: UINF_cong)
-  have 2:"(\<Sqinter> i\<in>A \<bullet> P(i)) is R2c"
-    by (unfold Healthy_def, subst R2c_USUP, simp add: Healthy_if RR_implies_R2c assms cong: UINF_cong)
+    by (unfold Healthy_def, subst R1_USUP, simp add: Healthy_if RR_implies_R1 assms cong: SUP_cong)
+  have 2:"(\<Sqinter> i\<in>A. P(i)) is R2c"
+    by (unfold Healthy_def, subst R2c_USUP, simp add: Healthy_if RR_implies_R2c assms cong: SUP_cong)
   show ?thesis
     using 1 2 by (rule_tac RR_intro, simp_all add: unrest assms)
 qed
-*)
     
 lemma UINF_ind_RR_closed [closure]:
   assumes "\<And> i. P i is RR"
   shows "(\<Sqinter> i. P(i)) is RR"
   by (simp add: assms closure)
 
-(*
 lemma USUP_elem_RR [closure]: 
   assumes "\<And> i. P i is RR" "A \<noteq> {}"
   shows "(\<Squnion> i \<in> A. P i) is RR"
 proof -
-  have 1:"(\<Squnion> i\<in>A. P(i)) is R1"
+  have "(\<Squnion> i\<in>A. P(i)) is R1"
     by (unfold Healthy_def, subst R1_UINF, simp_all add: Healthy_if assms closure)
-  have 2:"(\<Squnion> i\<in>A. P(i)) is R2c"
+  moreover have "(\<Squnion> i\<in>A. P(i)) is R2c"
     by (unfold Healthy_def, subst R2c_UINF, simp_all add: Healthy_if assms RR_implies_R2c closure)
-  show ?thesis
-    using 1 2 
-    apply(rule_tac RR_intro, simp_all add: unrest assms)
-    oops
+  ultimately show ?thesis
+    by (rule_tac RR_intro, simp_all add: unrest assms)
 qed
-*)
 
 (*
 lemma seq_RR_closed [closure]: 
@@ -451,11 +445,9 @@ lemma tr_eq_tr'_RR_closed [closure]: "(tr\<^sup>< = tr\<^sup>>)\<^sub>e is RR"
 lemma tr'_eq_tr_RR_closed [closure]: "(tr\<^sup>> = tr\<^sup><)\<^sub>e is RR"
   apply pred_auto using minus_zero_eq by auto
 
-(*
 lemma inf_RR_closed [closure]: 
   "\<lbrakk> P is RR; Q is RR \<rbrakk> \<Longrightarrow> P \<sqinter> Q is RR"
-  by (simp add: disj_RR uinf_or)
-*)
+  by (metis disj_RR disj_pred_def)
 
 lemma conj_tr_strict_RR_closed [closure]: 
   assumes "P is RR"
@@ -586,18 +578,19 @@ proof -
     by (simp_all add: Healthy_if assms)
 qed
 
-(*
 lemma rea_true_conj [rpred]: 
   assumes "P is R1"
   shows "(true\<^sub>r \<and> P) = P" "(P \<and> true\<^sub>r) = P"
-  using assms
-  by (simp_all add: Healthy_def R1_def utp_pred_laws.inf_commute) 
+  using assms apply (metis Healthy_if R1_extend_conj pred_ba.inf_top_left)
+  using assms apply (metis Healthy_if R1_conj pred_ba.inf_top.right_neutral)
+  done
 
 lemma rea_true_disj [rpred]: 
   assumes "P is R1"
   shows "(true\<^sub>r \<or> P) = true\<^sub>r" "(P \<or> true\<^sub>r) = true\<^sub>r"
-  using assms by (metis Healthy_def R1_disj disj_comm true_disj_zero)+
-*)  
+  apply (metis assms disj_R1_closed pred_ba.inf_sup_absorb rea_true_R1 rea_true_conj(1))
+  apply (metis Healthy_if R1_disj assms pred_ba.boolean_algebra.disj_one_right)
+  done
 
 lemma rea_not_not [rpred]: "P is R1 \<Longrightarrow> (\<not>\<^sub>r \<not>\<^sub>r P) = P"
   by (simp add: rea_not_def R1_negate_R1 Healthy_if)
@@ -616,11 +609,9 @@ lemma rea_true_impl' [rpred]:
   "P is R1 \<Longrightarrow>(true \<longrightarrow>\<^sub>r P) = P"
   by (simp add: rea_not_def rea_impl_def R1_negate_R1 R1_false Healthy_if)
 
-(*
 lemma rea_false_impl [rpred]:
-  "P is R1 \<Longrightarrow> (false \<Rightarrow>\<^sub>r P) = true\<^sub>r"
+  "P is R1 \<Longrightarrow> (false \<longrightarrow>\<^sub>r P) = true\<^sub>r"
   by (simp add: rea_impl_def rpred Healthy_if)
-*)  
  
 lemma rea_impl_true [simp]: "(P \<longrightarrow>\<^sub>r true\<^sub>r) = true\<^sub>r"
   by pred_auto
@@ -676,10 +667,8 @@ lemma rea_not_and [simp]:
   "(P \<and> \<not>\<^sub>r P) = false"
   by pred_auto
 
-(*
 lemma truer_bottom_rpred [rpred]: "P is RR \<Longrightarrow> R1(true) \<sqsubseteq> P"
-  by (metis Healthy_def R1_RR R1_mono utp_pred_laws.top_greatest)
-*)
+  by (simp add: RR_implies_R1 pred_ba.sup.order_iff rea_true_disj(1))
 
 lemma ext_close_weakening: "P ;; true\<^sub>r \<sqsubseteq> P"
   by pred_auto
@@ -688,14 +677,16 @@ lemma rea_not_INFIMUM [simp]:
   "(\<not>\<^sub>r (\<Squnion>i\<in>A. Q(i))) = (\<Sqinter>i\<in>A. \<not>\<^sub>r Q(i))"
   by pred_auto
 
+(* Why is this a separate law? *)
 lemma rea_not_USUP [simp]:
   "(\<not>\<^sub>r (\<Squnion>i\<in>A. Q(i))) = (\<Sqinter>i\<in>A. \<not>\<^sub>r Q(i))"
-  by pred_auto
+  by simp
     
 lemma rea_not_SUPREMUM [simp]:
   "A \<noteq> {} \<Longrightarrow> (\<not>\<^sub>r (\<Sqinter>i\<in>A. Q(i))) = (\<Squnion>i\<in>A. \<not>\<^sub>r Q(i))"
   by pred_auto
 
+(* Why is this a separate law? *)
 lemma rea_not_UINF [simp]:
   "A \<noteq> {} \<Longrightarrow> (\<not>\<^sub>r (\<Sqinter>i\<in>A. Q(i))) = (\<Squnion>i\<in>A. \<not>\<^sub>r Q(i))"
   by pred_auto
