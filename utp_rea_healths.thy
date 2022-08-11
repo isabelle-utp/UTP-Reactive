@@ -87,11 +87,9 @@ lemma UINF_ind_R1_closed [closure]:
   "\<lbrakk> \<And> i. P(i) is R1 \<rbrakk> \<Longrightarrow> (\<Sqinter> i. P(i)) is R1"
   by (pred_auto; blast)
 
-
 lemma UINF_R1_closed [closure]:
   "\<lbrakk> \<And> i. P i is R1 \<rbrakk> \<Longrightarrow> (\<Sqinter> i \<in> A. P i) is R1"
   by (simp add: Healthy_def; pred_auto; blast)
-
 
 lemma tr_ext_conj_R1 [closure]: 
   "(tr\<^sup>> = tr\<^sup>< @ e)\<^sub>e \<and> P is R1"
@@ -720,7 +718,7 @@ proof -
   finally show ?thesis ..
 qed
 
-lemma tr_contribution_sum: "\<And> tt\<^sub>1 tt\<^sub>2. (((tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e :: ('t,'\<alpha>,'\<gamma>) rel_rp)
+lemma tr_contribution_sum: "\<And> tt\<^sub>1 tt\<^sub>2. (((tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e :: ('t::trace,'\<alpha>,'\<gamma>) rel_rp)
                                      = (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
   apply (pred_auto)
   apply (metis add.assoc diff_add_cancel_left')

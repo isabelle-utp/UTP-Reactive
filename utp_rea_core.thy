@@ -1,10 +1,10 @@
 theory utp_rea_core
-  imports "UTP-Designs.utp_des_core" "UTP2.utp" "UTP2.utp_pred" "Shallow-Expressions.Shallow_Expressions"
+  imports "UTP-Designs.utp_des_core" "UTP2.utp" "UTP2.utp_pred" "Shallow-Expressions.Shallow_Expressions" "Z_Toolkit.Trace_Algebra"
 begin
 
-alphabet 'e rea_vars = des_vars +
+alphabet 't::trace rea_vars = des_vars +
   wait :: bool
-  tr   :: "'e list"
+  tr   :: 't
 
 type_synonym ('t, '\<alpha>) rp = "('t, '\<alpha>) rea_vars_scheme"
 
@@ -35,10 +35,10 @@ translations
 declare plus_list_def [upred_defs]*)
 declare prefixE [elim]
 
-abbreviation wait_f::"('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>f" [1000] 1000)
+abbreviation wait_f::"('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>f" [1000] 1000)
 where "wait_f R \<equiv> R\<lbrakk>False/wait\<^sup><\<rbrakk>"
 
-abbreviation wait_t::"('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>t" [1000] 1000)
+abbreviation wait_t::"('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>t" [1000] 1000)
   where "wait_t R \<equiv> R\<lbrakk>True/wait\<^sup><\<rbrakk>"
 
 (*
@@ -51,10 +51,10 @@ translations
   "P \<^sub>t" \<rightleftharpoons> "CONST usubst (CONST subst_upd id\<^sub>s (CONST in_var CONST wait) true) P"
 *)
 
-abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
+abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t::trace, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
 "\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> (\<^bold>v\<^sub>R\<^sup>2)"
 
-definition drop_rea :: "('t, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
+definition drop_rea :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
 "\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> (\<^bold>v\<^sub>R\<^sup>2)"
 
 (*
