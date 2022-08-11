@@ -9,6 +9,9 @@ jobs:
         with:
           isabelle-version: '2021-1'
           custom-isabelle-url: 'https://github.com/lexbailey/itrees_isabelle_fork/archive/refs/heads/itrees_utp.zip'
-          depends: 'https://github.com/isabelle-utp/Shallow-Expressions.git@main' 'https://github.com/isabelle-utp/UTP.git@main' 'https://github.com/isabelle-utp/UTP-Designs.git@pred'
+          depends:
+            - "https://github.com/isabelle-utp/Shallow-Expressions.git@main"
+            - "https://github.com/isabelle-utp/UTP.git@main"
+            - "https://github.com/isabelle-utp/UTP-Designs.git@pred"
           session-name: 'UTP2'
 
