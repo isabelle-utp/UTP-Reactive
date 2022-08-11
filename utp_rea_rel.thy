@@ -64,35 +64,32 @@ proof (unfold Healthy_def)
   finally show "RR P = P" . 
 qed
 
-(*
-    
 lemma RR_R2_intro:
   assumes "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P" "P is R2"
   shows "P is RR"
 proof (unfold Healthy_def)
-  have "RR(P) = R1(R2(P))"
-    apply(pred_auto)
-    using assms sledgehammer
+  have "\<And>k k' k'' k''' w w' w'' w''' t t' m m'.
+        P (\<lparr>ok\<^sub>v = k, wait\<^sub>v = w, tr\<^sub>v = t, \<dots> = m\<rparr>, \<lparr>ok\<^sub>v = k', wait\<^sub>v = w', tr\<^sub>v = t', \<dots> = m'\<rparr>)
+      = P (\<lparr>ok\<^sub>v = k'', wait\<^sub>v = w'', tr\<^sub>v = t, \<dots> = m\<rparr>, \<lparr>ok\<^sub>v = k''', wait\<^sub>v = w''', tr\<^sub>v = t', \<dots> = m'\<rparr>)"
+    using assms apply pred_auto
+    by meson+
+  hence "RR(P) = R2 P"
+    by (pred_auto; blast)
+  thus "RR P = P"
+    by (simp add: Healthy_if assms(5))
+qed
 
-  apply(pred_auto)
-  using assms sledgehammer
-
-*)
-
-(*
-lemma RR_unrests [unrest]: 
+lemma RR_unrests [unrest]:
+  fixes P::"('t::trace, '\<alpha>) hrel_rp"
   assumes "P is RR"
   shows "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"
 proof -
-  have "$ok\<^sup>< \<sharp> R3(R2(P))" "$ok\<^sup>> \<sharp> RR(P)" "$wait\<^sup>< \<sharp> RR(P)" "$wait\<^sup>> \<sharp> RR(P)"
-    apply (simp_all add: RR_def R2_def R1_def R2s_def)
-       apply(pred_auto)
-    apply(unrest)
-    apply(subst_eval)
-  thus "$ok \<sharp> P" "$ok\<acute> \<sharp> P" "$wait \<sharp> P" "$wait\<acute> \<sharp> P"
+  have "$ok\<^sup>< \<sharp> RR P" "$ok\<^sup>> \<sharp> RR(P)" "$wait\<^sup>< \<sharp> RR(P)" "$wait\<^sup>> \<sharp> RR(P)"
+    by (simp_all add: RR_def)
+       (pred_auto+)
+  thus "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"
     by (simp_all add: assms Healthy_if)
 qed
-*)
 
 lemma RR_refine_intro:
   assumes "P is RR" "Q is RR" "\<And> t. P\<lbrakk>0,\<guillemotleft>t\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk> \<sqsubseteq> Q\<lbrakk>0,\<guillemotleft>t\<guillemotright>/tr\<^sup><,tr\<^sup>>\<rbrakk>"
