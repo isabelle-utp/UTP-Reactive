@@ -250,11 +250,16 @@ lemma unrests_rea_rename [unrest]:
   "$wait\<^sup>> \<sharp> P \<Longrightarrow> $wait\<^sup>< \<sharp> P\<lparr>f\<rparr>\<^sub>r"
   by pred_auto+
 
-(*
 lemma unrest_rea_subst [unrest]: 
-  "\<lbrakk> mwb_lens x; x \<bowtie> (ns_alpha fst\<^sub>L tr); x \<bowtie> (ns_alpha snd\<^sub>L tr); $x \<sharp> v; $x \<sharp> P \<rbrakk> \<Longrightarrow> $x \<sharp> (P\<lbrakk>v\<rbrakk>\<^sub>r)"
-  by (simp add: rea_subst_def R1_def unrest lens_indep_sym)
-*)
+  assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)" "$x \<sharp> v" "$x \<sharp> P" 
+  shows "$x \<sharp> (P\<lbrakk>v\<rbrakk>\<^sub>r)"
+proof -
+  have "$x \<sharp> P\<lbrakk>v/tt\<rbrakk>"
+    (* TODO: is there a non-SMT proof of this *)
+    by (smt (verit) SEXP_def assms lens_indep.lens_put_comm subst_id_def subst_upd_def tt_indeps(2) unrest_lens unrest_subst_apply unrest_subst_lens)
+  thus ?thesis
+    using assms by (metis R1_unrest SEXP_def rea_subst_def)
+qed
 
 lemma rea_substs [usubst]: 
   "true\<^sub>r\<lbrakk>v\<rbrakk>\<^sub>r = true\<^sub>r" "true\<lbrakk>v\<rbrakk>\<^sub>r = true\<^sub>r" "false\<lbrakk>v\<rbrakk>\<^sub>r = false"
