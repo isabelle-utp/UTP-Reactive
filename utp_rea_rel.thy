@@ -103,29 +103,24 @@ proof -
     by (simp add: Healthy_if assms)
 qed
 
-(*
 lemma RR_eq_transfer:
   assumes "P is RR" "Q is RR" 
-    "(\<And> t. U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> P) 
-          = U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> Q))"
+    "(\<And> t. [ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> P 
+          = [ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> Q)"
   shows "P = Q"
 proof -
-  have "(\<And> t. U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> RR P) 
-            = U([ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> RR Q))"
+  have "(\<And> t. [ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> RR P 
+            = [ok\<^sup>< \<leadsto> True, ok\<^sup>> \<leadsto> True, wait\<^sup>< \<leadsto> False, wait\<^sup>> \<leadsto> False, tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> \<guillemotleft>t\<guillemotright>] \<dagger> RR Q)"
     by (metis Healthy_if assms(1) assms(2) assms(3))
   hence "RR P = RR Q"
-    apply(simp add: RR_def)
-    oops
+    by (simp add: RR_def; pred_auto)
   thus ?thesis
     by (metis Healthy_if assms(1) assms(2))
 qed
-*)
 
 text \<open> Tailored proof strategy for reactive relations -- eliminates irrelevant variables like ok, wait, and tr. \<close>
 
-(*
 method rrel_auto uses cls = (rule RR_eq_transfer, simp add: closure cls, simp add: closure cls, rel_auto)
-*)
 
 lemma R4_RR_closed [closure]:
   assumes "P is RR"
