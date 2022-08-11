@@ -253,12 +253,6 @@ definition R2a' :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\
 definition R2s :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
 [pred]: "R2s (P) = (P\<lbrakk>0, (tr\<^sup>>-tr\<^sup><) / tr\<^sup><, tr\<^sup>>\<rbrakk>)\<^sub>e"
 
-lemma "R2s((tr\<^sup>> = [1,2]) \<and> (tr\<^sup>< = [1]))\<^sub>e = ((tr\<^sup>> = [2]) \<and> (tr\<^sup>< = []))\<^sub>e"
-  apply pred_auto
-  apply (simp add: zero_list_def)
-  apply (simp add: zero_list_def)
-  oops
-
 definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "R2(P) = R1(R2s(P))"
 

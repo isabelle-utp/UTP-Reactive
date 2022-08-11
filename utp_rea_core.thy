@@ -91,17 +91,15 @@ lemma seqr_wait_true [usubst]: "(P ;; Q) \<^sub>t = (P \<^sub>t ;; Q)"
 lemma seqr_wait_false [usubst]: "(P ;; Q) \<^sub>f = (P \<^sub>f ;; Q)"
   by pred_simp
 
-(*Needs trace algebra*)
-(*
-definition tcontr :: "'t \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("tt") where
+definition tcontr :: "'t::trace \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("tt") where
   [lens_defs]:
-  "tcontr = \<lparr> lens_get = (\<lambda> s. get\<^bsub>tr\<^sup>>\<^esub> s - get\<^bsub>tr\<^sup><\<^esub> s) , 
-              lens_put = (\<lambda> s v. put\<^bsub>tr\<^sup>>\<^esub> s (get\<^bsub>tr\<^sup><\<^esub> s + v)) \<rparr>"
+  "tcontr = \<lparr> lens_get = (\<lambda> s. get\<^bsub>ns_alpha snd\<^sub>L tr\<^esub> s - get\<^bsub>ns_alpha fst\<^sub>L tr\<^esub> s) , 
+              lens_put = (\<lambda> s v. put\<^bsub>ns_alpha snd\<^sub>L tr\<^esub> s (get\<^bsub>ns_alpha fst\<^sub>L tr\<^esub> s + v)) \<rparr>"
 
-definition itrace :: "'t \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("\<^bold>i\<^bold>t") where
+definition itrace :: "'t::trace \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("\<^bold>i\<^bold>t") where
   [lens_defs]:
-  "itrace = \<lparr> lens_get = get\<^bsub>tr\<^sup><\<^esub>, 
-              lens_put = (\<lambda> s v. put\<^bsub>tr\<^sup>>\<^esub> (put\<^bsub>tr\<^sup><\<^esub> s v) v) \<rparr>"
+  "itrace = \<lparr> lens_get = get\<^bsub>ns_alpha fst\<^sub>L tr\<^esub>, 
+              lens_put = (\<lambda> s v. put\<^bsub>ns_alpha snd\<^sub>L tr\<^esub> (put\<^bsub>ns_alpha fst\<^sub>L tr\<^esub> s v) v) \<rparr>"
 
 syntax
   "_svid_tcontr"  :: "svid" ("tt")
@@ -113,7 +111,42 @@ translations
   "_svid_tcontr" == "CONST tcontr"
   "_svid_itrace" == "CONST itrace"
   "iter[n](P)"   == "CONST uop (CONST tr_iter n) P"
+
+
+lemma tcontr_alt_def: "(tt)\<^sub>e = (tr\<^sup>> - tr\<^sup><)"
+  by pred_auto
+
+lemma tcontr_alt_def': "var tt = (tr\<^sup>> - tr\<^sup><)"
+  by pred_auto
+
+lemma tt_indeps [simp]:
+  assumes "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)"
+  shows "x \<bowtie> tt" "tt \<bowtie> x"
+  using assms
+  by (unfold lens_indep_def, safe, simp_all add: tcontr_def)
   
+lemma itrace_indeps [simp]:
+  assumes "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)"
+  shows "x \<bowtie> \<^bold>i\<^bold>t" "\<^bold>i\<^bold>t \<bowtie> x"
+  using assms by (unfold lens_indep_def, safe, simp_all add: lens_defs)
+
+(* Thomas: these lemmata are not applicable unless we want to lift trace operations
+ * to expressions as in UTP1 *)
+(*
+text \<open> We lift a few trace properties from the trace class using \emph{transfer}. \<close>
+
+lemma uexpr_diff_zero [simp]:
+  fixes a :: "('\<alpha>::trace, 'a) expr"
+  shows "a - 0 = a"
+  by (simp add: minus_uexpr_def zero_uexpr_def, transfer, auto)
+
+lemma uexpr_add_diff_cancel_left [simp]:
+  fixes a b :: "('\<alpha>::trace, 'a) expr"
+  shows "(a + b) - a = b"
+  by (simp add: minus_uexpr_def plus_uexpr_def, transfer, auto)
+
+lemma iter_0 [simp]: "iter[0](t) = U([])"
+  by (transfer, simp)
 *)
 
 end

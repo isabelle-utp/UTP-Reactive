@@ -199,17 +199,14 @@ lemma renamer_comp: "\<lbrakk> renamer f; renamer g \<rbrakk> \<Longrightarrow> 
 lemma renamer_map: "inj f \<Longrightarrow> renamer (map f)"
   by (unfold_locales, simp_all add: plus_list_def)
 
-(* Type should be definition "('t\<^sub>1::trace,'\<alpha>) hrel_rp \<Rightarrow> ('t\<^sub>1 \<Rightarrow> 't\<^sub>2) \<Rightarrow> ('t\<^sub>2::trace,'\<alpha>) hrel_rp"*)
-(*
-definition rea_rename :: "('a list,'\<alpha>) hrel_rp \<Rightarrow> ('a list \<Rightarrow> 'b list) \<Rightarrow> ('b list,'\<alpha>) hrel_rp" ("(_)\<lparr>_\<rparr>\<^sub>r" [999, 0] 999) where
+definition rea_rename :: "('t\<^sub>1::trace,'\<alpha>) hrel_rp \<Rightarrow> ('t\<^sub>1 \<Rightarrow> 't\<^sub>2) \<Rightarrow> ('t\<^sub>2::trace,'\<alpha>) hrel_rp" ("(_)\<lparr>_\<rparr>\<^sub>r" [999, 0] 999) where
 [pred]: "rea_rename P f = R2(((tr\<^sup>> = 0) \<and> \<^bold>v\<^sub>R\<^sup>> = \<^bold>v\<^sub>R\<^sup><)\<^sub>e ;; P ;; (tr\<^sup>> = \<guillemotleft>f\<guillemotright> (tr\<^sup><) \<and> \<^bold>v\<^sub>R\<^sup>> = \<^bold>v\<^sub>R\<^sup><)\<^sub>e)"
 
 text \<open> Trace contribution substitution: make a substitution for the trace contribution lens 
   @{term tt}, and apply @{term R1} to make the resulting predicate healthy again. \<close>
 
-definition rea_subst :: "('t::trace, '\<alpha>) hrel_rp \<Rightarrow> ('t, ('t, '\<alpha>) rp) expr \<Rightarrow> ('t, '\<alpha>) hrel_rp" ("_\<lbrakk>_\<rbrakk>\<^sub>r" [999,0] 999) 
-where [pred]: "P\<lbrakk>v\<rbrakk>\<^sub>r = R1(P\<lbrakk>v/&tt\<rbrakk>)"
-*)
+definition rea_subst :: "('t :: trace, '\<alpha>) rp hrel \<Rightarrow> (('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp \<Rightarrow> 't) \<Rightarrow> ('t, '\<alpha>) rp hrel" ("_\<lbrakk>_\<rbrakk>\<^sub>r" [999,0] 999) 
+where [pred]: "P\<lbrakk>v\<rbrakk>\<^sub>r = R1(P\<lbrakk>v/tt\<rbrakk>)\<^sub>e"
 
 subsection \<open> Unrestriction and substitution laws \<close>
 
@@ -248,40 +245,38 @@ lemma rea_impl_usubst [usubst]:
   "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma>; $tr\<^sup>> \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (P \<longrightarrow>\<^sub>r Q) = (\<sigma> \<dagger> P \<longrightarrow>\<^sub>r \<sigma> \<dagger> Q)"
   by (simp add: rea_impl_def usubst R1_def)
 
-(*
 lemma rea_true_usubst_tt [usubst]: 
-  "R1(true)\<lbrakk>e/&tt\<rbrakk> = true"
-  by (rel_simp)
+  "R1(true)\<lbrakk>e/tt\<rbrakk> = true"
+  by pred_auto
 
 lemma unrests_rea_rename [unrest]: 
-  "$ok \<sharp> P \<Longrightarrow> $ok \<sharp> P\<lparr>f\<rparr>\<^sub>r"
-  "$ok\<acute> \<sharp> P \<Longrightarrow> $ok\<acute> \<sharp> P\<lparr>f\<rparr>\<^sub>r"
-  "$wait \<sharp> P \<Longrightarrow> $wait \<sharp> P\<lparr>f\<rparr>\<^sub>r"
-  "$wait\<acute> \<sharp> P \<Longrightarrow> $wait\<acute> \<sharp> P\<lparr>f\<rparr>\<^sub>r"
-  by (simp_all add: rea_rename_def R2_def unrest)
-*)
+  "$ok\<^sup>< \<sharp> P \<Longrightarrow> $ok\<^sup>< \<sharp> P\<lparr>f\<rparr>\<^sub>r"
+  "$ok\<^sup>> \<sharp> P \<Longrightarrow> $ok\<^sup>> \<sharp> P\<lparr>f\<rparr>\<^sub>r"
+  "$wait\<^sup>< \<sharp> P \<Longrightarrow> $wait\<^sup>< \<sharp> P\<lparr>f\<rparr>\<^sub>r"
+  "$wait\<^sup>> \<sharp> P \<Longrightarrow> $wait\<^sup>< \<sharp> P\<lparr>f\<rparr>\<^sub>r"
+  by pred_auto+
 
 (*
 lemma unrest_rea_subst [unrest]: 
   "\<lbrakk> mwb_lens x; x \<bowtie> (ns_alpha fst\<^sub>L tr); x \<bowtie> (ns_alpha snd\<^sub>L tr); $x \<sharp> v; $x \<sharp> P \<rbrakk> \<Longrightarrow> $x \<sharp> (P\<lbrakk>v\<rbrakk>\<^sub>r)"
   by (simp add: rea_subst_def R1_def unrest lens_indep_sym)
+*)
 
 lemma rea_substs [usubst]: 
   "true\<^sub>r\<lbrakk>v\<rbrakk>\<^sub>r = true\<^sub>r" "true\<lbrakk>v\<rbrakk>\<^sub>r = true\<^sub>r" "false\<lbrakk>v\<rbrakk>\<^sub>r = false"
   "(\<not>\<^sub>r P)\<lbrakk>v\<rbrakk>\<^sub>r = (\<not>\<^sub>r P\<lbrakk>v\<rbrakk>\<^sub>r)" "(P \<and> Q)\<lbrakk>v\<rbrakk>\<^sub>r = (P\<lbrakk>v\<rbrakk>\<^sub>r \<and> Q\<lbrakk>v\<rbrakk>\<^sub>r)" "(P \<or> Q)\<lbrakk>v\<rbrakk>\<^sub>r = (P\<lbrakk>v\<rbrakk>\<^sub>r \<or> Q\<lbrakk>v\<rbrakk>\<^sub>r)"
-  "(P \<Rightarrow>\<^sub>r Q)\<lbrakk>v\<rbrakk>\<^sub>r = (P\<lbrakk>v\<rbrakk>\<^sub>r \<Rightarrow>\<^sub>r Q\<lbrakk>v\<rbrakk>\<^sub>r)"
-  by rel_auto+
+  "(P \<longrightarrow>\<^sub>r Q)\<lbrakk>v\<rbrakk>\<^sub>r = (P\<lbrakk>v\<rbrakk>\<^sub>r \<longrightarrow>\<^sub>r Q\<lbrakk>v\<rbrakk>\<^sub>r)"
+  by pred_auto+
 
 lemma rea_substs_lattice [usubst]:
-  "(\<Sqinter> i \<bullet> P(i))\<lbrakk>v\<rbrakk>\<^sub>r   = (\<Sqinter> i \<bullet> (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
-  "(\<Sqinter> i\<in>A \<bullet> P(i))\<lbrakk>v\<rbrakk>\<^sub>r = (\<Sqinter> i\<in>A \<bullet> (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
-  "(\<Squnion> i \<bullet> P(i))\<lbrakk>v\<rbrakk>\<^sub>r   = (\<Squnion> i \<bullet> (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
-   by (rel_auto)+
+  "(\<Sqinter> i. P(i))\<lbrakk>v\<rbrakk>\<^sub>r   = (\<Sqinter> i. (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
+  "(\<Sqinter> i\<in>A. P(i))\<lbrakk>v\<rbrakk>\<^sub>r = (\<Sqinter> i\<in>A. (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
+  "(\<Squnion> i. P(i))\<lbrakk>v\<rbrakk>\<^sub>r   = (\<Squnion> i. (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
+   by pred_auto+
     
 lemma rea_subst_USUP_set [usubst]:
-  "A \<noteq> {} \<Longrightarrow> (\<Squnion> i\<in>A \<bullet> P(i))\<lbrakk>v\<rbrakk>\<^sub>r   = (\<Squnion> i\<in>A \<bullet> (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
-  by (rel_auto)+
-*)
+  "A \<noteq> {} \<Longrightarrow> (\<Squnion> i\<in>A. P(i))\<lbrakk>v\<rbrakk>\<^sub>r   = (\<Squnion> i\<in>A. (P(i))\<lbrakk>v\<rbrakk>\<^sub>r)"
+  by pred_auto+
 
 subsection \<open> Closure laws \<close>
 
@@ -459,12 +454,12 @@ proof -
     by (metis (no_types, lifting) Healthy_def assms)  
 qed
 
-(*
 lemma rea_assert_RR_closed [closure]:
   assumes "b is RR"
   shows "{b}\<^sub>r is RR"
   by (simp add: closure assms rea_assert_def)  
 
+(*
 lemma upower_RR_closed [closure]:
   "\<lbrakk> i > 0; P is RR \<rbrakk> \<Longrightarrow> P \<^bold>^ i is RR"
   apply (induct i, simp_all)
@@ -527,10 +522,10 @@ lemma trace_ext_prefix_RR [closure]:
   apply (metis (no_types, lifting) Prefix_Order.same_prefix_prefix less_eq_list_def prefix_concat_minus zero_list_def)
   apply (metis append_minus list_append_prefixD minus_cancel_le order_refl)
 done  
+*)
 
 lemma rea_subst_R1_closed [closure]: "P\<lbrakk>v\<rbrakk>\<^sub>r is R1"
-  by (rel_auto)
-*)
+  by pred_auto
 
 lemma R5_comp [rpred]:
   assumes "P is RR" "Q is RR"
@@ -552,17 +547,15 @@ proof -
     by (simp add: Healthy_if assms)
 qed
 
-(*
 lemma rea_rename_RR_closed [closure]: 
   assumes "P is RR"
   shows "P\<lparr>f\<rparr>\<^sub>r is RR"
 proof -
   have "(RR P)\<lparr>f\<rparr>\<^sub>r is RR"
-    by (rel_auto)
+    by pred_auto
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
-*)
 
 subsection \<open> Reactive relational calculus \<close>
 
@@ -716,86 +709,86 @@ lemma rea_false_true:
   "{false}\<^sub>r = true\<^sub>r"
   by pred_auto
 
-(*
 lemma rea_rename_id [rpred]: 
   assumes "P is RR"
   shows "P\<lparr>id\<rparr>\<^sub>r = P"
 proof -
   have "(RR P)\<lparr>id\<rparr>\<^sub>r = RR P"
-    by (rel_auto)
+    by pred_auto
   thus ?thesis by (simp add: Healthy_if assms)
 qed
 
+(* twright: This was also oopsed in UTP1
 lemma rea_rename_comp [rpred]: 
   assumes "renamer f" "renamer g" "P is RR"
   shows "P\<lparr>g \<circ> f\<rparr>\<^sub>r = P\<lparr>g\<rparr>\<^sub>r\<lparr>f\<rparr>\<^sub>r"
   oops
+*)
 
 lemma rea_rename_false [rpred]: "false\<lparr>f\<rparr>\<^sub>r = false"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_rename_disj [rpred]: 
   "(P \<or> Q)\<lparr>f\<rparr>\<^sub>r = (P\<lparr>f\<rparr>\<^sub>r \<or> Q\<lparr>f\<rparr>\<^sub>r)"
-  by (rel_blast)
+  by (pred_auto; blast)
 
 lemma rea_rename_UINF_ind [rpred]:
-  "(\<Sqinter> i \<bullet> P i)\<lparr>f\<rparr>\<^sub>r = (\<Sqinter> i \<bullet> (P i)\<lparr>f\<rparr>\<^sub>r)"
-  by (rel_blast)
+  "(\<Sqinter> i. P i)\<lparr>g\<rparr>\<^sub>r = (\<Sqinter> i. (P i)\<lparr>g\<rparr>\<^sub>r)"
+  by (pred_auto; blast)
 
 lemma rea_rename_UINF_mem [rpred]:
-  "(\<Sqinter> i\<in>A \<bullet> P i)\<lparr>f\<rparr>\<^sub>r = (\<Sqinter> i\<in>A \<bullet> (P i)\<lparr>f\<rparr>\<^sub>r)"
-  by (rel_blast)
+  "(\<Sqinter> i\<in>A. P i)\<lparr>g\<rparr>\<^sub>r = (\<Sqinter> i\<in>A. (P i)\<lparr>g\<rparr>\<^sub>r)"
+  by (pred_auto; blast)
 
 lemma rea_rename_conj [rpred]: 
-  assumes "renamer f" "P is RR" "Q is RR"
-  shows "(P \<and> Q)\<lparr>f\<rparr>\<^sub>r = (P\<lparr>f\<rparr>\<^sub>r \<and> Q\<lparr>f\<rparr>\<^sub>r)"
+  assumes "renamer g" "P is RR" "Q is RR"
+  shows "(P \<and> Q)\<lparr>g\<rparr>\<^sub>r = (P\<lparr>g\<rparr>\<^sub>r \<and> Q\<lparr>g\<rparr>\<^sub>r)"
 proof -
-  interpret ren: renamer f by (simp add: assms)
-  have "(RR P \<and> RR Q)\<lparr>f\<rparr>\<^sub>r = ((RR P)\<lparr>f\<rparr>\<^sub>r \<and> (RR Q)\<lparr>f\<rparr>\<^sub>r)"
+  interpret ren: renamer g by (simp add: assms)
+  have "(RR P \<and> RR Q)\<lparr>g\<rparr>\<^sub>r = ((RR P)\<lparr>g\<rparr>\<^sub>r \<and> (RR Q)\<lparr>g\<rparr>\<^sub>r)"
     using injD[OF ren.injective]
-    by (rel_auto; blast)
+    by (pred_auto; blast)
   thus ?thesis by (simp add: Healthy_if assms)
 qed
 
 lemma rea_rename_USUP_ind [rpred]:
-  assumes "renamer f" "\<And> i. P i is RR"
-  shows "(\<Squnion> i \<bullet> P i)\<lparr>f\<rparr>\<^sub>r = (\<Squnion> i \<bullet> (P i)\<lparr>f\<rparr>\<^sub>r)"
+  assumes "renamer g" "\<And> i. P i is RR"
+  shows "(\<Squnion> i. P i)\<lparr>g\<rparr>\<^sub>r = (\<Squnion> i. (P i)\<lparr>g\<rparr>\<^sub>r)"
 proof -
-  interpret ren: renamer f by (simp add: assms)
-  have "(\<Squnion> i \<bullet> RR(P i))\<lparr>f\<rparr>\<^sub>r = (\<Squnion> i \<bullet> (RR (P i))\<lparr>f\<rparr>\<^sub>r)"
+  interpret ren: renamer g by (simp add: assms)
+  have "(\<Squnion> i. RR(P i))\<lparr>g\<rparr>\<^sub>r = (\<Squnion> i. (RR (P i))\<lparr>g\<rparr>\<^sub>r)"
     using injD[OF ren.injective]
-    by (rel_auto, blast, metis (mono_tags, opaque_lifting))
+    by (pred_auto, blast, metis (mono_tags, opaque_lifting))
   thus ?thesis
-    by (simp add: Healthy_if assms cong: USUP_all_cong)
+    by (simp add: Healthy_if assms)
 qed
 
 lemma rea_rename_USUP_mem [rpred]:
-  assumes "renamer f" "A \<noteq> {}" "\<And> i. i \<in> A \<Longrightarrow> P i is RR"
-  shows "(\<Squnion> i\<in>A \<bullet> P i)\<lparr>f\<rparr>\<^sub>r = (\<Squnion> i\<in>A \<bullet> (P i)\<lparr>f\<rparr>\<^sub>r)"
+  assumes "renamer g" "A \<noteq> {}" "\<And> i. i \<in> A \<Longrightarrow> P i is RR"
+  shows "(\<Squnion> i\<in>A. P i)\<lparr>g\<rparr>\<^sub>r = (\<Squnion> i\<in>A. (P i)\<lparr>g\<rparr>\<^sub>r)"
 proof -
-  interpret ren: renamer f by (simp add: assms)
-  have "(\<Squnion> i\<in>A \<bullet> RR(P i))\<lparr>f\<rparr>\<^sub>r = (\<Squnion> i\<in>A \<bullet> (RR (P i))\<lparr>f\<rparr>\<^sub>r)"
+  interpret ren: renamer g by (simp add: assms)
+  have "(\<Squnion> i\<in>A. RR(P i))\<lparr>g\<rparr>\<^sub>r = (\<Squnion> i\<in>A. (RR (P i))\<lparr>g\<rparr>\<^sub>r)"
     using injD[OF ren.injective] assms(2)
-    by (rel_auto, blast, metis (no_types, opaque_lifting))
+    by (pred_auto, blast, metis (no_types, opaque_lifting))
   thus ?thesis
-    by (simp add: Healthy_if assms cong: USUP_cong)
+    by (simp add: Healthy_if assms)
 qed
 
 lemma rea_rename_skip_rea [rpred]: "renamer f \<Longrightarrow> II\<^sub>r\<lparr>f\<rparr>\<^sub>r = II\<^sub>r"
-  using minus_zero_eq by (rel_auto)
+  using minus_zero_eq by pred_auto
 
 lemma rea_rename_seq [rpred]: 
-  assumes "renamer f" "P is RR" "Q is RR"
-  shows "(P ;; Q)\<lparr>f\<rparr>\<^sub>r = P\<lparr>f\<rparr>\<^sub>r ;; Q\<lparr>f\<rparr>\<^sub>r"
+  assumes "renamer g" "P is RR" "Q is RR"
+  shows "(P ;; Q)\<lparr>g\<rparr>\<^sub>r = P\<lparr>g\<rparr>\<^sub>r ;; Q\<lparr>g\<rparr>\<^sub>r"
 proof -
-  interpret ren: renamer f by (simp add: assms)
-  from assms(1) have "(RR(P) ;; RR(Q))\<lparr>f\<rparr>\<^sub>r = (RR P)\<lparr>f\<rparr>\<^sub>r ;; (RR Q)\<lparr>f\<rparr>\<^sub>r"
-    by (rel_auto)
+  interpret ren: renamer g by (simp add: assms)
+  from assms(1) have "(RR(P) ;; RR(Q))\<lparr>g\<rparr>\<^sub>r = (RR P)\<lparr>g\<rparr>\<^sub>r ;; (RR Q)\<lparr>g\<rparr>\<^sub>r"
+    by (pred_auto)
        (metis (no_types, lifting) diff_add_cancel_left' le_add minus_assoc mono_def ren.minus ren.monotonic trace_class.add_diff_cancel_left trace_class.add_left_mono)+
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
-*)
 
 declare R4_idem [rpred]
 declare R4_false [rpred]
