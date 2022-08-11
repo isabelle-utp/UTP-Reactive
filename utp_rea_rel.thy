@@ -400,13 +400,22 @@ proof -
     by (rule_tac RR_intro, simp_all add: unrest assms)
 qed
 
-(*
 lemma seq_RR_closed [closure]: 
   assumes "P is RR" "Q is RR"
   shows "P ;; Q is RR"
-  unfolding Healthy_def
-  by (simp add: RR_def  Healthy_if assms closure RR_implies_R2 unrest)
- 
+proof -
+  have "P is R2" "Q is R2"
+    using RR_implies_R2 assms by blast+
+  then have 1: "P ;; Q is R2"
+    using R2_seqr_closure by blast
+  have "$ok\<^sup>< \<sharp> P" "$wait\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> Q" "$wait\<^sup>> \<sharp> Q"
+    using RR_unrests assms by blast+
+  then have 2: "$ok\<^sup>< \<sharp> P ;; Q" "$wait\<^sup>< \<sharp> P ;; Q" "$ok\<^sup>> \<sharp> P ;; Q" "$wait\<^sup>> \<sharp> P ;; Q"
+    by (metis ok_vwb_lens wait_vwb_lens seqr_liberate_left seqr_liberate_right unrest_liberate_iff)+
+  then show ?thesis
+    using 1 2 RR_R2_intro by blast
+qed
+
 lemma power_Suc_RR_closed [closure]:
   "P is RR \<Longrightarrow> P ;; P \<^bold>^ i is RR"
   by (induct i, simp_all add: closure upred_semiring.power_Suc)
@@ -418,10 +427,11 @@ lemma seqr_iter_RR_closed [closure]:
   apply (case_tac I)
   apply (simp_all add: seq_RR_closed)
 done
-    
+
+(*
 lemma cond_tt_RR_closed [closure]: 
   assumes "P is RR" "Q is RR"
-  shows "P \<triangleleft> $tr\<acute> =\<^sub>u $tr \<triangleright> Q is RR"
+  shows "P \<triangleleft> tr\<^sup>> = tr\<^sup>< \<triangleright> Q is RR"
   apply (rule RR_intro)
   apply (simp_all add: unrest assms)
   apply (simp_all add: Healthy_def) 
@@ -458,7 +468,6 @@ lemma rea_assert_RR_closed [closure]:
   shows "{b}\<^sub>r is RR"
   by (simp add: closure assms rea_assert_def)  
 
-(*
 lemma upower_RR_closed [closure]:
   "\<lbrakk> i > 0; P is RR \<rbrakk> \<Longrightarrow> P \<^bold>^ i is RR"
   apply (induct i, simp_all)
@@ -472,6 +481,7 @@ lemma seq_power_RR_closed [closure]:
   shows "(P \<^bold>^ i) ;; Q is RR"
   by (metis assms neq0_conv seq_RR_closed seqr_left_unit upower_RR_closed upred_semiring.power_0)
 
+(*
 lemma ustar_right_RR_closed [closure]:
   assumes "P is RR" "Q is RR"
   shows "P ;; Q\<^sup>\<star> is RR"
