@@ -210,18 +210,12 @@ where [pred]: "P\<lbrakk>v\<rbrakk>\<^sub>r = R1(P\<lbrakk>v/tt\<rbrakk>)\<^sub>
 
 subsection \<open> Unrestriction and substitution laws \<close>
 
-find_theorems "var_alpha"
+find_theorems "?x \<in>\<^sub>v ?y"
 
-(*
 lemma rea_true_unrest [unrest]:
-  "\<lbrakk> x \<bowtie> (tr ;\<^sub>L fst\<^sub>L); x \<bowtie> (tr ;\<^sub>L snd\<^sub>L) \<rbrakk> \<Longrightarrow> $x \<sharp> true\<^sub>r"
-  apply (simp add: R1_def unrest lens_indep_sym)
-  apply(unrest)
-  apply(subst get_subst_sset_in)
-    apply simp
-   apply simp
-  oops
-*)
+  assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)"
+  shows "$x \<sharp> true\<^sub>r"
+  by (simp add: R1_unrest assms unrest_pred)
 
 lemma rea_not_unrest [unrest]:
   assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)" "$x \<sharp> P"
