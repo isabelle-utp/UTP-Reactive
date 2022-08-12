@@ -1,7 +1,5 @@
 section \<open> Reactive Programs \<close>
 
-(* NOTE: virtually all of this theory is commented out right now. *)
-
 theory utp_rea_prog
   imports utp_rea_cond "Shallow-Expressions.Shallow_Expressions" "Optics.Optics" "UTP2.utp" "UTP2.utp_pred" 
 begin
@@ -64,13 +62,6 @@ proof -
     by (simp add: bij_lens_equiv_id)
 qed
 
-term "x ;\<^sub>L fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st)"
-term "((st\<^sup><):x)\<^sub>v"
-
-find_theorems "?a \<times>\<^sub>L ?b"
-find_theorems "?a +\<^sub>L ?b"
-find_theorems "?a ;\<^sub>L ?b"
-
 lemma st_qual_alpha (*[alpha]*): "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = ((st\<^sup><):x)\<^sub>v"
 proof -
   have "x ;\<^sub>L fst\<^sub>L ;\<^sub>L st \<times>\<^sub>L st = x ;\<^sub>L fst\<^sub>L ;\<^sub>L (st ;\<^sub>L fst\<^sub>L +\<^sub>L st ;\<^sub>L snd\<^sub>L)"
@@ -112,15 +103,27 @@ proof -
     by simp
 qed
 
-(* TODO(@MattWindsor91): need RR *)
 (*
 lemma ex_st'_RR_closed [closure]: 
   assumes "P is RR"
   shows "(\<Sqinter> s. P\<lbrakk>s/st\<^sup>>\<rbrakk>) is RR"
 proof -
+  have 1: "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"
+    using assms RR_unrests by blast+
+  have "$ok\<^sup>< \<sharp>\<^sub>s [st\<^sup>> \<leadsto> x]"
+  have "\<And>k'. (sset[$ok\<^sup><, k'] \<dagger> (\<Sqinter>x. P\<lbrakk>x/st\<^sup>>\<rbrakk>) = (\<Sqinter> x. (sset[$ok\<^sup><, k'] \<dagger> P\<lbrakk>x/st\<^sup>>\<rbrakk>)))"
+    by (pred_auto)
+  also have "\<And>k'. ((\<Sqinter>x. sset[$ok\<^sup><, k'] \<dagger> P\<lbrakk>x/st\<^sup>>\<rbrakk>) = (\<Sqinter>x. P\<lbrakk>x/st\<^sup>>\<rbrakk>))"
+    apply(pred_auto)
+    using 1(1) sledgehammer
+  have "$ok\<^sup>< \<sharp> (\<Sqinter> s. P\<lbrakk>s/st\<^sup>>\<rbrakk>)"
+    apply(unrest)
+    apply(pred_auto)
+    using 1_1 sledgehammer
+  have 2: "P is R2"
   have "RR (\<Sqinter> s. RR(P)\<lbrakk>s/st\<^sup>>\<rbrakk>) = (\<Sqinter> s. RR(P)\<lbrakk>s/st\<^sup>>\<rbrakk>)"
     apply(simp add: RR_def R2_def)
-    oops
+    sledgehammer
   thus ?thesis
     by (metis Healthy_def assms)
 qed
@@ -136,52 +139,38 @@ lemma unrest_st'_R5 [unrest]:
 
 subsection \<open> State Lifting \<close>
 
-(*
-definition lift_srea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" ("\<lceil>_\<rceil>\<^sub>S") where
+(* TODO: can we write this type better? *)
+abbreviation lift_srea :: "('c \<times> 'f \<Rightarrow> 'g) \<Rightarrow> ('a::trace, 'b, 'c) srea_vars_scheme \<times> ('d::trace, 'e, 'f) srea_vars_scheme \<Rightarrow> 'g" ("\<lceil>_\<rceil>\<^sub>S") where
 "\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> (\<^bold>v\<^sub>S\<^sup>2)"
 
 term lift_state_rel
 
-definition drop_state_rel :: "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>S")
+(* "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha>, '\<beta>) urel" *)
+abbreviation drop_state_rel :: "(('d::trace, 'e, 'a) srea_vars_scheme \<times> ('f::trace, 'g, 'b) srea_vars_scheme \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c" ("\<lfloor>_\<rfloor>\<^sub>S")
 where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
-*)
 
-(* TODO(@MattWindsor91): depends on nonexistent lifting?
 abbreviation lift_state_pre ("\<lceil>_\<rceil>\<^sub>S\<^sub><")
-where "\<lceil>p\<rceil>\<^sub>S\<^sub>< \<equiv> \<lceil>\<lceil>p\<rceil>\<^sub><\<rceil>\<^sub>S"
-*)
+  where "\<lceil>p\<rceil>\<^sub>S\<^sub>< \<equiv> \<lceil>p\<^sup><\<rceil>\<^sub>S"
 
-(* TODO(@MattWindsor91): depends on nonexistent dropping?
 abbreviation drop_state_pre ("\<lfloor>_\<rfloor>\<^sub>S\<^sub><")
-where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>< \<equiv> \<lfloor>\<lfloor>p\<rfloor>\<^sub>S\<rfloor>\<^sub><"
-*)
+where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>< \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub><"
 
-(* TODO(@MattWindsor91): depends on nonexistent lifting?
 abbreviation lift_state_post ("\<lceil>_\<rceil>\<^sub>S\<^sub>>")
-where "\<lceil>p\<rceil>\<^sub>S\<^sub>> \<equiv> \<lceil>\<lceil>p\<rceil>\<^sub>>\<rceil>\<^sub>S"
-*)
+where "\<lceil>p\<rceil>\<^sub>S\<^sub>> \<equiv> \<lceil>p\<^sup>>\<rceil>\<^sub>S"
 
-(* TODO(@MattWindsor91): depends on nonexistent dropping?
 abbreviation drop_state_post ("\<lfloor>_\<rfloor>\<^sub>S\<^sub>>")
-where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>> \<equiv> \<lfloor>\<lfloor>p\<rfloor>\<^sub>S\<rfloor>\<^sub>>"
-*)
+where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>> \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub>>"
 
-(* TODO(@MattWindsor91): depends on above
-lemma st_unrest_state_pre [unrest]: "&\<^bold>v \<sharp> s \<Longrightarrow> $st \<sharp> \<lceil>s\<rceil>\<^sub>S\<^sub><"
-  by (rel_auto)
-*)
+lemma st_unrest_state_pre [unrest]: "(unrest \<top>\<^sub>S s) \<Longrightarrow> $st\<^sup>< \<sharp> \<lceil>s\<rceil>\<^sub>S\<^sub><"
+  by pred_auto
 
-(* TODO(@MattWindsor91): depends on above
 lemma st'_unrest_st_lift_pred [unrest]:
-  "$st\<acute> \<sharp> \<lceil>a\<rceil>\<^sub>S\<^sub><"
-  by (pred_auto)
-*)
+  "$st\<^sup>> \<sharp> \<lceil>a\<rceil>\<^sub>S\<^sub><"
+  by pred_auto
 
-(* TODO(@MattWindsor91): depends on above
 lemma out_alpha_unrest_st_lift_pre [unrest]:
   "out\<alpha> \<sharp> \<lceil>a\<rceil>\<^sub>S\<^sub><"
-  by (rel_auto)
-*)
+  by pred_auto
 
 lemma R1_st'_unrest [unrest]: "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R1(P)"
   by pred_auto
@@ -189,18 +178,16 @@ lemma R1_st'_unrest [unrest]: "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^su
 lemma R2c_st'_unrest [unrest]: "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R2c(P)"
   by pred_auto
 
-(*
 lemma unrest_st_rea_rename [unrest]: 
-  "$st \<sharp> P \<Longrightarrow> $st \<sharp> P\<lparr>f\<rparr>\<^sub>r"
-  "$st\<acute> \<sharp> P \<Longrightarrow> $st\<acute> \<sharp> P\<lparr>f\<rparr>\<^sub>r" 
-  by (rel_blast)+
+  "$st\<^sup>< \<sharp> P \<Longrightarrow> $st\<^sup>< \<sharp> P\<lparr>f\<rparr>\<^sub>r"
+  "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> P\<lparr>f\<rparr>\<^sub>r" 
+  by (pred_auto, blast)+
 
-lemma st_lift_R1_true_right: "\<lceil>b\<rceil>\<^sub>S\<^sub>< ;; R1(true) = \<lceil>b\<rceil>\<^sub>S\<^sub><"
-  by (rel_auto)
+lemma st_lift_R1_true_right: "(\<lceil>b\<rceil>\<^sub>S\<^sub>< ;; R1(true)) = \<lceil>b\<rceil>\<^sub>S\<^sub><"
+  by pred_auto
 
 lemma R2c_lift_state_pre: "R2c(\<lceil>b\<rceil>\<^sub>S\<^sub><) = \<lceil>b\<rceil>\<^sub>S\<^sub><"
-  by (rel_auto)
-*)
+  by pred_auto
 
 subsection \<open> Reactive Program Operators \<close>
 
@@ -210,36 +197,59 @@ text \<open> Lifting substitutions on the reactive state \<close>
 
 (* TODO(@MattWindsor91): should this (and the others) be going to [rel], or somewhere else? *)
 
-(* TODO(@MattWindsor91)
-definition subst_st_lift ::
-  "'s subst \<Rightarrow> (('s,'t::trace,'\<alpha>) rsp \<times> ('s,'t,'\<beta>) rsp) subst"  ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<sigma>") where
-[rel]: "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> = \<lceil>\<sigma> \<up> st\<rceil>\<^sub>s"
+text \<open> The following two functions lift a predicate substitution to a relational one. \<close>
 
-abbreviation st_subst :: "'s subst \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" (infixr "\<dagger>\<^sub>S" 80) where
+(* :: "'\<alpha> subst \<Rightarrow> ('\<alpha> \<times> '\<beta>) subst" *)
+abbreviation usubst_rel_lift ("\<lceil>_\<rceil>\<^sub>s") where
+"\<lceil>\<sigma>\<rceil>\<^sub>s \<equiv> (\<sigma>\<^sup>\<up>) in\<alpha>"
+
+(*
+abbreviation usubst_rel_drop :: "('\<alpha> \<times> '\<alpha>) usubst \<Rightarrow> '\<alpha> usubst" ("\<lfloor>_\<rfloor>\<^sub>s") where
+"\<lfloor>\<sigma>\<rfloor>\<^sub>s \<equiv> \<sigma> \<restriction>\<^sub>s in\<alpha>"
+*)
+
+(* TODO(@MattWindsor91) *)
+(* :: "'s subst \<Rightarrow> (('s,'t::trace,'\<alpha>) rsp \<times> ('s,'t,'\<beta>) rsp) subst" *)
+definition subst_st_lift  ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<sigma>") where
+[rel]: "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> = \<lceil>(\<sigma>\<^sup>\<up>) (st)\<rceil>\<^sub>s"
+
+(*  \<lceil>subst_aext \<sigma> st\<rceil>\<^sub>S\<^sub><" *)
+
+(*  :: "'s subst \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" *)
+abbreviation st_subst (infixr "\<dagger>\<^sub>S" 80) where
 "\<sigma> \<dagger>\<^sub>S P \<equiv> \<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> P"
 
 translations
-  "\<sigma> \<dagger>\<^sub>S P" <= "\<lceil>\<sigma> \<up> st\<rceil>\<^sub>s \<dagger> P"
+  "\<sigma> \<dagger>\<^sub>S P" <= "\<lceil>\<sigma> \<up> st\<rceil>\<^sub>S \<dagger> P"
   "\<sigma> \<dagger>\<^sub>S P" <= "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> P"
 
+
+(*
 lemma st_lift_lemma:
-  "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> = \<sigma> \<up> (fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st))"
-  by (rel_auto)
-    
+  "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> = ((\<sigma>\<^sup>\<up>) (fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st)))"
+  by (rel_auto)  
+*)
+
+(*
 lemma unrest_st_lift [unrest]:
-  fixes x :: "'a \<Longrightarrow> ('s, 't::trace, '\<alpha>) rsp \<times> ('s, 't, '\<alpha>) rsp"
+  (*fixes x :: "'a \<Longrightarrow> ('s, 't::trace, '\<alpha>) rsp \<times> ('s, 't, '\<alpha>) rsp" *)
   assumes "x \<bowtie> st"
   shows "x \<sharp>\<^sub>s \<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma>" (is "?P")
   by (simp add: st_lift_lemma)
      (metis assms in_var_def in_var_prod_lens lens_comp_left_id st_vwb_lens unrest_subst_alpha_ext vwb_lens_wb)
+*)
 
+(*
 lemma id_st_subst [usubst]: 
-  "\<lceil>id\<^sub>s\<rceil>\<^sub>S\<^sub>\<sigma> = id\<^sub>s"
+  "\<lceil>subst_id\<rceil>\<^sub>S\<^sub>\<sigma> = Q"
   by (pred_auto)
-    
+*)
+
+(*
 lemma st_subst_comp [usubst]:
   "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<circ>\<^sub>s \<lceil>\<rho>\<rceil>\<^sub>S\<^sub>\<sigma> = \<lceil>\<sigma> \<circ>\<^sub>s \<rho>\<rceil>\<^sub>S\<^sub>\<sigma>"
   by (rel_auto)
+*)
 
 definition lift_cond_srea ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<leftarrow>") where
 [rel]: "\<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> = \<lceil>b\<rceil>\<^sub>S\<^sub><"
@@ -248,16 +258,20 @@ lemma unrest_lift_cond_srea [unrest]:
   "x \<sharp> \<lceil>b\<rceil>\<^sub>S\<^sub>< \<Longrightarrow> x \<sharp> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow>"
   by (simp add: lift_cond_srea_def)
 
+(*
 lemma st_subst_RR_closed [closure]:
   assumes "P is RR"
   shows "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> P is RR"
 proof -
   have "RR(\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> RR(P)) = \<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> RR(P)"
-    by (rel_auto)
+    apply (pred_auto)
+    oops
   thus ?thesis
     by (metis Healthy_def assms)
 qed
+*)
 
+(*
 lemma subst_lift_cond_srea [usubst]: "\<sigma> \<dagger>\<^sub>S \<lceil>P\<rceil>\<^sub>S\<^sub>\<leftarrow> = \<lceil>\<sigma> \<dagger> P\<rceil>\<^sub>S\<^sub>\<leftarrow>"
   by (rel_auto)
 
@@ -282,31 +296,45 @@ subsubsection \<open> Assignment \<close>
 
 text \<open> An assignment in the stateful reactive \<close>
 
-(* TODO(@MattWindsor91)
-definition rea_assigns :: "('s subst) \<Rightarrow> ('s, 't::trace, '\<alpha>) hrel_rsp" ("\<langle>_\<rangle>\<^sub>r") where
-[rel]: "\<langle>\<sigma>\<rangle>\<^sub>r = (tr\<^sup>< = tr\<^sup>> \<and> \<lceil>\<langle>\<sigma>\<rangle>\<^sub>a\<rceil>\<^sub>S \<and> \<Sigma>\<^sub>S\<^sup>< = \<Sigma>\<^sub>S\<^sup>>)"
+(* :: "(('s, 's) psubst) \<Rightarrow> ('s, 't::trace, '\<alpha>) hrel_rsp"  *)
+definition rea_assigns ("\<langle>_\<rangle>\<^sub>r") where
+[pred]: "\<langle>\<sigma>\<rangle>\<^sub>r = ((tr\<^sup>< = tr\<^sup>>)\<^sub>e \<and> \<lceil>\<langle>\<sigma>\<rangle>\<^sub>a\<rceil>\<^sub>S \<and> (\<^bold>v\<^sub>S\<^sup>< = \<^bold>v\<^sub>S\<^sup>>)\<^sub>e)"
 
+(*
+consts
+  rea_assigns :: "('a, 'b) psubst \<Rightarrow> 'p" ("\<langle>_\<rangle>\<^sub>a")
+*)
+
+expr_constructor rea_assigns
+
+(* New definition of _rea_assign following UTP.utp_rel_syntax *)
+syntax
+  "_rea_assign" :: "svid \<Rightarrow> logic \<Rightarrow> logic" (infix ":=\<^sub>r" 61)
+
+translations
+  "_rea_assign x e" == "CONST rea_assigns (CONST subst_upd (CONST subst_id) x (e)\<^sub>e)"
+  "_rea_assign (_svid_tuple (_of_svid_list (x +\<^sub>L y))) e" <= "_rea_assign (x +\<^sub>L y) e" 
+(* Old UTP1 definition
 syntax
   "_assign_rea" :: "svids \<Rightarrow> uexprs \<Rightarrow> logic"  ("'(_') :=\<^sub>r '(_')")  
   "_assign_rea" :: "svids \<Rightarrow> uexprs \<Rightarrow> logic"  (infixr ":=\<^sub>r" 62)
 
 translations
-  "_assign_rea xs vs" => "CONST rea_assigns (_mk_usubst (id\<^sub>s) xs vs)"
+  "_assign_rea xs vs" => "CONST rea_assigns (_mk_msubst (CONST Substitutions.subst_id) xs vs)"
   "_assign_rea x v" <= "CONST rea_assigns (CONST subst_upd (id\<^sub>s) x v)"
   "_assign_rea x v" <= "_assign_rea (_spvar x) v"
-  "x,y :=\<^sub>r u,v" <= "CONST rea_assigns (CONST subst_upd (CONST subst_upd (id\<^sub>s) (CONST pr_var x) u) (CONST pr_var y) v)"
+  "x,y :=\<^sub>r u,v" <= "CONST rea_assigns (CONST subst_upd (CONST subst_upd (Substitutions.subst_id) (CONST var x) u) (CONST var y) v)"
 *)
 
-(* TODO(@MattWindsor91): needs RR
+(*
 lemma rea_assigns_RR_closed [closure]: 
   "\<langle>\<sigma>\<rangle>\<^sub>r is RR"
-  apply (rel_auto) using minus_zero_eq by auto
-*)
+  apply pred_auto using minus_zero_eq by auto
 
-(* TODO(@MattWindsor91)
+(* TODO(@MattWindsor91) *)
 lemma st_subst_assigns_rea [usubst]:
   "\<sigma> \<dagger>\<^sub>S \<langle>\<rho>\<rangle>\<^sub>r = \<langle>\<rho> \<circ>\<^sub>s \<sigma>\<rangle>\<^sub>r"
-  by (rel_auto)
+  by pred_auto
     
 lemma st_subst_rea_skip [usubst]:
   "\<sigma> \<dagger>\<^sub>S II\<^sub>r = \<langle>\<sigma>\<rangle>\<^sub>r"
@@ -350,14 +378,18 @@ subsubsection \<open> Conditional \<close>
 text \<open> We guard the reactive conditional condition so that it can't be simplified by alphabet
   laws unless explicitly simplified. \<close>
 
-(* TODO(@MattWindsor91)
-abbreviation cond_srea ::
+(* TODO(@MattWindsor91) *)
+(*  ::
   "('s,'t::trace,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow>
   's pred \<Rightarrow>
   ('s,'t,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow>
-  ('s,'t,'\<alpha>,'\<beta>) rel_rsp" where
-"cond_srea P b Q \<equiv> P \<triangleleft> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> \<triangleright> Q"
+  ('s,'t,'\<alpha>,'\<beta>) rel_rsp" where *)
+(* This definition will break any laws which rely on the relationship between
+   reactive conditional and UTP conditional *)
+abbreviation cond_srea where
+"cond_srea P b Q \<equiv> (P \<and> \<lceil>(b)\<^sub>e\<rceil>\<^sub>S\<^sub>\<leftarrow>) \<or> (\<not>\<lceil>(b)\<^sub>e\<rceil>\<^sub>S\<^sub>\<leftarrow> \<and> Q)"
 
+(*
 syntax
   "_cond_srea" :: "logic \<Rightarrow> logic \<Rightarrow> logic \<Rightarrow> logic" ("(3_ \<triangleleft> _ \<triangleright>\<^sub>R/ _)" [52,0,53] 52)
 
@@ -366,7 +398,8 @@ translations
 
 lemma st_cond_assigns [rpred]:
   "\<langle>\<sigma>\<rangle>\<^sub>r \<triangleleft> b \<triangleright>\<^sub>R \<langle>\<rho>\<rangle>\<^sub>r = \<langle>\<sigma> \<triangleleft> b \<triangleright> \<rho>\<rangle>\<^sub>r"
-  by (rel_auto)
+  apply pred_auto
+  oops
 
 lemma cond_srea_RR_closed [closure]:
   assumes "P is RR" "Q is RR"
@@ -377,7 +410,9 @@ proof -
   thus ?thesis
     by (metis Healthy_def' assms(1) assms(2))
 qed
-  
+*)  
+
+(*
 lemma cond_srea_RC1_closed:
   assumes "P is RC1" "Q is RC1"
   shows "P \<triangleleft> b \<triangleright>\<^sub>R Q is RC1"
@@ -392,8 +427,10 @@ lemma cond_srea_RC_closed [closure]:
   assumes "P is RC" "Q is RC"
   shows "P \<triangleleft> b \<triangleright>\<^sub>R Q is RC"
   by (rule RC_intro', simp_all add: closure cond_srea_RC1_closed RC_implies_RC1 assms)
+*)
 
-lemma R4_cond [rpred]: "R4(P \<triangleleft> b \<triangleright>\<^sub>R Q) = (R4(P) \<triangleleft> b \<triangleright>\<^sub>R R4(Q))"
+(*
+lemma R4_cond [rpred]: "R4(P \<triangleleft> b \<triangleright>\<^sub>R Q) = ((R4(P)) \<triangleleft> b \<triangleright>\<^sub>R (R4(Q)))"
   by (rel_auto)
 
 lemma R5_cond [rpred]: "R5(P \<triangleleft> b \<triangleright>\<^sub>R Q) = (R5(P) \<triangleleft> b \<triangleright>\<^sub>R R5(Q))"
@@ -433,17 +470,16 @@ definition lmap\<^sub>R :: "('a \<Longrightarrow> 'b) \<Rightarrow> ('t::trace, 
 text \<open> This construction lens is useful for conversion between a record and its product representation;
   it would be helpful if this could be automatically generated. \<close>
 
-(* TODO(@MattWindsor91): doesn't type correctly
+(* TODO(@MattWindsor91): doesn't type correctly *)
 definition rsp_make_lens :: "('\<sigma>, '\<tau>::trace, '\<alpha>) rsp \<Longrightarrow> bool \<times> bool \<times> '\<tau> \<times> '\<sigma> \<times> '\<alpha>" where
 [lens_defs]: "rsp_make_lens = \<lparr> lens_get = \<lambda> (ok, wait, tr, st, more). \<lparr> ok\<^sub>v = ok, wait\<^sub>v = wait, tr\<^sub>v = tr, st\<^sub>v = st, \<dots> = more \<rparr>
                               , lens_put = (\<lambda> s v. (ok\<^sub>v v, wait\<^sub>v v, tr\<^sub>v v, st\<^sub>v v, more v)) \<rparr>"
 
-lemma rsp_make_lens_alt: "rsp_make_lens = inv\<^sub>L (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L rsp_vars.more\<^sub>L)"
+lemma rsp_make_lens_alt: "rsp_make_lens = inv\<^sub>L (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L srea_vars.more\<^sub>L)"
   by (auto simp add: lens_defs)
 
 lemma make_lens_bij [simp]: "bij_lens rsp_make_lens"
   by (unfold_locales, simp_all add: lens_defs prod.case_eq_if)
-*)
 
 text \<open> The following is an intuitive definition of the @{term st} functorial lens, which
   frames all the state space excluding @{term st}, to which another lens @{term l} is
@@ -465,9 +501,10 @@ lemma map_st_lens_alt_def [lens_defs]:
                   , lens_put = \<lambda> s v. \<lparr> ok\<^sub>v = ok\<^sub>v v, wait\<^sub>v = wait\<^sub>v v, tr\<^sub>v = tr\<^sub>v v, st\<^sub>v = put\<^bsub>l\<^esub> (st\<^sub>v s) (st\<^sub>v v), \<dots> = more v \<rparr> \<rparr>"
   by (auto simp add: map_st_lens_def lens_defs fun_eq_iff)
 
-(* TODO(@MattWindsor91): missing def
+(* TODO(@MattWindsor91): missing def *)
+(*
 lemma map_st_vwb [simp]: "vwb_lens X \<Longrightarrow> vwb_lens (map_st\<^sub>L X)"
-  by (simp add: map_st_lens_def rsp_make_lens_alt[THEN sym])
+  apply (simp add: map_st_lens_def rsp_make_lens_alt[THEN sym])
 *)
 
 lemma map_st_lens_indep_st [simp]: 
@@ -491,7 +528,8 @@ abbreviation abs_st ("\<langle>_\<rangle>\<^sub>S") where
 "abs_st P \<equiv> P \<down> abs_st\<^sub>L"
 *)
 
-(* TODO(@MattWindsor91)
+(* TODO(@MattWindsor91) *)
+(*
 lemma rea_impl_aext_st [alpha]:
   "(P \<Rightarrow>\<^sub>r Q) \<oplus>\<^sub>r map_st\<^sub>L[a] = (P \<oplus>\<^sub>r map_st\<^sub>L[a] \<Rightarrow>\<^sub>r Q \<oplus>\<^sub>r map_st\<^sub>L[a])"
   by (rel_auto)
@@ -654,97 +692,115 @@ lemma rea_frame_ext_UINF_mem [frame]:
 
 subsection \<open> Stateful Reactive specifications \<close>
 
-(* TODO(@MattWindsor91)
-definition rea_st_rel :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" ("[_]\<^sub>S") where
-[rel]: "rea_st_rel b = (\<lceil>b\<rceil>\<^sub>S \<and> $tr\<acute> =\<^sub>u $tr)"
+(* TODO(@MattWindsor91) *)
+(* :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+definition rea_st_rel ("[_]\<^sub>S") where
+[pred]: "rea_st_rel b = (\<lceil>(b)\<^sub>e\<rceil>\<^sub>S \<and> (tr\<^sup>> = tr\<^sup><)\<^sub>e)"
 
-definition rea_st_rel' :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" ("[_]\<^sub>S''") where
-[rel]: "rea_st_rel' b = R1(\<lceil>b\<rceil>\<^sub>S)"
+(*  :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+definition rea_st_rel'("[_]\<^sub>S''") where
+[pred]: "rea_st_rel' b = R1(\<lceil>b\<rceil>\<^sub>S)"
 
-definition rea_st_cond :: "'s upred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" ("[_]\<^sub>S\<^sub><") where
-[rel]: "rea_st_cond b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub><)"
+(*  :: "'s pred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+definition rea_st_cond ("[_]\<^sub>S\<^sub><") where
+[pred]: "rea_st_cond b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub><)"
 
-definition rea_st_post :: "'s upred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" ("[_]\<^sub>S\<^sub>>") where
+(*  :: "'s upred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+definition rea_st_post ("[_]\<^sub>S\<^sub>>") where
 [rel]: "rea_st_post b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub>>)"
 
-lemma lift_state_pre_unrest [unrest]: "x \<bowtie> ($st)\<^sub>v \<Longrightarrow> x \<sharp> \<lceil>P\<rceil>\<^sub>S\<^sub><"
-  by (rel_simp, simp add: lens_indep_def)
+(*
+lemma lift_state_pre_unrest [unrest]: "x \<bowtie> (st\<^sup><)\<^sub>v \<Longrightarrow> $x \<sharp> \<lceil>P\<rceil>\<^sub>S\<^sub><"
+  by (pred_simp, simp add: lens_indep_def)
 
 lemma rea_st_rel_unrest [unrest]:
-  "\<lbrakk> x \<bowtie> ($tr)\<^sub>v; x \<bowtie> ($tr\<acute>)\<^sub>v; x \<bowtie> ($st)\<^sub>v; x \<bowtie> ($st\<acute>)\<^sub>v \<rbrakk> \<Longrightarrow> x \<sharp> [P]\<^sub>S\<^sub><"
-  by (simp add: add: rea_st_cond_def R1_def unrest lens_indep_sym)
-    
+  "\<lbrakk> x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; x \<bowtie> (st\<^sup><)\<^sub>v; x \<bowtie> (st\<^sup>>)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> [P]\<^sub>S\<^sub><"
+  by (simp add: rea_st_cond_def R1_def unrest lens_indep_sym)
+
 lemma rea_st_cond_unrest [unrest]:
-  "\<lbrakk> x \<bowtie> ($tr)\<^sub>v; x \<bowtie> ($tr\<acute>)\<^sub>v; x \<bowtie> ($st)\<^sub>v \<rbrakk> \<Longrightarrow> x \<sharp> [P]\<^sub>S\<^sub><"
+  "\<lbrakk> x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; x \<bowtie> (st\<^sup><)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> [P]\<^sub>S\<^sub><"
   by (simp add: add: rea_st_cond_def R1_def unrest lens_indep_sym)
-  
+*)
+
+(*
 lemma subst_st_cond [usubst]: "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> [P]\<^sub>S\<^sub>< = [\<sigma> \<dagger> P]\<^sub>S\<^sub><"
   by (rel_auto)
-    
+*)  
+  
 lemma rea_st_cond_R1 [closure]: "[b]\<^sub>S\<^sub>< is R1"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_st_cond_R2c [closure]: "[b]\<^sub>S\<^sub>< is R2c"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_st_rel_RR [closure]: "[P]\<^sub>S is RR"
-  using minus_zero_eq by (rel_auto)
+  using minus_zero_eq by pred_auto
 
 lemma rea_st_rel'_RR [closure]: "[P]\<^sub>S' is RR"
-  by (rel_auto)
+  by pred_auto
 
+(*
 lemma rea_st_post_RR [closure]: "[b]\<^sub>S\<^sub>> is RR"
-  by (rel_auto)
+  apply pred_auto
+  oops
+*)
 
+(*
 lemma st_subst_rel [usubst]:
   "\<sigma> \<dagger>\<^sub>S [P]\<^sub>S = [\<lceil>\<sigma>\<rceil>\<^sub>s \<dagger> P]\<^sub>S"
-  by (rel_auto)
-    
+  by pred_auto
+
 lemma st_rel_cond [rpred]:
   "[P \<triangleleft> b \<triangleright>\<^sub>r Q]\<^sub>S = [P]\<^sub>S \<triangleleft> b \<triangleright>\<^sub>R [Q]\<^sub>S"
   by (rel_auto)
+*)
    
 lemma st_rel_false [rpred]: "[false]\<^sub>S = false"
-  by (rel_auto)
-    
+  by pred_auto
+
+(* TODO: This is currently false, meaning something
+   is wrong in a definition *)
+(*
 lemma st_rel_skip [rpred]: 
   "[II]\<^sub>S = (II\<^sub>r :: ('s, 't::trace) rdes)"
-  by (rel_auto)
-    
+  by pred_auto
+*)
+
 lemma st_rel_seq [rpred]:
   "[P ;; Q]\<^sub>S = [P]\<^sub>S ;; [Q]\<^sub>S"
-  by (rel_auto)
+  by pred_auto
   
 lemma st_rel_conj [rpred]:
   "([P]\<^sub>S \<and> [Q]\<^sub>S) = [P \<and> Q]\<^sub>S"
-   by (rel_auto)
+   by pred_auto
 
 lemma st_cond_disj [rpred]: 
   "([P]\<^sub>S\<^sub>< \<or> [Q]\<^sub>S\<^sub><) = [P \<or> Q]\<^sub>S\<^sub><"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_st_cond_RR [closure]: "[b]\<^sub>S\<^sub>< is RR"
-  by (rule RR_intro, simp_all add: unrest closure)
+  by (rule RR_intro, simp_all add: unrest closure; pred_auto)
 
 lemma rea_st_cond_RC [closure]: "[b]\<^sub>S\<^sub>< is RC"
-  by (rule RC_intro, simp add: closure, rel_auto)
+  by (rule RC_intro, simp add: closure, pred_auto)
     
 lemma rea_st_cond_true [rpred]: "[true]\<^sub>S\<^sub>< = true\<^sub>r"
-  by (rel_auto)
+  by pred_auto
 
 lemma rea_st_cond_false [rpred]: "[false]\<^sub>S\<^sub>< = false"
-  by (rel_auto)
+  by pred_auto
     
 lemma st_cond_not [rpred]: "(\<not>\<^sub>r [P]\<^sub>S\<^sub><) = [\<not> P]\<^sub>S\<^sub><"
-  by (rel_auto)
+  by pred_auto
 
 lemma st_cond_conj [rpred]: "([P]\<^sub>S\<^sub>< \<and> [Q]\<^sub>S\<^sub><) = [P \<and> Q]\<^sub>S\<^sub><"
-  by (rel_auto)
+  by pred_auto
     
 lemma st_rel_assigns [rpred]:
   "[\<langle>\<sigma>\<rangle>\<^sub>a]\<^sub>S = (\<langle>\<sigma>\<rangle>\<^sub>r :: ('\<alpha>, 't::trace) rdes)"
-  by (rel_auto)
-        
+  by pred_auto
+
+(*
 lemma cond_st_distr: "(P \<triangleleft> b \<triangleright>\<^sub>R Q) ;; R = (P ;; R \<triangleleft> b \<triangleright>\<^sub>R Q ;; R)"
   by (rel_auto)
         
@@ -757,11 +813,12 @@ lemma cond_st_true [rpred]: "P \<triangleleft> true \<triangleright>\<^sub>R Q =
 lemma cond_st_false [rpred]: "P \<triangleleft> false \<triangleright>\<^sub>R Q = Q"
   by (rel_blast)
     
-lemma st_cond_true_or [rpred]: "P is R1 \<Longrightarrow> (R1 true \<triangleleft> b \<triangleright>\<^sub>R P) = ([b]\<^sub>S\<^sub>< \<or> P)"
-  by (rel_blast)
+lemma st_cond_true_or [rpred]: "P is R1 \<Longrightarrow> (R1 true \<triangleleft> b \<triangleright>\<^sub>R P) = ([b]\<^sub>S\<^sub>< \<or> P)"  
+by (rel_blast)
+*)
     
 lemma st_cond_left_impl_RC_closed [closure]:
-  "P is RC \<Longrightarrow> ([b]\<^sub>S\<^sub>< \<Rightarrow>\<^sub>r P) is RC"
+  "P is RC \<Longrightarrow> ([b]\<^sub>S\<^sub>< \<longrightarrow>\<^sub>r P) is RC"
   by (simp add: rea_impl_def rpred closure)
-*)
+
 end
