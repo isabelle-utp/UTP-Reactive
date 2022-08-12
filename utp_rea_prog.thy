@@ -326,12 +326,12 @@ translations
   "x,y :=\<^sub>r u,v" <= "CONST rea_assigns (CONST subst_upd (CONST subst_upd (Substitutions.subst_id) (CONST var x) u) (CONST var y) v)"
 *)
 
-(*
 lemma rea_assigns_RR_closed [closure]: 
   "\<langle>\<sigma>\<rangle>\<^sub>r is RR"
   apply pred_auto using minus_zero_eq by auto
 
 (* TODO(@MattWindsor91) *)
+(*
 lemma st_subst_assigns_rea [usubst]:
   "\<sigma> \<dagger>\<^sub>S \<langle>\<rho>\<rangle>\<^sub>r = \<langle>\<rho> \<circ>\<^sub>s \<sigma>\<rangle>\<^sub>r"
   by pred_auto
