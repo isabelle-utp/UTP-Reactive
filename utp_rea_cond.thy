@@ -190,7 +190,7 @@ proof -
   have 1:"RC1(\<Sqinter> i\<in>A. RC1(P i)) = (\<Sqinter> i\<in>A. RC1(P i))"
     by (pred_auto, meson order.trans)
   show ?thesis
-    by (metis (mono_tags, lifting) "1" Healthy_def UINF_cong assms)
+    by (metis (mono_tags, lifting) "1" Healthy_def SUP_cong assms)
 qed
 
 lemma UINF_mem_RC_closed [closure]:
