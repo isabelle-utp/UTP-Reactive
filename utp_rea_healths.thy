@@ -294,6 +294,9 @@ qed
 lemma cond_and: "(P \<triangleleft> b \<triangleright> Q) = ((P \<and> b) \<or> (Q \<and> \<not>b))"
   by (pred_auto)
 
+lemma cond_and_R: "(P \<triangleleft> b \<triangleright> Q) = ((P \<and> (b)\<^sub>e) \<or> (Q \<and> \<not>(b)\<^sub>e))"
+  by (pred_auto)
+
 lemma unrest_ok_R2c [unrest]:
   assumes "$ok\<^sup>< \<sharp> P"
   shows "$ok\<^sup>< \<sharp> R2c(P)"
@@ -506,6 +509,9 @@ lemma R2c_wait'_false [usubst]: "(R2c P)\<lbrakk>False/wait\<^sup>>\<rbrakk> = R
   by pred_auto  
 
 lemma R2c_tr'_minus_tr: "R2c(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
+  apply (pred_auto) using minus_zero_eq by blast
+
+lemma R2_tr'_minus_tr: "R2(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
   apply (pred_auto) using minus_zero_eq by blast
 
 lemma R2c_tr_le_tr': "R2c(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e = (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e"
