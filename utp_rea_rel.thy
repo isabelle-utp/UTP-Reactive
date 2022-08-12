@@ -426,18 +426,54 @@ lemma seqr_iter_RR_closed [closure]:
   apply (rename_tac i I)
   apply (case_tac I)
   apply (simp_all add: seq_RR_closed)
-done
+  done
 
-(*
+find_theorems "unrest ?x (?P \<and> ?Q)"
+find_theorems "unrest ?x (\<not> ?P)"
+find_theorems "unrest ?x (?P \<or> ?Q)"
+find_theorems "_ \<triangleleft> _ \<triangleright> _"
+find_theorems "(_ \<or> _) is _"
+
+(* TODO (Thomas): belongs in UTP *)
+lemma unrest_cond [unrest]:
+  assumes "mwb_lens x" "$x \<sharp> P" "$x \<sharp> Q" "$x \<sharp> (e)\<^sub>e"
+  shows "$x \<sharp> (P \<triangleleft> e \<triangleright> Q)"
+  using assms(1) assms(4) apply(pred_auto)
+  using unrest_lens assms(2-3) by blast+
+
+(* TODO (Thomas): there should be a much simpler proof of this;
+   why are the simplifier and unrest not more help? *)
 lemma cond_tt_RR_closed [closure]: 
   assumes "P is RR" "Q is RR"
-  shows "P \<triangleleft> tr\<^sup>> = tr\<^sup>< \<triangleright> Q is RR"
-  apply (rule RR_intro)
-  apply (simp_all add: unrest assms)
-  apply (simp_all add: Healthy_def) 
-  apply (simp_all add: R1_cond R2c_condr Healthy_if assms RR_implies_R2c closure R2c_tr'_minus_tr)
-done
-*)
+  shows "P \<triangleleft> tr\<^sup>> = tr\<^sup>< \<triangleright> Q is RR" (is "?PQ is RR")
+proof -
+  have 1: "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"  "$ok\<^sup>< \<sharp> Q" "$ok\<^sup>> \<sharp> Q" "$wait\<^sup>< \<sharp> Q" "$wait\<^sup>> \<sharp> Q"
+    using assms RR_unrests by blast+
+  have 2: "$ok\<^sup>< \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e"  "$ok\<^sup>> \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e" "$wait\<^sup>< \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e" "$wait\<^sup>> \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e"
+    by pred_auto+
+  have 3: "$ok\<^sup>< \<sharp> ?PQ" "$ok\<^sup>> \<sharp> ?PQ" "$wait\<^sup>< \<sharp> ?PQ" "$wait\<^sup>> \<sharp> ?PQ"
+    by (simp_all add: unrest_cond 1 2)
+  have 4: "P is R2" "Q is R2"
+    using assms RR_implies_R2 by blast+
+  have 5: "?PQ is R1"
+    using assms
+    by (simp add: cond_and RR_implies_R1 conj_R1_closed_1 disj_R1_closed)
+  have "(tr\<^sup>> = tr\<^sup><)\<^sub>e is R2c"
+    by (simp add: Healthy_def R2c_tr'_minus_tr)
+  then have 6: "P \<and> (tr\<^sup>> = tr\<^sup><)\<^sub>e is R2"
+    using 2 Healthy_def R1_tr'_eq_tr RR_implies_R2 RR_intro assms(1) conj_RR by blast
+  have 7: "(Q \<and> \<not> (tr\<^sup>> = tr\<^sup><)\<^sub>e) = ((Q \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e))"
+    using 4 by (pred_auto)
+               (metis order_le_imp_less_or_eq)
+  have "(Q \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e) is R2c"
+    using RR_implies_R2c assms(2) conj_R2c_closed tr_strict_prefix_R2c_closed by blast
+  then have 8: "(Q \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e) is R2"
+    by (metis (mono_tags, lifting) Healthy_def conj_R1_closed_2 tr_strict_prefix_R1_closed R1_R2c_is_R2)
+  from 6 7 8 have 9: "?PQ is R2"
+    by (simp add: cond_and_R Healthy_def R2_disj)
+  from 3 9 show ?thesis
+    using RR_R2_intro by blast
+qed
 
 lemma rea_skip_RR [closure]:
   "II\<^sub>r is RR"
