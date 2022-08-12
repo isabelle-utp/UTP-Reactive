@@ -550,14 +550,13 @@ qed
 
 lemma uplus_RR_closed [closure]: "P is RR \<Longrightarrow> P\<^sup>+ is RR"
   by (simp add: uplus_def ustar_right_RR_closed)
-
-lemma trace_ext_prefix_RR [closure]: 
-  "\<lbrakk> $tr \<sharp> e; $ok \<sharp> e; $wait \<sharp> e; out\<alpha> \<sharp> e \<rbrakk> \<Longrightarrow> $tr ^\<^sub>u e \<le>\<^sub>u $tr\<acute> is RR"
-  apply (rel_auto)
-  apply (metis (no_types, lifting) Prefix_Order.same_prefix_prefix less_eq_list_def prefix_concat_minus zero_list_def)
-  apply (metis append_minus list_append_prefixD minus_cancel_le order_refl)
-done  
 *)
+
+(* TODO: should hold for an arbitrary trace algebra *)
+lemma trace_ext_prefix_RR [closure]: "$tr\<^sup>< \<sharp> e \<Longrightarrow> $ok\<^sup>< \<sharp> e \<Longrightarrow> $wait\<^sup>< \<sharp> e \<Longrightarrow> out\<alpha> \<sharp> e \<Longrightarrow> (($tr)\<^sup>< @ e \<le> ($tr)\<^sup>>)\<^sub>e is RR"
+  apply(pred_auto)
+  apply (metis (no_types, lifting) Prefix_Order.prefixE Prefix_Order.same_prefix_prefix append_minus append_self_conv2 zero_list_def)
+  by (metis (no_types, lifting) Prefix_Order.same_prefix_prefix diff_add_cancel_left' list_append_prefixD plus_list_def self_append_conv2 zero_list_def)
 
 lemma rea_subst_R1_closed [closure]: "P\<lbrakk>v\<rbrakk>\<^sub>r is R1"
   by pred_auto

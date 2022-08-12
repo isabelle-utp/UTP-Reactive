@@ -240,12 +240,16 @@ lemma USUP_ind_RC_closed [closure]:
   "\<lbrakk> \<And> i. P i is RC \<rbrakk> \<Longrightarrow> (\<Squnion> i. P i) is RC"
   by (metis UNIV_not_empty USUP_mem_RC_closed)
 
-(* Doesn't yet go through --- perhaps we are missing a crucial closure lemma? *)
-(*
+(* TODO: rebase proof on RC1_trace_ext_prefix *)
 lemma neg_trace_ext_prefix_RC [closure]: 
   "\<lbrakk> $tr\<^sup>< \<sharp> e; $ok\<^sup>< \<sharp> e; $wait\<^sup>< \<sharp> e; out\<alpha> \<sharp> e \<rbrakk> \<Longrightarrow> \<not>\<^sub>r (tr\<^sup>< @ e \<le> tr\<^sup>>)\<^sub>e is RC"
-  apply (rule RC_intro, simp add: closure, metis RC1_def RC1_trace_ext_prefix)
-*)
+  apply (rule RC_intro)
+  apply(simp add: closure)
+  apply(pred_auto)
+  apply (meson order_refl)
+  apply (metis (no_types, opaque_lifting) order.trans)
+  done
+(*, metis RC1_def RC1_trace_ext_prefix) *)
 
 lemma RC1_unrest:
   "\<lbrakk> mwb_lens x; x \<bowtie> tr \<rbrakk> \<Longrightarrow> $x\<^sup>> \<sharp> RC1(P)"
