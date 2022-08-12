@@ -453,25 +453,15 @@ proof -
     by pred_auto+
   have 3: "$ok\<^sup>< \<sharp> ?PQ" "$ok\<^sup>> \<sharp> ?PQ" "$wait\<^sup>< \<sharp> ?PQ" "$wait\<^sup>> \<sharp> ?PQ"
     by (simp_all add: unrest_cond 1 2)
-  have 4: "P is R2" "Q is R2"
-    using assms RR_implies_R2 by blast+
-  have 5: "?PQ is R1"
-    using assms
-    by (simp add: cond_and RR_implies_R1 conj_R1_closed_1 disj_R1_closed)
-  have "(tr\<^sup>> = tr\<^sup><)\<^sub>e is R2c"
-    by (simp add: Healthy_def R2c_tr'_minus_tr)
-  then have 6: "P \<and> (tr\<^sup>> = tr\<^sup><)\<^sub>e is R2"
-    using 2 Healthy_def R1_tr'_eq_tr RR_implies_R2 RR_intro assms(1) conj_RR by blast
-  have 7: "(Q \<and> \<not> (tr\<^sup>> = tr\<^sup><)\<^sub>e) = ((Q \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e))"
-    using 4 by (pred_auto)
-               (metis order_le_imp_less_or_eq)
-  have "(Q \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e) is R2c"
-    using RR_implies_R2c assms(2) conj_R2c_closed tr_strict_prefix_R2c_closed by blast
-  then have 8: "(Q \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e) is R2"
-    by (metis (mono_tags, lifting) Healthy_def conj_R1_closed_2 tr_strict_prefix_R1_closed R1_R2c_is_R2)
-  from 6 7 8 have 9: "?PQ is R2"
-    by (simp add: cond_and_R Healthy_def R2_disj)
-  from 3 9 show ?thesis
+  have 4: "R2(P) = P" "R2(Q) = Q"
+    using assms RR_implies_R2 Healthy_def by blast+
+  have 5: "?PQ is R2"
+    apply(simp add: Healthy_def)
+    apply(subst R2_condr)
+    (* The simplifier proof seems to be being held up the difference between
+       (tr\<^sup>> = tr\<^sup><)\<^sub>e and (\<lambda>\<s>. ($tr)\<^sup>> \<s> = ($tr)\<^sup>< \<s>) *)
+    by (metis (mono_tags, lifting) "4" R2_tr'_minus_tr SEXP_def)
+  from 3 5 show ?thesis
     using RR_R2_intro by blast
 qed
 
