@@ -169,12 +169,10 @@ proof -
     by (metis (no_types) Healthy_def 1 assms)
 qed
 
-(*
 lemma conj_RC_closed [closure]:
   assumes "P is RC" "Q is RC"
   shows "(P \<and> Q) is RC"
   by (metis Healthy_def RC_R2_def RC_implies_RR assms comp_apply conj_RC1_closed conj_RR)
-*)
 
 lemma rea_true_RC [closure]: "true\<^sub>r is RC"
   by pred_auto
@@ -182,12 +180,9 @@ lemma rea_true_RC [closure]: "true\<^sub>r is RC"
 lemma false_RC [closure]: "false is RC"
   by pred_auto
 
-(*
 lemma disj_RC_closed [closure]: "\<lbrakk> P is RC; Q is RC \<rbrakk> \<Longrightarrow> (P \<or> Q) is RC"
   by (metis Healthy_def RC_R2_def RC_implies_RR comp_apply disj_RC1_closed disj_RR)
-*)
 
-(*
 lemma UINF_mem_RC1_closed [closure]:
   assumes "\<And> i. P i is RC1"
   shows "(\<Sqinter> i\<in>A. P i) is RC1"
@@ -197,7 +192,6 @@ proof -
   show ?thesis
     by (metis (mono_tags, lifting) "1" Healthy_def UINF_cong assms)
 qed
-*)  
 
 lemma UINF_mem_RC_closed [closure]:
   assumes "\<And> i. P i is RC"
@@ -222,51 +216,46 @@ lemma UINF_ind_RC_closed [closure]:
   shows "(\<Sqinter> i. P i) is RC"
   using assms by (rule closure)
 
-(*
 lemma USUP_mem_RC1_closed [closure]:
   assumes "\<And> i. i \<in> A \<Longrightarrow> P i is RC1" "A \<noteq> {}"
   shows "(\<Squnion> i\<in>A. P i) is RC1"
 proof -
   have "RC1(\<Squnion> i\<in>A. P i) = RC1(\<Squnion> i\<in>A. RC1(P i))"
-    by (simp add: Healthy_if assms(1) cong: USUP_cong)
-  also from assms(2) have "... = (\<Squnion> i\<in>A \<bullet> RC1(P i))"
-    using dual_order.trans by (rel_blast)
-  also have "... = (\<Squnion> i\<in>A \<bullet> P i)"
-    by (simp add: Healthy_if assms(1) cong: USUP_cong)
+    by (simp add: Healthy_if assms(1))
+  also from assms(2) have "... = (\<Squnion> i\<in>A. RC1(P i))"
+    apply pred_auto
+    using order_trans order_refl by blast+
+  also have "... = (\<Squnion> i\<in>A. P i)"
+    by (simp add: Healthy_if assms(1))
   finally show ?thesis
     using Healthy_def by blast
 qed
-*)
 
-(*
 lemma USUP_mem_RC_closed [closure]:
   assumes "\<And> i. i \<in> A \<Longrightarrow> P i is RC" "A \<noteq> {}"
   shows "(\<Squnion> i\<in>A. P i) is RC"
   by (rule RC_intro', simp_all add: closure assms RC_implies_RC1)
 
 lemma USUP_ind_RC_closed [closure]:
-  "\<lbrakk> \<And> i. P i is RC \<rbrakk> \<Longrightarrow> (\<Squnion> i \<bullet> P i) is RC"
+  "\<lbrakk> \<And> i. P i is RC \<rbrakk> \<Longrightarrow> (\<Squnion> i. P i) is RC"
   by (metis UNIV_not_empty USUP_mem_RC_closed)
-*)
 
+(* Doesn't yet go through --- perhaps we are missing a crucial closure lemma? *)
 (*
 lemma neg_trace_ext_prefix_RC [closure]: 
   "\<lbrakk> $tr\<^sup>< \<sharp> e; $ok\<^sup>< \<sharp> e; $wait\<^sup>< \<sharp> e; out\<alpha> \<sharp> e \<rbrakk> \<Longrightarrow> \<not>\<^sub>r (tr\<^sup>< @ e \<le> tr\<^sup>>)\<^sub>e is RC"
-  by (rule RC_intro, simp add: closure, metis RC1_def RC1_trace_ext_prefix)
+  apply (rule RC_intro, simp add: closure, metis RC1_def RC1_trace_ext_prefix)
 *)
 
-(*
 lemma RC1_unrest:
   "\<lbrakk> mwb_lens x; x \<bowtie> tr \<rbrakk> \<Longrightarrow> $x\<^sup>> \<sharp> RC1(P)"
   by (simp add: RC1_def unrest)
-*
-  
+
 lemma RC_unrest_dashed [unrest]:
   "\<lbrakk> P is RC; mwb_lens x; x \<bowtie> tr \<rbrakk> \<Longrightarrow> $x\<^sup>> \<sharp> P"
   by (metis Healthy_if RC1_unrest RC_implies_RC1)
 
 lemma RC1_RR_closed [closure]: "P is RR \<Longrightarrow> RC1(P) is RR"
   by (simp add: RC1_def closure)
-*)
 
 end
