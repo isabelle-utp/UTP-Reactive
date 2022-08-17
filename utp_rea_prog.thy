@@ -72,22 +72,6 @@ proof -
   finally show ?thesis .
 qed
 
-(* These were commented out in UTP1 too and (according to nitpick) are apparently now false
-interpretation alphabet_state:
-  lens_interp "\<lambda>(ok, wait, tr, r). (ok, wait, tr, st\<^sub>v r, more r)"
-  apply (unfold_locales)
-  apply (rule injI)
-  apply (clarsimp)
-  done
-
-interpretation alphabet_state_rel: lens_interp "\<lambda>(ok, ok', wait, wait', tr, tr', r, r').
-  (ok, ok', wait, wait', tr, tr', st\<^sub>v r, st\<^sub>v r', more r, more r')"
-  apply (unfold_locales)
-  apply (rule injI)
-  apply (clarsimp)
-  done
-*)
-
 lemma unrest_st'_neg_RC [unrest]:
   assumes "P is RR" "P is RC"
   shows "$st\<^sup>> \<sharp> P"
@@ -103,31 +87,21 @@ proof -
     by simp
 qed
 
-(*
 lemma ex_st'_RR_closed [closure]: 
   assumes "P is RR"
-  shows "(\<Sqinter> s. P\<lbrakk>s/st\<^sup>>\<rbrakk>) is RR"
+  shows "(\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>/st\<^sup>>\<rbrakk>) is RR"
 proof -
   have 1: "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"
     using assms RR_unrests by blast+
-  have "$ok\<^sup>< \<sharp>\<^sub>s [st\<^sup>> \<leadsto> x]"
-  have "\<And>k'. (sset[$ok\<^sup><, k'] \<dagger> (\<Sqinter>x. P\<lbrakk>x/st\<^sup>>\<rbrakk>) = (\<Sqinter> x. (sset[$ok\<^sup><, k'] \<dagger> P\<lbrakk>x/st\<^sup>>\<rbrakk>)))"
-    by (pred_auto)
-  also have "\<And>k'. ((\<Sqinter>x. sset[$ok\<^sup><, k'] \<dagger> P\<lbrakk>x/st\<^sup>>\<rbrakk>) = (\<Sqinter>x. P\<lbrakk>x/st\<^sup>>\<rbrakk>))"
-    apply(pred_auto)
-    using 1(1) sledgehammer
-  have "$ok\<^sup>< \<sharp> (\<Sqinter> s. P\<lbrakk>s/st\<^sup>>\<rbrakk>)"
-    apply(unrest)
-    apply(pred_auto)
-    using 1_1 sledgehammer
-  have 2: "P is R2"
-  have "RR (\<Sqinter> s. RR(P)\<lbrakk>s/st\<^sup>>\<rbrakk>) = (\<Sqinter> s. RR(P)\<lbrakk>s/st\<^sup>>\<rbrakk>)"
-    apply(simp add: RR_def R2_def)
-    sledgehammer
-  thus ?thesis
-    by (metis Healthy_def assms)
+  have 2: "$ok\<^sup>< \<sharp> (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>/st\<^sup>>\<rbrakk>)" "$ok\<^sup>> \<sharp> (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>/st\<^sup>>\<rbrakk>)" "$wait\<^sup>< \<sharp> (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>/st\<^sup>>\<rbrakk>)" "$wait\<^sup>> \<sharp> (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>/st\<^sup>>\<rbrakk>)"
+    by (simp_all add: unrest 1)
+  have 3: "P = R2(P)"
+    by (simp add: assms Healthy_if RR_implies_R2)
+  have 4: "(\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>/st\<^sup>>\<rbrakk>) is R2"
+    by (subst 3; pred_auto)
+  from 2 4 show ?thesis
+    using RR_R2_intro by blast
 qed
-*)
 
 lemma unrest_st'_R4 [unrest]:
   "$st\<^sup>> \<sharp> P \<Longrightarrow> $st\<^sup>> \<sharp> R4(P)"
@@ -253,6 +227,8 @@ lemma st_subst_comp [usubst]:
 
 definition lift_cond_srea ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<leftarrow>") where
 [rel]: "\<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> = \<lceil>b\<rceil>\<^sub>S\<^sub><"
+
+expr_constructor lift_cond_srea
 
 lemma unrest_lift_cond_srea [unrest]:
   "x \<sharp> \<lceil>b\<rceil>\<^sub>S\<^sub>< \<Longrightarrow> x \<sharp> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow>"
@@ -386,8 +362,13 @@ text \<open> We guard the reactive conditional condition so that it can't be sim
   ('s,'t,'\<alpha>,'\<beta>) rel_rsp" where *)
 (* This definition will break any laws which rely on the relationship between
    reactive conditional and UTP conditional *)
+
 abbreviation cond_srea where
-"cond_srea P b Q \<equiv> (P \<and> \<lceil>(b)\<^sub>e\<rceil>\<^sub>S\<^sub>\<leftarrow>) \<or> (\<not>\<lceil>(b)\<^sub>e\<rceil>\<^sub>S\<^sub>\<leftarrow> \<and> Q)"
+"cond_srea P b Q \<equiv> P \<triangleleft> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> \<triangleright> Q"
+
+(*
+(P \<and> \<lceil>(b)\<^sub>e\<rceil>\<^sub>S\<^sub>\<leftarrow>) \<or> (\<not>\<lceil>(b)\<^sub>e\<rceil>\<^sub>S\<^sub>\<leftarrow> \<and> Q)"
+*)
 
 (*
 syntax
