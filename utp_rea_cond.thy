@@ -87,32 +87,29 @@ lemma RC2_RR_commute:
 
 text \<open> Intuitive meaning of @{term RC2} \<close>
 
-(*
 lemma RC2_form_1:
   assumes "P is RR"
-  shows "RC2(P) = (\<Sqinter> tr\<^sub>0. (\<Sqinter> v\<^sub>0. P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
+  shows "RC2(P) = (\<Sqinter> tr\<^sub>0 :: 'a list. (\<Sqinter> v\<^sub>0. P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk>) \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
 proof -
-  have "RC2(RR(P)) = (\<Sqinter> tr\<^sub>0. (\<Sqinter> v\<^sub>0. RR P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
-    oops
+  have "RC2(RR(P)) = (\<Sqinter> tr\<^sub>0 :: 'a list. (\<Sqinter> v\<^sub>0. (RR P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk>) \<and> (tr\<^sup>> \<le> \<guillemotleft>tr\<^sub>0\<guillemotright> \<and> tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
+    by(pred_auto; blast)
   thus ?thesis
-    by (metis (mono_tags, lifting) Healthy_if assms shEx_cong)
+    by (simp add: Healthy_if assms)
 qed
-*)
 
-(*
+
 lemma RC2_form_2:
   assumes "P is RR"  
-    shows "RC2(P) = (\<Sqinter> t\<^sub>0 t\<^sub>1. (\<Sqinter> v\<^sub>0. P)\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup><,tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (\<guillemotleft>t\<^sub>0\<guillemotright> \<le> \<guillemotleft>t\<^sub>1\<guillemotright> \<and> tr\<^sup>> = tr\<^sup>< + \<guillemotleft>t\<^sub>0\<guillemotright>)\<^sub>e)"
+    shows "RC2(P) = (\<Sqinter> t\<^sub>0 t\<^sub>1. (\<Sqinter> v\<^sub>0. P\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup><,tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk>) \<and> (\<guillemotleft>t\<^sub>0\<guillemotright> \<le> \<guillemotleft>t\<^sub>1\<guillemotright> \<and> tr\<^sup>> = tr\<^sup>< + \<guillemotleft>t\<^sub>0\<guillemotright>)\<^sub>e)"
 proof -
-  have "RC2(RR(P)) = (\<Sqinter> t\<^sub>0 t\<^sub>1. (\<Sqinter> v\<^sub>0. RR P)\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup><,tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk> \<and> (\<guillemotleft>t\<^sub>0\<guillemotright> \<le> \<guillemotleft>t\<^sub>1\<guillemotright> \<and> tr\<^sup>> = tr\<^sup>< + \<guillemotleft>t\<^sub>0\<guillemotright>)\<^sub>e)"
-    apply (pred_auto)
+  have "RC2(RR(P)) = (\<Sqinter> t\<^sub>0 t\<^sub>1. (\<Sqinter> v\<^sub>0. (RR P)\<lbrakk>0,\<guillemotleft>t\<^sub>1\<guillemotright>,\<guillemotleft>v\<^sub>0\<guillemotright>/tr\<^sup><,tr\<^sup>>,\<^bold>v\<^sub>R\<^sup>>\<rbrakk>) \<and> (\<guillemotleft>t\<^sub>0\<guillemotright> \<le> \<guillemotleft>t\<^sub>1\<guillemotright> \<and> tr\<^sup>> = tr\<^sup>< + \<guillemotleft>t\<^sub>0\<guillemotright>)\<^sub>e)"
+    apply pred_auto
     apply (metis diff_add_cancel_left' trace_class.add_le_imp_le_left)
     apply (metis le_add trace_class.add_diff_cancel_left trace_class.add_left_mono)
     done
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
-*)
 
 text \<open> Every reactive condition is prefix closed \<close>
 
