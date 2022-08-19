@@ -149,23 +149,35 @@ abbreviation rea_true :: "('t::trace,'\<alpha>,'\<beta>) rel_rp" ("true\<^sub>r"
 "true\<^sub>r \<equiv> R1(true)"     
 
 definition rea_not :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" ("\<not>\<^sub>r _" [40] 40) 
-where [pred]: "(\<not>\<^sub>r P) = R1(\<not> P)"
+  where [pred]: "(\<not>\<^sub>r P) = R1(\<not> P)"
+
+expr_constructor rea_not
 
 definition rea_diff :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" (infixl "-\<^sub>r" 65)
 where [pred]: "rea_diff P Q = (P \<and> \<not>\<^sub>r Q)"
+
+expr_constructor rea_diff 
 
 definition rea_impl :: 
   "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" (infixr "\<longrightarrow>\<^sub>r" 25) 
 where [pred]: "(P \<longrightarrow>\<^sub>r Q) = (\<not>\<^sub>r P \<or> Q)"
 
+expr_constructor rea_impl
+
 definition rea_lift :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" ("[_]\<^sub>r") 
 where [pred]: "[P]\<^sub>r = R1(P)"
-   
+
+expr_constructor rea_lift
+
 definition rea_skip :: "('t::trace,'\<alpha>) hrel_rp" ("II\<^sub>r") 
 where [pred]: "II\<^sub>r = (tr\<^sup>> = tr\<^sup>< \<and> \<^bold>v\<^sub>R\<^sup>> = \<^bold>v\<^sub>R\<^sup><)\<^sub>e"
-  
+
+expr_constructor rea_skip
+
 definition rea_assert :: "('t::trace,'\<alpha>) hrel_rp \<Rightarrow> ('t,'\<alpha>) hrel_rp" ("{_}\<^sub>r")
 where [pred]: "{b}\<^sub>r = (II\<^sub>r \<or> \<not>\<^sub>r b)"
+
+expr_constructor rea_assert
 
 text \<open> Convert from one trace algebra to another using renamer functions, which are a kind of
   monoid homomorphism. \<close>

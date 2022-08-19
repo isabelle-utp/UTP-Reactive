@@ -8,10 +8,14 @@ subsection \<open> Healthiness Conditions \<close>
     
 definition RC1 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "RC1(P) = (\<not>\<^sub>r (\<not>\<^sub>r P) ;; true\<^sub>r)"
+
+expr_constructor RC1
   
 definition RC :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "RC = RC1 \<circ> RR"
-  
+
+expr_constructor RC
+
 lemma RC_intro: "\<lbrakk> P is RR; ((\<not>\<^sub>r (\<not>\<^sub>r P) ;; true\<^sub>r) = P) \<rbrakk> \<Longrightarrow> P is RC"
   by (simp add: Healthy_def RC1_def RC_def)
 
@@ -71,6 +75,8 @@ text \<open> The @{term RC} healthy relations can also be defined in terms of pr
 
 definition RC2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "RC2(P) = R1(P ;; (tr\<^sup>> \<le> tr\<^sup><)\<^sub>e)"
+
+expr_constructor RC2
 
 lemma RC2_RR_commute: 
   "RC2(RR(P)) = RR(RC2(P))"
