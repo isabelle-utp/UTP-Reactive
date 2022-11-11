@@ -245,13 +245,13 @@ subsection \<open> R2: No dependence upon trace history \<close>
 text \<open> There are various ways of expressing $R2$, which are enumerated below. \<close>
 
 definition R2a :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
-[pred]: "R2a (P) = (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>,(\<guillemotleft>s\<guillemotright>+(tr\<^sup>>-tr\<^sup><))/tr\<^sup><,tr\<^sup>>\<rbrakk>)\<^sub>e"
+[pred]: "R2a (P) = (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>,(\<guillemotleft>s\<guillemotright>+(tr\<^sup>>-tr\<^sup><))/tr\<^sup><,tr\<^sup>>\<rbrakk>)"
 
 definition R2a' :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
 [pred]: "R2a' P = (R2a(P) \<triangleleft> R1(true) \<triangleright> P)"
 
 definition R2s :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
-[pred]: "R2s (P) = (P\<lbrakk>0, (tr\<^sup>>-tr\<^sup><) / tr\<^sup><, tr\<^sup>>\<rbrakk>)\<^sub>e"
+[pred]: "R2s (P) = P\<lbrakk>0, (tr\<^sup>>-tr\<^sup><) / tr\<^sup><, tr\<^sup>>\<rbrakk>"
 
 definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "R2(P) = R1(R2s(P))"
@@ -324,31 +324,45 @@ qed
 
 (* TODO: why can't the following set of lemmas be proved using simp e.g.
      by (simp add: R2_def R1_def R2s_def usubst unrest)
-    as in old UTP *)
+         as in old UTP
+
+   ANSWER: Substitution has changed to a much shallower process, employing
+    lambda applications. This means it's much more efficient, but also we have
+    a bit less control over it. This particularly surfaces when performing subsitutions
+    on terms containing expression variables as below. My fix was to (1) remove the e-brackets
+    from the definition of @{const R2s}, as they are not necessary, and (2) to make
+    a few improvements to substitution in shallow expressions.
+*)
 
 lemma R2s_subst_wait_true [usubst]:
   "(R2s(P))\<lbrakk>True/wait\<^sup><\<rbrakk> = R2s(P\<lbrakk>True/wait\<^sup><\<rbrakk>)"
-  by (pred_auto; metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))
+  by (simp add: R2_def R1_def R2s_def usubst unrest)
+     (subst_eval)
 
 lemma R2s_subst_wait'_true [usubst]:
   "(R2s(P))\<lbrakk>True/wait\<^sup>>\<rbrakk> = R2s(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
-  by (pred_auto; metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))
+  by (simp add: R2_def R1_def R2s_def usubst unrest)
+     (subst_eval)
 
 lemma R2_subst_wait_true [usubst]:
   "(R2(P))\<lbrakk>True/wait\<^sup><\<rbrakk> = R2(P\<lbrakk>True/wait\<^sup><\<rbrakk>)"
-  by (pred_auto; metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))
-
+  by (simp add: R2_def R1_def R2s_def usubst unrest)
+     (subst_eval)
+ 
 lemma R2_subst_wait'_true [usubst]:
   "(R2(P))\<lbrakk>True/wait\<^sup>>\<rbrakk> = R2(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
-  by (pred_auto; metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))
+  by (simp add: R2_def R1_def R2s_def usubst unrest)
+     (subst_eval)
 
 lemma R2_subst_wait_false [usubst]:
   "(R2(P))\<lbrakk>False/wait\<^sup><\<rbrakk> = R2(P\<lbrakk>False/wait\<^sup><\<rbrakk>)"
-  by (pred_auto; metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))
+  by (simp add: R1_def R2_def R2s_def usubst unrest)
+     (subst_eval)
 
 lemma R2_subst_wait'_false [usubst]:
   "(R2(P))\<lbrakk>False/wait\<^sup>>\<rbrakk> = R2(P\<lbrakk>False/wait\<^sup>>\<rbrakk>)"
-  by (pred_auto; metis rea_vars.surjective rea_vars.update_convs(1) rea_vars.update_convs(2))
+  by (simp add: R1_def R2_def R2s_def usubst unrest)
+     (subst_eval)
 
 lemma R2c_R2s_absorb: "R2c(R2s(P)) = R2s(P)"
   by (pred_auto)

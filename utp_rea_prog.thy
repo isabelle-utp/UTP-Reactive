@@ -174,10 +174,10 @@ text \<open> Lifting substitutions on the reactive state \<close>
 text \<open> The following two functions lift a predicate substitution to a relational one. \<close>
 
 abbreviation usubst_rel_lift :: "'\<alpha> subst \<Rightarrow> ('\<alpha> \<times> '\<beta>) subst" ("\<lceil>_\<rceil>\<^sub>s") where
-"\<lceil>\<sigma>\<rceil>\<^sub>s \<equiv> \<sigma> \<up>\<^sub>s fst\<^sub>L"
+"\<lceil>\<sigma>\<rceil>\<^sub>s \<equiv> subst_aext \<sigma> fst\<^sub>L"
 
 abbreviation usubst_rel_drop :: "('\<alpha> \<times> '\<alpha>) subst \<Rightarrow> '\<alpha> subst" ("\<lfloor>_\<rfloor>\<^sub>s") where
-"\<lfloor>\<sigma>\<rfloor>\<^sub>s \<equiv> \<sigma> \<down>\<^sub>s fst\<^sub>L"
+"\<lfloor>\<sigma>\<rfloor>\<^sub>s \<equiv> subst_ares \<sigma> fst\<^sub>L"
 
 (* TODO(@MattWindsor91) *)
 (* :: "'s subst \<Rightarrow> (('s,'t::trace,'\<alpha>) rsp \<times> ('s,'t,'\<beta>) rsp) subst" *)
