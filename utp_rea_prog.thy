@@ -198,7 +198,7 @@ translations
 expr_constructor st_subst
 
 lemma st_lift_lemma:
-  "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> = (\<sigma> \<up>\<^sub>s (fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st)))"
+  "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> = (subst_aext \<sigma> (fst\<^sub>L ;\<^sub>L (st \<times>\<^sub>L st)))"
   by pred_auto
 
 (*
