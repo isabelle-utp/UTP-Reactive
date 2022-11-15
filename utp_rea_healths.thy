@@ -1010,7 +1010,7 @@ lemma seq_R5_closed [closure]:
   by (pred_auto, metis)
 
 
-subsection {* RP laws *}
+subsection \<open> RP laws \<close>
 
 definition RP_def [pred]: "RP(P) = R1(R2c(R3(P)))"
 
