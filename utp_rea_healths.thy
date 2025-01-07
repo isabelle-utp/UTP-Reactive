@@ -1,7 +1,7 @@
 section \<open> Reactive Healthiness Conditions \<close>
 
 theory utp_rea_healths
-  imports utp_rea_core "UTP-Designs.utp_des_healths"
+  imports utp_rea_core
 begin
 
 subsection \<open> R1: Events cannot be undone \<close>
@@ -26,10 +26,6 @@ lemma R1_Monotonic: "Monotonic R1"
 
 lemma R1_Continuous: "Continuous R1"
   by (simp add: Continuous_def, pred_auto)
-
-(*
-Can use find_theorems to look for applicable theorems
-find_theorems "(\<bowtie>)" "(\<bowtie>\<^sub>S)" *)
 
 lemma R1_unrest:
   assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)" "$x \<sharp> P"
@@ -123,9 +119,6 @@ lemma R1_wait_false [usubst]: "(R1 P) \<^sub>f = R1(P) \<^sub>f"
 lemma R1_wait'_true [usubst]: "(R1 P)\<lbrakk>True/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
   by pred_auto
 
-term "P\<lbrakk>False/wait\<^sup>>\<rbrakk>"
-(* term "[wait\<^sup>> \<leadsto> false] \<dagger> P" *)
-
 lemma R1_wait'_false [usubst]: "(R1 P)\<lbrakk>False/wait\<^sup>>\<rbrakk> = R1(P\<lbrakk>False/wait\<^sup>>\<rbrakk>)"
   by pred_auto
 
@@ -198,13 +191,11 @@ lemma R1_power [closure]: "P is R1 \<Longrightarrow> P\<^bold>^n is R1"
 lemma R1_true_comp [simp]: "(R1(true) ;; R1(true)) = R1(true)"
   by (pred_auto; metis order_refl rea_vars.select_convs(2))
 
-(*
 lemma R1_ok'_true: "(R1(P))\<^sup>t = R1(P\<^sup>t)"
   by pred_auto
 
 lemma R1_ok'_false: "(R1(P))\<^sup>f = R1(P\<^sup>f)"
   by pred_auto
-*)
 
 lemma R1_ok_true: "(R1(P))\<lbrakk>True/ok\<^sup><\<rbrakk> = R1(P\<lbrakk>True/ok\<^sup><\<rbrakk>)"
   by pred_auto
@@ -220,13 +211,6 @@ lemma conj_R1_true_right: "(P;;R1(true) \<and> Q;;R1(true)) ;; R1(true) = (P;;R1
   using dual_order.trans apply blast
   using dual_order.trans apply blast
   by (metis order_refl)
-
-(* Why is this a lemma given the assumptions are not needed? *)
-lemma R1_extend_conj_unrest: "\<lbrakk> $tr\<^sup>< \<sharp> Q; $tr\<^sup>> \<sharp> Q \<rbrakk> \<Longrightarrow> R1 (P \<and> Q) = (R1 P \<and> Q)"
-  by (rule R1_extend_conj)
-
-lemma R1_extend_conj_unrest': "\<lbrakk> $tr\<^sup>< \<sharp> Q; $tr\<^sup>> \<sharp> Q \<rbrakk> \<Longrightarrow> R1 (P \<and> Q) = (P \<and> R1 Q)"
-  by (rule R1_extend_conj')
 
 lemma R1_tr'_eq_tr: "R1(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
   by (pred_auto)
@@ -251,7 +235,7 @@ definition R2a' :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\
 [pred]: "R2a' P = (R2a(P) \<triangleleft> R1(true) \<triangleright> P)"
 
 definition R2s :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
-[pred]: "R2s (P) = P\<lbrakk>0, (tr\<^sup>>-tr\<^sup><) / tr\<^sup><, tr\<^sup>>\<rbrakk>"
+[pred]: "R2s (P) = P\<lbrakk>0, tr\<^sup>>-tr\<^sup>< / tr\<^sup><, tr\<^sup>>\<rbrakk>"
 
 definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
 [pred]: "R2(P) = R1(R2s(P))"
@@ -307,10 +291,9 @@ proof -
     by (simp add: R2c_def cond_and unrest_pred 1 2 assms unrest_ok_R2s)
 qed
 
-(* TODO: this should have a better proof *)
 lemma R2s_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (tr ;\<^sub>L fst\<^sub>L); x \<bowtie> (tr ;\<^sub>L snd\<^sub>L); $x \<sharp> P \<rbrakk> \<Longrightarrow> $x \<sharp> R2s(P)"
-  apply (simp add: R2s_def unrest usubst lens_indep_sym)
-  by (smt (z3) SEXP_def aext_var lens_indep.lens_put_comm lens_indep.lens_put_irr2 ns_alpha_def subst_SEXP subst_id_def subst_upd_def subst_var unrest_lens vwb_lens_mwb)
+  by (simp add: R2s_def unrest usubst lens_indep_sym)
+     (simp add: lens_indep.lens_put_comm lens_indep.lens_put_irr2 ns_alpha_def subst_id_def subst_upd_def unrest_subst_apply unrest_subst_lens)
 
 lemma unrest_ok'_R2c [unrest]:
   assumes "$ok\<^sup>> \<sharp> P"
@@ -321,18 +304,6 @@ proof -
   thus ?thesis
     by (simp add: R2c_def cond_and unrest_pred 1 2 assms unrest_ok'_R2s)
 qed
-
-(* TODO: why can't the following set of lemmas be proved using simp e.g.
-     by (simp add: R2_def R1_def R2s_def usubst unrest)
-         as in old UTP
-
-   ANSWER: Substitution has changed to a much shallower process, employing
-    lambda applications. This means it's much more efficient, but also we have
-    a bit less control over it. This particularly surfaces when performing subsitutions
-    on terms containing expression variables as below. My fix was to (1) remove the e-brackets
-    from the definition of @{const R2s}, as they are not necessary, and (2) to make
-    a few improvements to substitution in shallow expressions.
-*)
 
 lemma R2s_subst_wait_true [usubst]:
   "(R2s(P))\<lbrakk>True/wait\<^sup><\<rbrakk> = R2s(P\<lbrakk>True/wait\<^sup><\<rbrakk>)"
@@ -543,33 +514,8 @@ lemma R2c_condr: "R2c(P \<triangleleft> b \<triangleright> Q) = (R2c(P) \<triang
 lemma shAll_meet: "(\<Squnion> x. (\<guillemotleft>f\<guillemotright> \<guillemotleft>x\<guillemotright>)\<^sub>e) = (\<forall> x. \<guillemotleft>f\<guillemotright> x)\<^sub>e"
   by pred_auto
 
-(*
-lemma shAll_meet2: "(\<Squnion> x. f (P \<guillemotleft>x\<guillemotright>)\<^sub>e) = (\<forall> x. (\<guillemotleft>f\<guillemotright> P) x)\<^sub>e"
-  apply pred_auto
-  oops
-  (* sledgehammer *)
-*)
-
-ML \<open>
-  @{term "(R2c(P x))\<^sub>e"}
-\<close>
-
 lemma shAll_meet3: "(\<Squnion> x. (\<guillemotleft>f\<guillemotright> (P \<guillemotleft>x\<guillemotright>))\<^sub>e) = (\<forall> x. \<guillemotleft>f\<guillemotright> (P x))\<^sub>e"
   by pred_auto
-
-(* Cannot quite make the equivalence work
-lemma R2c_shAll: "R2c (\<forall> x. P x)\<^sub>e = (\<forall> x. R2c(P x))\<^sub>e"
-  apply(pred_auto)
-proof - 
-  have "R2c (\<forall> x. P x)\<^sub>e = R2c (\<Squnion> x. (P \<guillemotleft>x\<guillemotright>)\<^sub>e)"
-    by pred_auto
-  also have "\<dots> = (\<Squnion> x. R2c(P \<guillemotleft>x\<guillemotright>)\<^sub>e)"
-    using R2c_UINF by blast
-  also have "\<dots> = (\<forall> x. R2c(P x))\<^sub>e"
-    apply pred_simp
-    oops
-qed
-*)
 
 lemma R2c_impl: "R2c(P \<longrightarrow> Q) = (R2c(P) \<longrightarrow> R2c(Q))"
 proof -
@@ -581,8 +527,6 @@ proof -
     by (simp add: impl_neg_disj)
   finally show ?thesis .
 qed
-
-(* Need an implementation of alphabet restriction e.g. *)
 
 text \<open> We implement a poor man's version of alphabet restriction that hides a variable within 
   a relation. \<close>
@@ -633,26 +577,12 @@ lemma R1_R2s_tr'_eq_tr:
   apply pred_auto using minus_zero_eq by blast
 
 (* Need to figure out how to prove (3) or a better proof *)
-(*
+
 lemma R1_R2s_tr'_extend_tr:
   assumes "$tr\<^sup>< \<sharp> v" "$tr\<^sup>> \<sharp> v"
-  shows "R1 (R2s (tr\<^sup>> = tr\<^sup>< @ (v :: 'a list list))\<^sub>e) = (tr\<^sup>> = tr\<^sup>< @ v)\<^sub>e"
-proof (simp add: R1_def R2s_def)
-  have 1: "mwb_lens tr"
-    using tr_vwb_lens vwb_lens_mwb by blast
-  have "[tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> (($tr)\<^sup>> = $tr\<^sup>< @ v)\<^sub>e = (($tr)\<^sup>> - ($tr)\<^sup>< = 0 @ v)\<^sub>e"
-    using assms 1 apply(subst_eval)
-    oops
-  have "(($tr)\<^sup>> = ($tr)\<^sup>< @ v)\<^sub>e = (($tr)\<^sup>> - ($tr)\<^sup>< = v \<and> $tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e"
-    apply(pred_auto)
-    apply (metis append_minus)
-    by (simp add: Prefix_Order.prefixI)
-
-  have "(([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> ($tr\<^sup>> = $tr\<^sup>< @ v \<and> ($tr)\<^sup>< \<le> ($tr)\<^sup>>)\<^sub>e))
-      = (($tr\<^sup>> - $tr\<^sup>< = 0 @ v \<and> ($tr)\<^sup>< \<le> ($tr)\<^sup>>)\<^sub>e)"
-    
-qed
-*)
+  shows "R1 (R2s (tr\<^sup>> = tr\<^sup>< + v)\<^sub>e) = (tr\<^sup>> = tr\<^sup>< + v)\<^sub>e"
+  using assms
+  by (pred_simp, metis (no_types, lifting) add_monoid_diff_cancel_left diff_add_cancel_left' le_add)
 
 lemma R2_tr_prefix: "R2(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e = (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e"
   by pred_auto
@@ -1035,9 +965,7 @@ lemma RP_mono: "P \<sqsubseteq> Q \<Longrightarrow> RP(P) \<sqsubseteq> RP(Q)"
   by (simp add: R1_R2c_is_R2 R2_mono R3_mono RP_def)
 
 lemma RP_Monotonic: "Monotonic RP"
-  by (simp add: mono_def, pred_auto)
-(* would be nice to reuse RP_mono
- * apply (simp add: mono_def RP_mono) *)
+  using Monotonic_refine RP_mono by blast
 
 lemma RP_Continuous: "Continuous RP"
   by (simp add: Continuous_comp R1_Continuous R2c_Continuous R3_Continuous RP_comp_def)
@@ -1062,7 +990,6 @@ proof (rule RP_intro)
     by (metis (no_types, lifting) Healthy_def' R1_R2c_is_R2 R2_R3_commute R3_idem R3_semir_form RP_def assms)
 qed
 
-(*
 subsection \<open> UTP theories \<close>
 
 interpretation rea_theory: utp_theory_continuous RP
@@ -1071,21 +998,21 @@ interpretation rea_theory: utp_theory_continuous RP
   and "eq des_theory.thy_order = (=)"  
 proof -
   show "utp_theory_continuous RP"
-    by (unfold_locales, simp_all add: RP_idem RP_Continuous)
+    by (unfold_locales, simp_all add: RP_Idempotent RP_Continuous)
 qed (simp_all)
 
 notation rea_theory.utp_top ("\<^bold>\<top>\<^sub>r")
 notation rea_theory.utp_bottom ("\<^bold>\<bottom>\<^sub>r")
 
-interpretation rea_theory_rel: utp_theory_unital RP skip_r
+interpretation rea_theory_rel: utp_theory_unital RP II
   by (unfold_locales, simp_all add: closure)
 
-lemma rea_top: "\<^bold>\<top>\<^sub>r = ($wait \<and> II)"
+lemma rea_top: "\<^bold>\<top>\<^sub>r = ($wait\<^sup>< \<and> II)\<^sub>e"
 proof -
   have "\<^bold>\<top>\<^sub>r = RP(false)"
     by (simp add: rea_theory.healthy_top)
-  also have "... = ($wait \<and> II)"
-    by (rel_auto, metis minus_zero_eq)
+  also have "... = ($wait\<^sup>< \<and> II)\<^sub>e"
+    by (pred_auto, metis minus_zero_eq)
   finally show ?thesis .
 qed
 
@@ -1093,25 +1020,25 @@ lemma rea_top_left_zero:
   assumes "P is RP"
   shows "(\<^bold>\<top>\<^sub>r ;; P) = \<^bold>\<top>\<^sub>r"
 proof -
-  have "(\<^bold>\<top>\<^sub>r ;; P) = (($wait \<and> II) ;; R3(P))"
-    by (metis (no_types, lifting) Healthy_def R1_R2c_is_R2 R2_R3_commute R3_idem RP_def assms rea_top)
-  also have "... = ($wait \<and> R3(P))"
-    by (rel_auto)
-  also have "... = ($wait \<and> II)"
-    by (metis R3_skipr wait_R3)
+  have "(\<^bold>\<top>\<^sub>r ;; P) = (($wait\<^sup>< \<and> II)\<^sub>e ;; R3(P))"
+    unfolding rea_top
+    by (metis (no_types, lifting) Healthy_def R1_R2c_is_R2 R2_R3_commute R3_idem RP_def assms)
+  also have "... = ($wait\<^sup>< \<and> R3(P))\<^sub>e"
+    by (pred_auto)
+  also have "... = ($wait\<^sup>< \<and> II)\<^sub>e"
+    by (metis (no_types, lifting) R3_form SEXP_def aext_var)
   also have "... = \<^bold>\<top>\<^sub>r"
     by (simp add: rea_top)
   finally show ?thesis .
 qed
 
-lemma rea_bottom: "\<^bold>\<bottom>\<^sub>r = R1($wait \<Rightarrow> II)"
+lemma rea_bottom: "\<^bold>\<bottom>\<^sub>r = R1($wait\<^sup>< \<longrightarrow> II)\<^sub>e"
 proof -
   have "\<^bold>\<bottom>\<^sub>r = RP(true)"
     by (simp add: rea_theory.healthy_bottom)
-  also have "... = R1($wait \<Rightarrow> II)"
-    by (rel_auto, metis minus_zero_eq)
+  also have "... = R1($wait\<^sup>< \<longrightarrow> II)\<^sub>e"
+    by (pred_auto, metis minus_zero_eq)
   finally show ?thesis .
 qed
-*)
 
 end

@@ -1,6 +1,8 @@
 theory utp_rea_core
-  imports "UTP-Designs.utp_des_core" "UTP2.utp" "UTP2.utp_pred" "Shallow-Expressions.Shallow_Expressions" "Z_Toolkit.Trace_Algebra"
+  imports "UTP-Designs.utp_designs" "Circus_Toolkit.Trace_Algebra"
 begin
+
+unbundle UTP_Syntax
 
 alphabet 't::trace rea_vars = des_vars +
   wait :: bool
@@ -18,12 +20,7 @@ translations
   (type) "('t,'\<alpha>,'\<beta>) rel_rp" <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
   (type) "('t,'\<alpha>) hrel_rp"  <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
 
-(* Now denoted as v\<^sub>R rather than \<Sigma>\<^sub>R *)
-
 notation rea_vars.more\<^sub>L ("\<^bold>v\<^sub>R")
-
-term "\<^bold>v\<^sub>R"
-
 
 syntax
   "_svid_rea_alpha"  :: "svid" ("\<^bold>v\<^sub>R")
@@ -31,8 +28,8 @@ syntax
 translations
   "_svid_rea_alpha" => "CONST rea_vars.more\<^sub>L"
 
-(*declare zero_list_def [upred_defs]
-declare plus_list_def [upred_defs]*)
+declare zero_list_def [pred]
+declare plus_list_def [pred]
 declare prefixE [elim]
 
 abbreviation wait_f::"('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>f" [1000] 1000)
@@ -41,21 +38,11 @@ where "wait_f R \<equiv> R\<lbrakk>False/wait\<^sup><\<rbrakk>"
 abbreviation wait_t::"('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>t" [1000] 1000)
   where "wait_t R \<equiv> R\<lbrakk>True/wait\<^sup><\<rbrakk>"
 
-(*
-syntax
-  "_wait_f"  :: "logic \<Rightarrow> logic" ("_\<^sub>f" [1000] 1000)
-  "_wait_t"  :: "logic \<Rightarrow> logic" ("_\<^sub>t" [1000] 1000)
-
-translations
-  "P \<^sub>f" \<rightleftharpoons> "CONST usubst (CONST subst_upd id\<^sub>s (CONST in_var CONST wait) false) P"
-  "P \<^sub>t" \<rightleftharpoons> "CONST usubst (CONST subst_upd id\<^sub>s (CONST in_var CONST wait) true) P"
-*)
-
 abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t::trace, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
-"\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> (\<^bold>v\<^sub>R\<^sup>2)"
+"\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> \<^bold>v\<^sub>R\<^sup>2"
 
 definition drop_rea :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
-"\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> (\<^bold>v\<^sub>R\<^sup>2)"
+"\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> \<^bold>v\<^sub>R\<^sup>2"
 
 (*
 abbreviation rea_pre_lift :: "('d \<Rightarrow> 'e) \<Rightarrow> ('a, 'b, 'c) rel_rp"  ("\<lceil>_\<rceil>\<^sub>R\<^sub><") where "\<lceil>n\<rceil>\<^sub>R\<^sub>< \<equiv> \<lceil>n\<^sup><\<rceil>\<^sub>R"
@@ -74,6 +61,7 @@ lemma des_lens_equiv_wait_tr_rest: "\<^bold>v\<^sub>D \<approx>\<^sub>L (wait +\
   by simp
 
 text \<open> Pairing the reactive alphabet with its control variables forms a bijective lens. \<close>
+
 lemma rea_lens_bij: "bij_lens (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R)"
 proof -
   have "ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L \<^bold>v\<^sub>R \<approx>\<^sub>L ok +\<^sub>L \<^bold>v\<^sub>D"
@@ -106,12 +94,10 @@ syntax
   "_svid_itrace"  :: "svid" ("\<^bold>i\<^bold>t")
   "_utr_iter"     :: "logic \<Rightarrow> logic \<Rightarrow> logic" ("iter[_]'(_')")
 
-
 translations
   "_svid_tcontr" == "CONST tcontr"
   "_svid_itrace" == "CONST itrace"
   "iter[n](P)"   == "CONST uop (CONST tr_iter n) P"
-
 
 lemma tcontr_alt_def: "(tt)\<^sub>e = (tr\<^sup>> - tr\<^sup><)"
   by pred_auto
@@ -129,24 +115,5 @@ lemma itrace_indeps [simp]:
   assumes "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)"
   shows "x \<bowtie> \<^bold>i\<^bold>t" "\<^bold>i\<^bold>t \<bowtie> x"
   using assms by (unfold lens_indep_def, safe, simp_all add: lens_defs)
-
-(* Thomas: these lemmata are not applicable unless we want to lift trace operations
- * to expressions as in UTP1 *)
-(*
-text \<open> We lift a few trace properties from the trace class using \emph{transfer}. \<close>
-
-lemma uexpr_diff_zero [simp]:
-  fixes a :: "('\<alpha>::trace, 'a) expr"
-  shows "a - 0 = a"
-  by (simp add: minus_uexpr_def zero_uexpr_def, transfer, auto)
-
-lemma uexpr_add_diff_cancel_left [simp]:
-  fixes a b :: "('\<alpha>::trace, 'a) expr"
-  shows "(a + b) - a = b"
-  by (simp add: minus_uexpr_def plus_uexpr_def, transfer, auto)
-
-lemma iter_0 [simp]: "iter[0](t) = U([])"
-  by (transfer, simp)
-*)
 
 end

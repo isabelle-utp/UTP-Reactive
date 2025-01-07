@@ -222,8 +222,6 @@ where [pred]: "P\<lbrakk>v\<rbrakk>\<^sub>r = R1(P\<lbrakk>v/tt\<rbrakk>)\<^sub>
 
 subsection \<open> Unrestriction and substitution laws \<close>
 
-find_theorems "?x \<in>\<^sub>v ?y"
-
 lemma rea_true_unrest [unrest]:
   assumes "mwb_lens x" "x \<bowtie> (ns_alpha fst\<^sub>L tr)" "x \<bowtie> (ns_alpha snd\<^sub>L tr)"
   shows "$x \<sharp> true\<^sub>r"
@@ -861,7 +859,6 @@ lemma R5_UINF [rpred]: "R5(\<Sqinter> i\<in>I. P(i)) = (\<Sqinter> i\<in>I. R5(P
 
 subsection \<open> UTP theory \<close>
 
-(*
 text \<open> We create a UTP theory of reactive relations which in particular provides Kleene star theorems \<close>
 
 interpretation rrel_theory: utp_theory_kleene RR II\<^sub>r
@@ -872,11 +869,11 @@ interpretation rrel_theory: utp_theory_kleene RR II\<^sub>r
   and rrel_bottom: "rrel_theory.utp_bottom = true\<^sub>r"
 proof -
   interpret utp_theory_continuous RR
-    by (unfold_locales, simp_all add: add: RR_idem RR_Continuous)
+    by (unfold_locales, simp_all add: add: RR_Idempotent RR_Continuous)
   show top:"utp_top = false"
-    by (simp add: healthy_top, rel_auto)
+    by (simp add: healthy_top, pred_auto)
   show bot:"utp_bottom = true\<^sub>r"
-    by (simp add: healthy_bottom, rel_auto)
+    by (simp add: healthy_bottom, pred_auto)
   show "utp_theory_kleene RR II\<^sub>r"
     by (unfold_locales, simp_all add: closure rpred top)
 qed (simp_all)
@@ -888,6 +885,7 @@ text \<open> The supernova tactic explodes conjectures using the Kleene star law
 
 method supernova = ((safe intro!: rrel_theory.Star_inductr rrel_theory.Star_inductl, simp_all add: closure) ; rel_auto)[1]
 
+(*
 subsection \<open> Instantaneous Reactive Relations \<close>
 
 text \<open> Instantaneous Reactive Relations, where the trace stays the same. \<close>
