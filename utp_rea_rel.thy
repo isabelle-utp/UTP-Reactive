@@ -13,7 +13,7 @@ text \<open> This theory defines a reactive relational calculus for @{term R1}-@
 
 subsection \<open> Healthiness Conditions \<close>
 
-definition RR :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition RR :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "RR(P) = (\<Sqinter> k k' w w' :: bool. (R2 P)\<lbrakk>\<guillemotleft>k\<guillemotright>,\<guillemotleft>k'\<guillemotright>,\<guillemotleft>w\<guillemotright>,\<guillemotleft>w'\<guillemotright>/ok\<^sup><,ok\<^sup>>,wait\<^sup><,wait\<^sup>>\<rbrakk>)"
 
 expr_constructor RR
@@ -145,36 +145,36 @@ subsection \<open> Reactive relational operators \<close>
 
 named_theorems rpred
   
-abbreviation rea_true :: "('t::trace,'\<alpha>,'\<beta>) rel_rp" ("true\<^sub>r") where 
+abbreviation rea_true :: "('t::trace,'\<alpha>,'\<beta>) rp_rel" ("true\<^sub>r") where 
 "true\<^sub>r \<equiv> R1(true)"     
 
-definition rea_not :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" ("\<not>\<^sub>r _" [40] 40) 
+definition rea_not :: "('t::trace,'\<alpha>,'\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" ("\<not>\<^sub>r _" [40] 40) 
   where [pred]: "(\<not>\<^sub>r P) = R1(\<not> P)"
 
 expr_constructor rea_not
 
-definition rea_diff :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" (infixl "-\<^sub>r" 65)
+definition rea_diff :: "('t::trace,'\<alpha>,'\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" (infixl "-\<^sub>r" 65)
 where [pred]: "rea_diff P Q = (P \<and> \<not>\<^sub>r Q)"
 
 expr_constructor rea_diff 
 
 definition rea_impl :: 
-  "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" (infixr "\<longrightarrow>\<^sub>r" 25) 
+  "('t::trace,'\<alpha>,'\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" (infixr "\<longrightarrow>\<^sub>r" 25) 
 where [pred]: "(P \<longrightarrow>\<^sub>r Q) = (\<not>\<^sub>r P \<or> Q)"
 
 expr_constructor rea_impl
 
-definition rea_lift :: "('t::trace,'\<alpha>,'\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" ("[_]\<^sub>r") 
+definition rea_lift :: "('t::trace,'\<alpha>,'\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" ("[_]\<^sub>r") 
 where [pred]: "[P]\<^sub>r = R1(P)"
 
 expr_constructor rea_lift
 
-definition rea_skip :: "('t::trace,'\<alpha>) hrel_rp" ("II\<^sub>r") 
+definition rea_skip :: "('t::trace,'\<alpha>) rp_hrel" ("II\<^sub>r") 
 where [pred]: "II\<^sub>r = (tr\<^sup>> = tr\<^sup>< \<and> \<^bold>v\<^sub>R\<^sup>> = \<^bold>v\<^sub>R\<^sup><)\<^sub>e"
 
 expr_constructor rea_skip
 
-definition rea_assert :: "('t::trace,'\<alpha>) hrel_rp \<Rightarrow> ('t,'\<alpha>) hrel_rp" ("{_}\<^sub>r")
+definition rea_assert :: "('t::trace,'\<alpha>) rp_hrel \<Rightarrow> ('t,'\<alpha>) rp_hrel" ("{_}\<^sub>r")
 where [pred]: "{b}\<^sub>r = (II\<^sub>r \<or> \<not>\<^sub>r b)"
 
 expr_constructor rea_assert
@@ -211,7 +211,7 @@ lemma renamer_comp: "\<lbrakk> renamer f; renamer g \<rbrakk> \<Longrightarrow> 
 lemma renamer_map: "inj f \<Longrightarrow> renamer (map f)"
   by (unfold_locales, simp_all add: plus_list_def)
 
-definition rea_rename :: "('t\<^sub>1::trace,'\<alpha>) hrel_rp \<Rightarrow> ('t\<^sub>1 \<Rightarrow> 't\<^sub>2) \<Rightarrow> ('t\<^sub>2::trace,'\<alpha>) hrel_rp" ("(_)\<lparr>_\<rparr>\<^sub>r" [999, 0] 999) where
+definition rea_rename :: "('t\<^sub>1::trace,'\<alpha>) rp_hrel \<Rightarrow> ('t\<^sub>1 \<Rightarrow> 't\<^sub>2) \<Rightarrow> ('t\<^sub>2::trace,'\<alpha>) rp_hrel" ("(_)\<lparr>_\<rparr>\<^sub>r" [999, 0] 999) where
 [pred]: "rea_rename P f = R2(((tr\<^sup>> = 0) \<and> \<^bold>v\<^sub>R\<^sup>> = \<^bold>v\<^sub>R\<^sup><)\<^sub>e ;; P ;; (tr\<^sup>> = \<guillemotleft>f\<guillemotright> (tr\<^sup><) \<and> \<^bold>v\<^sub>R\<^sup>> = \<^bold>v\<^sub>R\<^sup><)\<^sub>e)"
 
 text \<open> Trace contribution substitution: make a substitution for the trace contribution lens 
@@ -890,7 +890,7 @@ subsection \<open> Instantaneous Reactive Relations \<close>
 
 text \<open> Instantaneous Reactive Relations, where the trace stays the same. \<close>
   
-abbreviation Instant :: "('t::trace, '\<alpha>) hrel_rp \<Rightarrow> ('t, '\<alpha>) hrel_rp" where
+abbreviation Instant :: "('t::trace, '\<alpha>) rp_hrel \<Rightarrow> ('t, '\<alpha>) rp_hrel" where
 "Instant(P) \<equiv> tr:\<lbrakk>P\<rbrakk>"
 
 lemma skip_rea_Instant [closure]: "II\<^sub>r is Instant"

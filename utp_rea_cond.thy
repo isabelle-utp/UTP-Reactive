@@ -6,12 +6,12 @@ begin
 
 subsection \<open> Healthiness Conditions \<close>
     
-definition RC1 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition RC1 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "RC1(P) = (\<not>\<^sub>r (\<not>\<^sub>r P) ;; true\<^sub>r)"
 
 expr_constructor RC1
   
-definition RC :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition RC :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "RC = RC1 \<circ> RR"
 
 expr_constructor RC
@@ -73,7 +73,7 @@ qed
 text \<open> The @{term RC} healthy relations can also be defined in terms of prefix closure,
   which is characterised by the healthiness condition below. \<close>
 
-definition RC2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition RC2 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "RC2(P) = R1(P ;; (tr\<^sup>> \<le> tr\<^sup><)\<^sub>e)"
 
 expr_constructor RC2

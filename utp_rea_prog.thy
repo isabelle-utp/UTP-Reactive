@@ -1,7 +1,7 @@
 section \<open> Reactive Programs \<close>
 
 theory utp_rea_prog
-  imports utp_rea_cond "Shallow-Expressions.Shallow_Expressions" "Optics.Optics" "UTP2.utp" "UTP2.utp_pred" 
+  imports utp_rea_cond
 begin
 
 subsection \<open> Stateful reactive alphabet \<close>
@@ -13,26 +13,21 @@ text \<open> @{term R3} as presented in the UTP book and related publications is
   observational variable that capture the program state that we call $st$. Upon this foundation,
   we can define operators for reactive programs~\cite{Foster17c}. \<close>
 
-(* Changes from UTP1: renamed to reflect the 'rea' naming convention and line up with lemmata. *)
 alphabet ('t, 's) srea_vars = "'t::trace rea_vars" +
   st :: 's
 
-(* TODO(@MattWindsor91): do we need the type synonyms and translations? *)
-
 type_synonym ('s,'t,'\<alpha>) rsp = "('t, 's, '\<alpha>) srea_vars_scheme" \<comment> \<open> Reactive state predicate \<close>
-type_synonym ('s,'t,'\<alpha>,'\<beta>) rel_rsp  = "(('s,'t,'\<alpha>) rsp, ('s,'t,'\<beta>) rsp) urel" \<comment> \<open> Relation on the above \<close>
-type_synonym ('s,'t,'\<alpha>) hrel_rsp  = "('s,'t,'\<alpha>,'\<alpha>) rel_rsp" \<comment> \<open> Homogeneous relation on the above \<close>
-type_synonym ('s,'t) rdes = "('s,'t,unit) hrel_rsp" \<comment> \<open> Reactive design? \<close>
+type_synonym ('s,'t,'\<alpha>,'\<beta>) rsp_rel  = "(('s,'t,'\<alpha>) rsp, ('s,'t,'\<beta>) rsp) urel" \<comment> \<open> Relation on the above \<close>
+type_synonym ('s,'t,'\<alpha>) rsp_hrel  = "('s,'t,'\<alpha>,'\<alpha>) rsp_rel" \<comment> \<open> Homogeneous relation on the above \<close>
+type_synonym ('s,'t) rdes = "('s,'t,unit) rsp_hrel" \<comment> \<open> Reactive design? \<close>
 
-(* Needed to have a bidirectional mapping on the shorthands.
-   TODO(@MattWindsor91): should these be called srea etc.? *)
 translations
   (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) srea_vars_ext) rp"
   (type) "('s,'t,'\<alpha>) rsp" <= (type) "('t, ('s, '\<alpha>) srea_vars_scheme) rp"
   (type) "('s,'t,unit) rsp" <= (type) "('t, 's srea_vars) rp"
-  (type) "('s,'t,'\<alpha>,'\<beta>) rel_rsp" <= (type) "(('s,'t,'\<alpha>) rsp, ('s1,'t1,'\<beta>) rsp) urel"
-  (type) "('s,'t,'\<alpha>) hrel_rsp"  <= (type) "(('s, 't, '\<alpha>) rsp, ('s1,'t1,'\<alpha>1) rsp) urel" (* ? *)
-  (type) "('s,'t) rdes" <= (type) "('s, 't, unit) hrel_rsp"
+  (type) "('s,'t,'\<alpha>,'\<beta>) rsp_rel" <= (type) "(('s,'t,'\<alpha>) rsp, ('s1,'t1,'\<beta>) rsp) urel"
+  (type) "('s,'t,'\<alpha>) rsp_hrel"  <= (type) "(('s, 't, '\<alpha>) rsp, ('s1,'t1,'\<alpha>1) rsp) urel" (* ? *)
+  (type) "('s,'t) rdes" <= (type) "('s, 't, unit) rsp_hrel"
 
 text \<open> Shorthand for the non-control alphabet of a stateful reactive process. \<close>
 
@@ -119,7 +114,7 @@ abbreviation lift_srea :: "('c \<times> 'f \<Rightarrow> 'g) \<Rightarrow> ('a::
 
 term lift_state_rel
 
-(* "('s, 't, '\<alpha>, '\<beta>) rel_rsp \<Rightarrow> ('\<alpha>, '\<beta>) urel" *)
+(* "('s, 't, '\<alpha>, '\<beta>) rsp_rel \<Rightarrow> ('\<alpha>, '\<beta>) urel" *)
 abbreviation drop_state_rel :: "(('d::trace, 'e, 'a) srea_vars_scheme \<times> ('f::trace, 'g, 'b) srea_vars_scheme \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c" ("\<lfloor>_\<rfloor>\<^sub>S")
 where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
 
@@ -187,7 +182,7 @@ definition subst_st_lift  ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<sigma>") where
 expr_constructor subst_st_lift
 (*  \<lceil>subst_aext \<sigma> st\<rceil>\<^sub>S\<^sub><" *)
 
-(*  :: "'s subst \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rel_rsp" *)
+(*  :: "'s subst \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel \<Rightarrow> ('s, 't, '\<alpha>, '\<beta>) rsp_rel" *)
 abbreviation st_subst (infixr "\<dagger>\<^sub>S" 80) where
 "\<sigma> \<dagger>\<^sub>S P \<equiv> \<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> P"
 
@@ -262,7 +257,7 @@ subsubsection \<open> Assignment \<close>
 
 text \<open> An assignment in the stateful reactive \<close>
 
-(* :: "(('s, 's) psubst) \<Rightarrow> ('s, 't::trace, '\<alpha>) hrel_rsp"  *)
+(* :: "(('s, 's) psubst) \<Rightarrow> ('s, 't::trace, '\<alpha>) rsp_hrel"  *)
 definition rea_assigns ("\<langle>_\<rangle>\<^sub>r") where
 [pred]: "\<langle>\<sigma>\<rangle>\<^sub>r = ((tr\<^sup>< = tr\<^sup>>)\<^sub>e \<and> \<lceil>\<langle>\<sigma>\<rangle>\<^sub>a\<rceil>\<^sub>S \<and> (\<^bold>v\<^sub>S\<^sup>< = \<^bold>v\<^sub>S\<^sup>>)\<^sub>e)"
 
@@ -348,10 +343,10 @@ text \<open> We guard the reactive conditional condition so that it can't be sim
 
 (* TODO(@MattWindsor91) *)
 (*  ::
-  "('s,'t::trace,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow>
+  "('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel \<Rightarrow>
   's pred \<Rightarrow>
-  ('s,'t,'\<alpha>,'\<beta>) rel_rsp \<Rightarrow>
-  ('s,'t,'\<alpha>,'\<beta>) rel_rsp" where *)
+  ('s,'t,'\<alpha>,'\<beta>) rsp_rel \<Rightarrow>
+  ('s,'t,'\<alpha>,'\<beta>) rsp_rel" where *)
 
 abbreviation cond_srea where
 "cond_srea P b Q \<equiv> P \<triangleleft> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> \<triangleright> Q"
@@ -407,7 +402,7 @@ lemma rea_rename_cond [rpred]: "(P \<triangleleft> b \<triangleright>\<^sub>R Q)
   
 subsubsection \<open> Assumptions \<close>
 
-(* :: "'s pred \<Rightarrow> ('s, 't::trace, '\<alpha>) hrel_rsp" *)
+(* :: "'s pred \<Rightarrow> ('s, 't::trace, '\<alpha>) rsp_hrel" *)
 definition rea_assume ("[_]\<^sup>\<top>\<^sub>r") where
 [pred]: "[b]\<^sup>\<top>\<^sub>r = (II\<^sub>r \<triangleleft> b \<triangleright>\<^sub>R false)"
 
@@ -436,13 +431,12 @@ definition lmap\<^sub>R :: "('a \<Longrightarrow> 'b) \<Rightarrow> ('t::trace, 
 text \<open> This construction lens is useful for conversion between a record and its product representation;
   it would be helpful if this could be automatically generated. \<close>
 
-(* TODO(@MattWindsor91): doesn't type correctly *)
 definition rsp_make_lens :: "('\<sigma>, '\<tau>::trace, '\<alpha>) rsp \<Longrightarrow> bool \<times> bool \<times> '\<tau> \<times> '\<sigma> \<times> '\<alpha>" where
 [lens_defs]: "rsp_make_lens = \<lparr> lens_get = \<lambda> (ok, wait, tr, st, more). \<lparr> ok\<^sub>v = ok, wait\<^sub>v = wait, tr\<^sub>v = tr, st\<^sub>v = st, \<dots> = more \<rparr>
                               , lens_put = (\<lambda> s v. (ok\<^sub>v v, wait\<^sub>v v, tr\<^sub>v v, st\<^sub>v v, more v)) \<rparr>"
 
 lemma rsp_make_lens_alt: "rsp_make_lens = inv\<^sub>L (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L st +\<^sub>L srea_vars.more\<^sub>L)"
-  by (auto simp add: lens_defs)
+  by (auto simp add: lens_defs alpha_defs)
 
 lemma make_lens_bij [simp]: "bij_lens rsp_make_lens"
   by (unfold_locales, simp_all add: lens_defs prod.case_eq_if)
@@ -465,14 +459,13 @@ text \<open> The above definition is intuitive, but unhelpful in proof automaton
 lemma map_st_lens_alt_def [lens_defs]:
   "map_st_lens l = \<lparr> lens_get = \<lambda> s. \<lparr> ok\<^sub>v = ok\<^sub>v s, wait\<^sub>v = wait\<^sub>v s, tr\<^sub>v = tr\<^sub>v s, st\<^sub>v = get\<^bsub>l\<^esub> (st\<^sub>v s), \<dots> = more s \<rparr>
                   , lens_put = \<lambda> s v. \<lparr> ok\<^sub>v = ok\<^sub>v v, wait\<^sub>v = wait\<^sub>v v, tr\<^sub>v = tr\<^sub>v v, st\<^sub>v = put\<^bsub>l\<^esub> (st\<^sub>v s) (st\<^sub>v v), \<dots> = more v \<rparr> \<rparr>"
-  by (auto simp add: map_st_lens_def lens_defs fun_eq_iff)
+  by (auto simp add: map_st_lens_def lens_defs alpha_defs fun_eq_iff)
 
-(* TODO(@MattWindsor91): missing def *)
-(*
 lemma map_st_vwb [simp]: "vwb_lens X \<Longrightarrow> vwb_lens (map_st\<^sub>L X)"
-  apply (simp add: map_st_lens_def rsp_make_lens_alt[THEN sym])
-*)
+  apply (simp add: map_st_lens_def rsp_make_lens_alt)
+  oops
 
+(*
 lemma map_st_lens_indep_st [simp]: 
   "a \<bowtie> x \<Longrightarrow> map_st\<^sub>L a \<bowtie> x ;\<^sub>L st"
   by (rule lens_indep.intro, simp_all add: lens_defs lens_indep_comm lens_indep.lens_put_irr2)
@@ -480,6 +473,7 @@ lemma map_st_lens_indep_st [simp]:
 lemma map_st_lens_indep_st' [simp]: 
   "x \<bowtie> a \<Longrightarrow> map_st\<^sub>L a \<bowtie> x ;\<^sub>L st"
   by (rule lens_indep.intro, simp_all add: lens_defs lens_indep_comm lens_indep.lens_put_irr2)
+*)
 
 syntax
   "_map_st_lens" :: "logic \<Rightarrow> salpha" ("map'_st\<^sub>L[_]")
@@ -509,10 +503,10 @@ subsubsection \<open> Reactive Frames and Extensions \<close>
 
 (* TODO(@MattWindsor91) *)
 (*
-definition rea_frame :: "('\<alpha> \<Longrightarrow> '\<beta>) \<Rightarrow> ('\<beta>, 't::trace, 'r) hrel_rsp \<Rightarrow> ('\<beta>, 't, 'r) hrel_rsp" where
+definition rea_frame :: "('\<alpha> \<Longrightarrow> '\<beta>) \<Rightarrow> ('\<beta>, 't::trace, 'r) rsp_hrel \<Rightarrow> ('\<beta>, 't, 'r) rsp_hrel" where
 [rel]: "rea_frame x P = frame (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L (x ;\<^sub>L st) +\<^sub>L \<^bold>v\<^sub>S) P"
 
-definition rea_frame_ext :: "('\<alpha> \<Longrightarrow> '\<beta>) \<Rightarrow> ('\<alpha>, 't::trace, 'r) hrel_rsp \<Rightarrow> ('\<beta>, 't, 'r) hrel_rsp" where
+definition rea_frame_ext :: "('\<alpha> \<Longrightarrow> '\<beta>) \<Rightarrow> ('\<alpha>, 't::trace, 'r) rsp_hrel \<Rightarrow> ('\<beta>, 't, 'r) rsp_hrel" where
 [rel]: "rea_frame_ext a P = rea_frame a (P \<oplus>\<^sub>r map_st\<^sub>L[a])"
 
 syntax
@@ -660,19 +654,19 @@ lemma rea_frame_ext_UINF_mem [frame]:
 subsection \<open> Stateful Reactive specifications \<close>
 
 (* TODO(@MattWindsor91) *)
-(* :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+(* :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
 definition rea_st_rel ("[_]\<^sub>S") where
 [pred]: "rea_st_rel b = (\<lceil>(b)\<^sub>e\<rceil>\<^sub>S \<and> (tr\<^sup>> = tr\<^sup><)\<^sub>e)"
 
-(*  :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+(*  :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
 definition rea_st_rel'("[_]\<^sub>S''") where
 [pred]: "rea_st_rel' b = R1(\<lceil>b\<rceil>\<^sub>S)"
 
-(*  :: "'s pred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+(*  :: "'s pred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
 definition rea_st_cond ("[_]\<^sub>S\<^sub><") where
 [pred]: "rea_st_cond b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub><)"
 
-(*  :: "'s upred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rel_rsp" *)
+(*  :: "'s upred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
 definition rea_st_post ("[_]\<^sub>S\<^sub>>") where
 [pred]: "rea_st_post b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub>>)"
 

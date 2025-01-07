@@ -10,15 +10,15 @@ alphabet 't::trace rea_vars = des_vars +
 
 type_synonym ('t, '\<alpha>) rp = "('t, '\<alpha>) rea_vars_scheme"
 
-type_synonym ('t,'\<alpha>,'\<beta>) rel_rp  = "(('t,'\<alpha>) rea_vars_scheme, ('t,'\<beta>) rea_vars_scheme) urel"
+type_synonym ('t,'\<alpha>,'\<beta>) rp_rel  = "(('t,'\<alpha>) rea_vars_scheme, ('t,'\<beta>) rea_vars_scheme) urel"
 
-type_synonym ('t, '\<alpha>) hrel_rp = "(('t,'\<alpha>) rea_vars_scheme, ('t,'\<alpha>) rea_vars_scheme) urel"
+type_synonym ('t, '\<alpha>) rp_hrel = "(('t,'\<alpha>) rea_vars_scheme, ('t,'\<alpha>) rea_vars_scheme) urel"
 
 translations
   (type) "('t,'\<alpha>) rp" <= (type) "('t, '\<alpha>) rea_vars_scheme"
   (type) "('t,'\<alpha>) rp" <= (type) "('t, '\<alpha>) rea_vars_ext"
-  (type) "('t,'\<alpha>,'\<beta>) rel_rp" <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
-  (type) "('t,'\<alpha>) hrel_rp"  <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
+  (type) "('t,'\<alpha>,'\<beta>) rp_rel" <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
+  (type) "('t,'\<alpha>) rp_hrel"  <= (type) "(('t,'\<alpha>) rea_vars_scheme, ('\<gamma>,'\<beta>) rea_vars_scheme) urel"
 
 notation rea_vars.more\<^sub>L ("\<^bold>v\<^sub>R")
 
@@ -32,20 +32,20 @@ declare zero_list_def [pred]
 declare plus_list_def [pred]
 declare prefixE [elim]
 
-abbreviation wait_f::"('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>f" [1000] 1000)
+abbreviation wait_f::"('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" ("_\<^sub>f" [1000] 1000)
 where "wait_f R \<equiv> R\<lbrakk>False/wait\<^sup><\<rbrakk>"
 
-abbreviation wait_t::"('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" ("_\<^sub>t" [1000] 1000)
+abbreviation wait_t::"('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" ("_\<^sub>t" [1000] 1000)
   where "wait_t R \<equiv> R\<lbrakk>True/wait\<^sup><\<rbrakk>"
 
-abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t::trace, '\<alpha>, '\<beta>) rel_rp" ("\<lceil>_\<rceil>\<^sub>R") where
+abbreviation lift_rea :: "('\<alpha>, '\<beta>) urel \<Rightarrow> ('t::trace, '\<alpha>, '\<beta>) rp_rel" ("\<lceil>_\<rceil>\<^sub>R") where
 "\<lceil>P\<rceil>\<^sub>R \<equiv> P \<up> \<^bold>v\<^sub>R\<^sup>2"
 
-definition drop_rea :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
+definition drop_rea :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('\<alpha>, '\<beta>) urel" ("\<lfloor>_\<rfloor>\<^sub>R") where
 "\<lfloor>P\<rfloor>\<^sub>R \<equiv> P \<down> \<^bold>v\<^sub>R\<^sup>2"
 
 (*
-abbreviation rea_pre_lift :: "('d \<Rightarrow> 'e) \<Rightarrow> ('a, 'b, 'c) rel_rp"  ("\<lceil>_\<rceil>\<^sub>R\<^sub><") where "\<lceil>n\<rceil>\<^sub>R\<^sub>< \<equiv> \<lceil>n\<^sup><\<rceil>\<^sub>R"
+abbreviation rea_pre_lift :: "('d \<Rightarrow> 'e) \<Rightarrow> ('a, 'b, 'c) rp_rel"  ("\<lceil>_\<rceil>\<^sub>R\<^sub><") where "\<lceil>n\<rceil>\<^sub>R\<^sub>< \<equiv> \<lceil>n\<^sup><\<rceil>\<^sub>R"
 
 lemma unrest_ok_lift_rea [unrest]:
   "$ok\<^sup>< \<sharp> \<lceil>P\<rceil>\<^sub>R" "$ok\<^sup>> \<sharp> \<lceil>P\<rceil>\<^sub>R"

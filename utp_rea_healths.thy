@@ -6,7 +6,7 @@ begin
 
 subsection \<open> R1: Events cannot be undone \<close>
 
-definition R1 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition R1 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 R1_def [pred]: "R1 (P) = (P \<and> (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
 
 expr_constructor R1
@@ -169,15 +169,15 @@ lemma R1_seqr:
   by pred_auto
 
 lemma R1_seqr_closure [closure]:
-  assumes "(P ::('t::trace, '\<alpha>, '\<beta>) rel_rp) is R1"
-          "(Q ::('t::trace, '\<beta>, '\<gamma>) rel_rp) is R1"
+  assumes "(P ::('t::trace, '\<alpha>, '\<beta>) rp_rel) is R1"
+          "(Q ::('t::trace, '\<beta>, '\<gamma>) rp_rel) is R1"
   shows "(P ;; Q) is R1"
 proof -
   have 1: "(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
     using assms by (simp add: R1_by_refinement)
   have 2: "(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e \<sqsubseteq> Q"
     using assms by (simp add: R1_by_refinement)
-  have "(((tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e :: ('t::trace, '\<alpha>, '\<beta>) rel_rp);;(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e) \<sqsubseteq> (P;;Q)" (is "?l \<sqsubseteq> ?r")
+  have "(((tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e :: ('t::trace, '\<alpha>, '\<beta>) rp_rel);;(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e) \<sqsubseteq> (P;;Q)" (is "?l \<sqsubseteq> ?r")
     using 1 2 by (simp add: seqr_mono)
   moreover have "?l = (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e"
     using tr_le_trans by blast
@@ -228,19 +228,19 @@ subsection \<open> R2: No dependence upon trace history \<close>
 
 text \<open> There are various ways of expressing $R2$, which are enumerated below. \<close>
 
-definition R2a :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
+definition R2a :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" where
 [pred]: "R2a (P) = (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>,(\<guillemotleft>s\<guillemotright>+(tr\<^sup>>-tr\<^sup><))/tr\<^sup><,tr\<^sup>>\<rbrakk>)"
 
-definition R2a' :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
+definition R2a' :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" where
 [pred]: "R2a' P = (R2a(P) \<triangleleft> R1(true) \<triangleright> P)"
 
-definition R2s :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t,'\<alpha>,'\<beta>) rel_rp" where
+definition R2s :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" where
 [pred]: "R2s (P) = P\<lbrakk>0, tr\<^sup>>-tr\<^sup>< / tr\<^sup><, tr\<^sup>>\<rbrakk>"
 
-definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "R2(P) = R1(R2s(P))"
 
-definition R2c :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition R2c :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "R2c(P) = (R2s(P) \<triangleleft> R1(true) \<triangleright> P)"
 
 lemma R2c_expand_R1: "R2c(P) = (R2s(P) \<triangleleft> tr\<^sup>< \<le> tr\<^sup>> \<triangleright> P)"
@@ -662,7 +662,7 @@ proof -
   finally show ?thesis ..
 qed
 
-lemma tr_contribution_sum: "\<And> tt\<^sub>1 tt\<^sub>2. (((tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e :: ('t::trace,'\<alpha>,'\<gamma>) rel_rp)
+lemma tr_contribution_sum: "\<And> tt\<^sub>1 tt\<^sub>2. (((tr\<^sup>> - tr\<^sup>< = \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright> \<and> tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e :: ('t::trace,'\<alpha>,'\<gamma>) rp_rel)
                                      = (tr\<^sup>> = tr\<^sup>< + \<guillemotleft>tt\<^sub>1\<guillemotright> + \<guillemotleft>tt\<^sub>2\<guillemotright>)\<^sub>e)"
   apply (pred_auto)
   apply (metis add.assoc diff_add_cancel_left')
@@ -671,7 +671,7 @@ lemma tr_contribution_sum: "\<And> tt\<^sub>1 tt\<^sub>2. (((tr\<^sup>> - tr\<^s
   done
 
 lemma R2_seqr_distribute:
-  fixes P :: "('t::trace,'\<alpha>,'\<beta>) rel_rp" and Q :: "('t,'\<beta>,'\<gamma>) rel_rp"
+  fixes P :: "('t::trace,'\<alpha>,'\<beta>) rp_rel" and Q :: "('t,'\<beta>,'\<gamma>) rp_rel"
   shows "R2(R2(P) ;; R2(Q)) = (R2(P) ;; R2(Q))"
 proof -
   have "R2(R2(P) ;; R2(Q)) =
@@ -752,7 +752,7 @@ lemma R2c_R1_seq: "R2c(R1(R2c(P)) ;; R1(R2c(Q))) = (R1(R2c(P)) ;; R1(R2c(Q)))"
   using R2c_seq[of P Q] by (simp add: R2_R2c_def)
 
 lemma R1_R2c_seqr_distribute:
-  fixes P :: "('t::trace,'\<alpha>,'\<beta>) rel_rp" and Q :: "('t,'\<beta>,'\<gamma>) rel_rp"
+  fixes P :: "('t::trace,'\<alpha>,'\<beta>) rp_rel" and Q :: "('t,'\<beta>,'\<gamma>) rp_rel"
   assumes "P is R1" "P is R2c" "Q is R1" "Q is R2c"
   shows "R1(R2c(P ;; Q)) = P ;; Q"
   by (metis Healthy_if R1_seqr R2c_R1_seq assms)
@@ -773,7 +773,7 @@ lemma R2c_healthy_R2s: "P is R2c \<Longrightarrow> R1(R2s(P)) = R1(P)"
 
 subsection \<open> R3: No activity while predecessor is waiting \<close>
 
-definition R3 :: "('t::trace, '\<alpha>) hrel_rp \<Rightarrow> ('t, '\<alpha>) hrel_rp" where
+definition R3 :: "('t::trace, '\<alpha>) rp_hrel \<Rightarrow> ('t, '\<alpha>) rp_hrel" where
 [pred]: "R3(P) = (II \<triangleleft> wait\<^sup>< \<triangleright> P)\<^sub>e"
 
 expr_constructor R3
@@ -844,7 +844,7 @@ lemma R2_R3_commute: "R2(R3(P)) = R3(R2(P))"
 
 subsection \<open> R4: The trace strictly increases \<close>
 
-definition R4 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition R4 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "R4(P) = (P \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e)"
 
 expr_constructor R4
@@ -899,7 +899,7 @@ lemma seq_R4_closed_2 [closure]:
 
 subsection \<open> R5: The trace does not increase \<close>
 
-definition R5 :: "('t::trace, '\<alpha>, '\<beta>) rel_rp \<Rightarrow> ('t, '\<alpha>, '\<beta>) rel_rp" where
+definition R5 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "R5(P) = (P \<and> (tr\<^sup>< = tr\<^sup>>)\<^sub>e)"
 
 expr_constructor R5
