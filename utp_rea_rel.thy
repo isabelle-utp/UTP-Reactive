@@ -239,11 +239,11 @@ lemma rea_impl_unrest [unrest]:
 
 lemma rea_true_usubst [usubst]:
   "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma>; $tr\<^sup>> \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> true\<^sub>r = true\<^sub>r"
-  by (simp add: R1_def usubst usubst_apply_unrest)
+  by (simp add: R1_def, subst_eval)
   
 lemma rea_not_usubst [usubst]:
   "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma>; $tr\<^sup>> \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (\<not>\<^sub>r P) = (\<not>\<^sub>r \<sigma> \<dagger> P)"
-  by (simp add: rea_not_def R1_def usubst usubst_apply_unrest)
+  by (simp add: rea_not_def R1_def, subst_eval)
 
 lemma rea_impl_usubst [usubst]:
   "\<lbrakk> $tr\<^sup>< \<sharp>\<^sub>s \<sigma>; $tr\<^sup>> \<sharp>\<^sub>s \<sigma> \<rbrakk> \<Longrightarrow> \<sigma> \<dagger> (P \<longrightarrow>\<^sub>r Q) = (\<sigma> \<dagger> P \<longrightarrow>\<^sub>r \<sigma> \<dagger> Q)"

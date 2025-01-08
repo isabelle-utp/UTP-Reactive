@@ -108,27 +108,17 @@ lemma unrest_st'_R5 [unrest]:
 
 subsection \<open> State Lifting \<close>
 
-(* TODO: can we write this type better? *)
-abbreviation lift_srea :: "('c \<times> 'f \<Rightarrow> 'g) \<Rightarrow> ('a::trace, 'b, 'c) srea_vars_scheme \<times> ('d::trace, 'e, 'f) srea_vars_scheme \<Rightarrow> 'g" ("\<lceil>_\<rceil>\<^sub>S") where
-"\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> (\<^bold>v\<^sub>S\<^sup>2)"
+abbreviation lift_state_rel ("\<lceil>_\<rceil>\<^sub>S") where "\<lceil>P\<rceil>\<^sub>S \<equiv> P \<up> st\<^sup>2"
 
-term lift_state_rel
+abbreviation drop_state_rel ("\<lfloor>_\<rfloor>\<^sub>S") where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
 
-(* "('s, 't, '\<alpha>, '\<beta>) rsp_rel \<Rightarrow> ('\<alpha>, '\<beta>) urel" *)
-abbreviation drop_state_rel :: "(('d::trace, 'e, 'a) srea_vars_scheme \<times> ('f::trace, 'g, 'b) srea_vars_scheme \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c" ("\<lfloor>_\<rfloor>\<^sub>S")
-where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
+abbreviation lift_state_pre ("\<lceil>_\<rceil>\<^sub>S\<^sub><") where "\<lceil>p\<rceil>\<^sub>S\<^sub>< \<equiv> \<lceil>p\<^sup><\<rceil>\<^sub>S"
 
-abbreviation lift_state_pre ("\<lceil>_\<rceil>\<^sub>S\<^sub><")
-  where "\<lceil>p\<rceil>\<^sub>S\<^sub>< \<equiv> \<lceil>p\<^sup><\<rceil>\<^sub>S"
+abbreviation drop_state_pre ("\<lfloor>_\<rfloor>\<^sub>S\<^sub><") where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>< \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub><"
 
-abbreviation drop_state_pre ("\<lfloor>_\<rfloor>\<^sub>S\<^sub><")
-where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>< \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub><"
+abbreviation lift_state_post ("\<lceil>_\<rceil>\<^sub>S\<^sub>>") where "\<lceil>p\<rceil>\<^sub>S\<^sub>> \<equiv> \<lceil>p\<^sup>>\<rceil>\<^sub>S"
 
-abbreviation lift_state_post ("\<lceil>_\<rceil>\<^sub>S\<^sub>>")
-where "\<lceil>p\<rceil>\<^sub>S\<^sub>> \<equiv> \<lceil>p\<^sup>>\<rceil>\<^sub>S"
-
-abbreviation drop_state_post ("\<lfloor>_\<rfloor>\<^sub>S\<^sub>>")
-where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>> \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub>>"
+abbreviation drop_state_post ("\<lfloor>_\<rfloor>\<^sub>S\<^sub>>") where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>> \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub>>"
 
 lemma st_unrest_state_pre [unrest]: "(unrest \<top>\<^sub>S s) \<Longrightarrow> $st\<^sup>< \<sharp> \<lceil>s\<rceil>\<^sub>S\<^sub><"
   by pred_auto
@@ -231,8 +221,6 @@ proof -
   thus ?thesis
     by (metis Healthy_def assms)
 qed
-
-declare [[show_types]]
 
 (* TODO: why doesn't this proof work? *)
 lemma subst_lift_cond_srea [usubst]: "\<sigma> \<dagger>\<^sub>S \<lceil>P\<rceil>\<^sub>S\<^sub>\<leftarrow> = \<lceil>\<sigma> \<dagger> P\<rceil>\<^sub>S\<^sub>\<leftarrow>"

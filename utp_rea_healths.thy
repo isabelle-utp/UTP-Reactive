@@ -140,10 +140,10 @@ lemma subst_R1:
 proof -
   have "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L fst\<^sub>L) = var (tr ;\<^sub>L fst\<^sub>L)"
     using assms(1)
-    by (simp add: comp_vwb_lens ns_alpha_def usubst_apply_unrest)
+    by (simp add: comp_vwb_lens ns_alpha_def subst_apply_unrest)
   moreover have "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L snd\<^sub>L) = var (tr ;\<^sub>L snd\<^sub>L)"
     using assms(2)
-    by (simp add: comp_vwb_lens ns_alpha_def usubst_apply_unrest)
+    by (simp add: comp_vwb_lens ns_alpha_def subst_apply_unrest)
   ultimately show ?thesis
     by pred_auto
 qed
@@ -307,33 +307,28 @@ qed
 
 lemma R2s_subst_wait_true [usubst]:
   "(R2s(P))\<lbrakk>True/wait\<^sup><\<rbrakk> = R2s(P\<lbrakk>True/wait\<^sup><\<rbrakk>)"
-  by (simp add: R2_def R1_def R2s_def usubst unrest)
-     (subst_eval)
+  by (simp add: R2_def R1_def R2s_def, subst_eval)
+
 
 lemma R2s_subst_wait'_true [usubst]:
   "(R2s(P))\<lbrakk>True/wait\<^sup>>\<rbrakk> = R2s(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
-  by (simp add: R2_def R1_def R2s_def usubst unrest)
-     (subst_eval)
+  by (simp add: R2_def R1_def R2s_def, subst_eval)
 
 lemma R2_subst_wait_true [usubst]:
   "(R2(P))\<lbrakk>True/wait\<^sup><\<rbrakk> = R2(P\<lbrakk>True/wait\<^sup><\<rbrakk>)"
-  by (simp add: R2_def R1_def R2s_def usubst unrest)
-     (subst_eval)
+  by (simp add: R2_def R1_def R2s_def, subst_eval)
  
 lemma R2_subst_wait'_true [usubst]:
   "(R2(P))\<lbrakk>True/wait\<^sup>>\<rbrakk> = R2(P\<lbrakk>True/wait\<^sup>>\<rbrakk>)"
-  by (simp add: R2_def R1_def R2s_def usubst unrest)
-     (subst_eval)
+  by (simp add: R2_def R1_def R2s_def, subst_eval)
 
 lemma R2_subst_wait_false [usubst]:
   "(R2(P))\<lbrakk>False/wait\<^sup><\<rbrakk> = R2(P\<lbrakk>False/wait\<^sup><\<rbrakk>)"
-  by (simp add: R1_def R2_def R2s_def usubst unrest)
-     (subst_eval)
+  by (simp add: R1_def R2_def R2s_def, subst_eval)
 
 lemma R2_subst_wait'_false [usubst]:
   "(R2(P))\<lbrakk>False/wait\<^sup>>\<rbrakk> = R2(P\<lbrakk>False/wait\<^sup>>\<rbrakk>)"
-  by (simp add: R1_def R2_def R2s_def usubst unrest)
-     (subst_eval)
+  by (simp add: R1_def R2_def R2s_def, subst_eval)
 
 lemma R2c_R2s_absorb: "R2c(R2s(P)) = R2s(P)"
   by (pred_auto)

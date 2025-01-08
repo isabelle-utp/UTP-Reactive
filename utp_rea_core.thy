@@ -1,6 +1,18 @@
+section \<open> Reactive Processes Core Definitions \<close>
+
 theory utp_rea_core
   imports "UTP-Designs.utp_designs" "Circus_Toolkit.Trace_Algebra"
 begin
+
+subsection \<open> Alphabet and Signature \<close>
+
+text \<open> The alphabet of reactive processes contains a boolean variable $wait$, which denotes whether
+  a process is exhibiting an intermediate observation. It also has the variable $tr$ which denotes
+  the trace history of a process. The type parameter @{typ "'t"} represents the trace model being
+  used, which must form a trace algebra~\cite{Foster17b}, and thus provides the theory of ``generalised 
+  reactive processes''~\cite{Foster17b}. The reactive process alphabet also extends
+  the design alphabet, and thus includes the $ok$ variable. For more information on these, see
+  the UTP book~\cite{Hoare&98}, or the associated tutorial~\cite{Cavalcanti&06}. \<close>
 
 unbundle UTP_Syntax
 
@@ -78,6 +90,13 @@ lemma seqr_wait_true [usubst]: "(P ;; Q) \<^sub>t = (P \<^sub>t ;; Q)"
 
 lemma seqr_wait_false [usubst]: "(P ;; Q) \<^sub>f = (P \<^sub>f ;; Q)"
   by pred_simp
+
+subsection \<open> Trace contribution lens \<close>
+
+text \<open> The following lens represents the portion of the state-space that is the difference
+  between $tr'$ and $tr$, that is the contribution that a process is making to the trace
+  history. \<close>
+
 
 definition tcontr :: "'t::trace \<Longrightarrow> ('t, '\<alpha>) rp \<times> ('t, '\<alpha>) rp" ("tt") where
   [lens_defs]:
