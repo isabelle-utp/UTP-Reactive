@@ -1,5 +1,3 @@
-session "UTP-Reactive" = "UTP2" +
-  sessions
-    "UTP-Designs"
+session "UTP-Reactive" = "UTP-Designs" +
   theories
     utp_reactive
