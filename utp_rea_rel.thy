@@ -444,13 +444,6 @@ find_theorems "unrest ?x (?P \<or> ?Q)"
 find_theorems "_ \<triangleleft> _ \<triangleright> _"
 find_theorems "(_ \<or> _) is _"
 
-(* TODO (Thomas): belongs in UTP *)
-lemma unrest_cond [unrest]:
-  assumes "mwb_lens x" "$x \<sharp> P" "$x \<sharp> Q" "$x \<sharp> (e)\<^sub>e"
-  shows "$x \<sharp> (P \<triangleleft> e \<triangleright> Q)"
-  using assms(1) assms(4) apply(pred_auto)
-  using unrest_lens assms(2-3) by blast+
-
 (* TODO (Thomas): there should be a much simpler proof of this;
    why are the simplifier and unrest not more help? *)
 lemma cond_tt_RR_closed [closure]: 
@@ -462,7 +455,7 @@ proof -
   have 2: "$ok\<^sup>< \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e"  "$ok\<^sup>> \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e" "$wait\<^sup>< \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e" "$wait\<^sup>> \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e"
     by pred_auto+
   have 3: "$ok\<^sup>< \<sharp> ?PQ" "$ok\<^sup>> \<sharp> ?PQ" "$wait\<^sup>< \<sharp> ?PQ" "$wait\<^sup>> \<sharp> ?PQ"
-    by (simp_all add: unrest_cond 1 2)
+    by (simp_all add: unrest_expr_if 1 2)
   have 4: "R2(P) = P" "R2(Q) = Q"
     using assms RR_implies_R2 Healthy_def by blast+
   have 5: "?PQ is R2"
@@ -884,6 +877,8 @@ abbreviation rea_star :: "_ \<Rightarrow> _"  ("_\<^sup>\<star>\<^sup>r" [999] 9
 text \<open> The supernova tactic explodes conjectures using the Kleene star laws and relational calculus \<close>
 
 method supernova = ((safe intro!: rrel_theory.Star_inductr rrel_theory.Star_inductl, simp_all add: closure) ; rel_auto)[1]
+
+find_theorems unrest expr_if
 
 (*
 subsection \<open> Instantaneous Reactive Relations \<close>

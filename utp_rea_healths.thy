@@ -241,7 +241,7 @@ definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<
 [pred]: "R2(P) = R1(R2s(P))"
 
 definition R2c :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
-[pred]: "R2c(P) = (R2s(P) \<triangleleft> R1(true) \<triangleright> P)"
+[pred]: "R2c(P) = (R2s(P) \<triangleleft> R1(true) \<triangleright> P)"       
 
 lemma R2c_expand_R1: "R2c(P) = (R2s(P) \<triangleleft> tr\<^sup>< \<le> tr\<^sup>> \<triangleright> P)"
   by (simp add: R2c_def R1_def)
