@@ -769,7 +769,7 @@ lemma R2c_healthy_R2s: "P is R2c \<Longrightarrow> R1(R2s(P)) = R1(P)"
 subsection \<open> R3: No activity while predecessor is waiting \<close>
 
 definition R3 :: "('t::trace, '\<alpha>) rp_hrel \<Rightarrow> ('t, '\<alpha>) rp_hrel" where
-[pred]: "R3(P) = (II \<triangleleft> wait\<^sup>< \<triangleright> P)\<^sub>e"
+[pred]: "R3(P) = (II \<triangleleft> wait\<^sup>< \<triangleright> P)"
 
 expr_constructor R3
 

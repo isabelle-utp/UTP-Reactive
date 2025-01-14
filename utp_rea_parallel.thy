@@ -123,13 +123,13 @@ proof -
   also have "... = (((R3 P)\<lbrakk>True/wait\<^sup><\<rbrakk> \<parallel>\<^bsub>(R3m M)\<lbrakk>True/<:wait\<^sup><\<rbrakk>\<^esub> (R3 Q)\<lbrakk>True/wait\<^sup><\<rbrakk>) \<triangleleft> $wait\<^sup>< \<triangleright> (P \<parallel>\<^bsub>M\<^esub> Q))"
     by (simp add: usubst Healthy_if assms)
   also have "... = ((II\<lbrakk>True/wait\<^sup><\<rbrakk> \<parallel>\<^bsub>skip\<^sub>m\<lbrakk>True/<:wait\<^sup><\<rbrakk>\<^esub> II\<lbrakk>True/wait\<^sup><\<rbrakk>) \<triangleleft> $wait\<^sup>< \<triangleright> (P \<parallel>\<^bsub>M\<^esub> Q))"
-    by (simp add: R3_def R3m_def usubst, simp add: SEXP_def)
+    by (simp add: R3_def R3m_def usubst)
   also have "... = ((II \<parallel>\<^bsub>skip\<^sub>m\<^esub> II)\<lbrakk>True/wait\<^sup><\<rbrakk> \<triangleleft> $wait\<^sup>< \<triangleright> (P \<parallel>\<^bsub>M\<^esub> Q))"
     by (simp add: usubst)
   also have "... = (II \<triangleleft> $wait\<^sup>< \<triangleright> (P \<parallel>\<^bsub>M\<^esub> Q))"
     by (simp add: expr_if_bool_var_left par_by_merge_skip)
   also have "... = R3(P \<parallel>\<^bsub>M\<^esub> Q)"
-    by (simp add: R3_def usubst, simp add: SEXP_def)
+    by (simp add: R3_def usubst)
   finally show ?thesis
     by (simp add: Healthy_def)
 qed
