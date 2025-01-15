@@ -840,7 +840,7 @@ lemma R2_R3_commute: "R2(R3(P)) = R3(R2(P))"
 subsection \<open> R4: The trace strictly increases \<close>
 
 definition R4 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
-[pred]: "R4(P) = (P \<and> (tr\<^sup>< < tr\<^sup>>)\<^sub>e)"
+[pred]: "R4(P) = (P \<and> ($tr\<^sup>< < $tr\<^sup>>)\<^sub>e)"
 
 expr_constructor R4
 
@@ -850,7 +850,7 @@ lemma R4_implies_R1 [closure]: "P is R4 \<Longrightarrow> P is R1"
   using order_less_imp_le by blast  
 
 lemma R4_iff_refine:
-  "P is R4 \<longleftrightarrow> (tr\<^sup>< < tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
+  "P is R4 \<longleftrightarrow> ($tr\<^sup>< < $tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
   by (pred_auto; blast)
 
 lemma R4_idem: "R4 (R4 P) = R4 P"
@@ -895,7 +895,7 @@ lemma seq_R4_closed_2 [closure]:
 subsection \<open> R5: The trace does not increase \<close>
 
 definition R5 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
-[pred]: "R5(P) = (P \<and> (tr\<^sup>< = tr\<^sup>>)\<^sub>e)"
+[pred]: "R5(P) = (P \<and> ($tr\<^sup>< = $tr\<^sup>>)\<^sub>e)"
 
 expr_constructor R5
 
@@ -903,7 +903,7 @@ lemma R5_implies_R1 [closure]: "P is R5 \<Longrightarrow> P is R1"
   by (pred_auto, metis order_refl)
 
 lemma R5_iff_refine:
-  "P is R5 \<longleftrightarrow> (tr\<^sup>< = tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
+  "P is R5 \<longleftrightarrow> ($tr\<^sup>< = $tr\<^sup>>)\<^sub>e \<sqsubseteq> P"
   by (simp add: Healthy_def; pred_auto; blast)
 
 lemma R5_conj: "R5(P \<and> Q) = (R5(P) \<and> R5(Q))"
