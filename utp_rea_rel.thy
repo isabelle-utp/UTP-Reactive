@@ -438,34 +438,14 @@ lemma seqr_iter_RR_closed [closure]:
   apply (simp_all add: seq_RR_closed)
   done
 
-find_theorems "unrest ?x (?P \<and> ?Q)"
-find_theorems "unrest ?x (\<not> ?P)"
-find_theorems "unrest ?x (?P \<or> ?Q)"
-find_theorems "_ \<triangleleft> _ \<triangleright> _"
-find_theorems "(_ \<or> _) is _"
-
-(* TODO (Thomas): there should be a much simpler proof of this;
-   why are the simplifier and unrest not more help? *)
 lemma cond_tt_RR_closed [closure]: 
   assumes "P is RR" "Q is RR"
-  shows "P \<triangleleft> tr\<^sup>> = tr\<^sup>< \<triangleright> Q is RR" (is "?PQ is RR")
+  shows "P \<triangleleft> $tr\<^sup>> = $tr\<^sup>< \<triangleright> Q is RR"
 proof -
-  have 1: "$ok\<^sup>< \<sharp> P" "$ok\<^sup>> \<sharp> P" "$wait\<^sup>< \<sharp> P" "$wait\<^sup>> \<sharp> P"  "$ok\<^sup>< \<sharp> Q" "$ok\<^sup>> \<sharp> Q" "$wait\<^sup>< \<sharp> Q" "$wait\<^sup>> \<sharp> Q"
-    using assms RR_unrests by blast+
-  have 2: "$ok\<^sup>< \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e"  "$ok\<^sup>> \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e" "$wait\<^sup>< \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e" "$wait\<^sup>> \<sharp> (tr\<^sup>> = tr\<^sup><)\<^sub>e"
-    by pred_auto+
-  have 3: "$ok\<^sup>< \<sharp> ?PQ" "$ok\<^sup>> \<sharp> ?PQ" "$wait\<^sup>< \<sharp> ?PQ" "$wait\<^sup>> \<sharp> ?PQ"
-    by (simp_all add: unrest_expr_if 1 2)
-  have 4: "R2(P) = P" "R2(Q) = Q"
-    using assms RR_implies_R2 Healthy_def by blast+
-  have 5: "?PQ is R2"
-    apply(simp add: Healthy_def)
-    apply(subst R2_condr)
-    (* The simplifier proof seems to be being held up the difference between
-       (tr\<^sup>> = tr\<^sup><)\<^sub>e and (\<lambda>\<s>. ($tr)\<^sup>> \<s> = ($tr)\<^sup>< \<s>) *)
-    by (metis (mono_tags, lifting) "4" R2_tr'_minus_tr SEXP_def)
-  from 3 5 show ?thesis
-    using RR_R2_intro by blast
+  have "RR P \<triangleleft> $tr\<^sup>> = $tr\<^sup>< \<triangleright> RR Q is RR"
+    by (pred_simp, meson dual_order.refl minus_zero_eq trace_class.diff_cancel)
+  thus ?thesis
+    by (simp add: Healthy_if assms)
 qed
 
 lemma rea_skip_RR [closure]:

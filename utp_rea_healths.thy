@@ -488,19 +488,19 @@ lemma R2c_wait'_true [usubst]: "(R2c P)\<lbrakk>True/wait\<^sup>>\<rbrakk> = R2c
 lemma R2c_wait'_false [usubst]: "(R2c P)\<lbrakk>False/wait\<^sup>>\<rbrakk> = R2c(P\<lbrakk>False/wait\<^sup>>\<rbrakk>)"
   by pred_auto  
 
-lemma R2c_tr'_minus_tr: "R2c(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
+lemma R2c_tr'_minus_tr: "R2c($tr\<^sup>> = $tr\<^sup><)\<^sub>e = ($tr\<^sup>> = $tr\<^sup><)\<^sub>e"
   apply (pred_auto) using minus_zero_eq by blast
 
-lemma R2_tr'_minus_tr: "R2(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
+lemma R2_tr'_minus_tr: "R2($tr\<^sup>> = tr\<^sup><)\<^sub>e = ($tr\<^sup>> = $tr\<^sup><)\<^sub>e"
   apply (pred_auto) using minus_zero_eq by blast
 
-lemma R2c_tr_le_tr': "R2c(tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e = (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e"
+lemma R2c_tr_le_tr': "R2c($tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e = ($tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e"
   by pred_auto
 
-lemma R2c_tr'_ge_tr: "R2c(tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e = (tr\<^sup>> \<ge> tr\<^sup><)\<^sub>e"
+lemma R2c_tr'_ge_tr: "R2c($tr\<^sup>> \<ge> $tr\<^sup><)\<^sub>e = ($tr\<^sup>> \<ge> $tr\<^sup><)\<^sub>e"
   by pred_auto
 
-lemma R2c_tr_less_tr': "R2c(tr\<^sup>< < tr\<^sup>>)\<^sub>e = (tr\<^sup>< < tr\<^sup>>)\<^sub>e"
+lemma R2c_tr_less_tr': "R2c($tr\<^sup>< < $tr\<^sup>>)\<^sub>e = ($tr\<^sup>< < $tr\<^sup>>)\<^sub>e"
   by pred_auto
 
 lemma R2c_condr: "R2c(P \<triangleleft> b \<triangleright> Q) = (R2c(P) \<triangleleft> R2c(b) \<triangleright> R2c(Q))"
