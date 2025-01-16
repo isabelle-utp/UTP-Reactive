@@ -7,7 +7,7 @@ begin
 subsection \<open> R1: Events cannot be undone \<close>
 
 definition R1 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
-R1_def [pred]: "R1 (P) = (P \<and> (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
+R1_def [pred]: "R1 (P) = (P \<and> ($tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e)"
 
 expr_constructor R1
 
@@ -203,7 +203,7 @@ lemma R1_ok_true: "(R1(P))\<lbrakk>True/ok\<^sup><\<rbrakk> = R1(P\<lbrakk>True/
 lemma R1_ok_false: "(R1(P))\<lbrakk>False/ok\<^sup><\<rbrakk> = R1(P\<lbrakk>False/ok\<^sup><\<rbrakk>)"
   by pred_auto
 
-lemma seqr_R1_true_right: "((P ;; R1(true)) \<or> P) = (P ;; (tr\<^sup>< \<le> tr\<^sup>>)\<^sub>e)"
+lemma seqr_R1_true_right: "((P ;; R1(true)) \<or> P) = (P ;; ($tr\<^sup>< \<le> $tr\<^sup>>)\<^sub>e)"
   by (pred_auto)
 
 lemma conj_R1_true_right: "(P;;R1(true) \<and> Q;;R1(true)) ;; R1(true) = (P;;R1(true) \<and> Q;;R1(true))"
@@ -212,13 +212,13 @@ lemma conj_R1_true_right: "(P;;R1(true) \<and> Q;;R1(true)) ;; R1(true) = (P;;R1
   using dual_order.trans apply blast
   by (metis order_refl)
 
-lemma R1_tr'_eq_tr: "R1(tr\<^sup>> = tr\<^sup><)\<^sub>e = (tr\<^sup>> = tr\<^sup><)\<^sub>e"
+lemma R1_tr'_eq_tr: "R1($tr\<^sup>> = $tr\<^sup><)\<^sub>e = ($tr\<^sup>> = $tr\<^sup><)\<^sub>e"
   by (pred_auto)
 
-lemma R1_tr_less_tr': "R1(tr\<^sup>< < tr\<^sup>>)\<^sub>e = (tr\<^sup>< < tr\<^sup>>)\<^sub>e"
+lemma R1_tr_less_tr': "R1($tr\<^sup>< < $tr\<^sup>>)\<^sub>e = ($tr\<^sup>< < $tr\<^sup>>)\<^sub>e"
   by (pred_auto)
 
-lemma tr_strict_prefix_R1_closed [closure]: "(tr\<^sup>< < tr\<^sup>>)\<^sub>e is R1"
+lemma tr_strict_prefix_R1_closed [closure]: "($tr\<^sup>< < $tr\<^sup>>)\<^sub>e is R1"
   by (simp add: Healthy_def; pred_auto)
 
 lemma R1_H2_commute: "R1(H2(P)) = H2(R1(P))"
@@ -229,13 +229,13 @@ subsection \<open> R2: No dependence upon trace history \<close>
 text \<open> There are various ways of expressing $R2$, which are enumerated below. \<close>
 
 definition R2a :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" where
-[pred]: "R2a (P) = (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>,(\<guillemotleft>s\<guillemotright>+(tr\<^sup>>-tr\<^sup><))/tr\<^sup><,tr\<^sup>>\<rbrakk>)"
+[pred]: "R2a (P) = (\<Sqinter> s. P\<lbrakk>\<guillemotleft>s\<guillemotright>,(\<guillemotleft>s\<guillemotright>+($tr\<^sup>>-$tr\<^sup><))/tr\<^sup><,tr\<^sup>>\<rbrakk>)"
 
 definition R2a' :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" where
 [pred]: "R2a' P = (R2a(P) \<triangleleft> R1(true) \<triangleright> P)"
 
 definition R2s :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t,'\<alpha>,'\<beta>) rp_rel" where
-[pred]: "R2s (P) = P\<lbrakk>0, tr\<^sup>>-tr\<^sup>< / tr\<^sup><, tr\<^sup>>\<rbrakk>"
+[pred]: "R2s (P) = P\<lbrakk>0, $tr\<^sup>>-$tr\<^sup>< / tr\<^sup><, tr\<^sup>>\<rbrakk>"
 
 definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "R2(P) = R1(R2s(P))"
@@ -243,7 +243,7 @@ definition R2 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<
 definition R2c :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "R2c(P) = (R2s(P) \<triangleleft> R1(true) \<triangleright> P)"       
 
-lemma R2c_expand_R1: "R2c(P) = (R2s(P) \<triangleleft> tr\<^sup>< \<le> tr\<^sup>> \<triangleright> P)"
+lemma R2c_expand_R1: "R2c(P) = (R2s(P) \<triangleleft> $tr\<^sup>< \<le> $tr\<^sup>> \<triangleright> P)"
   by (simp add: R2c_def R1_def)
 
 expr_constructor R2a R2a' R2s R2 R2c
@@ -259,20 +259,20 @@ lemma unrest_ok_R2s [unrest]:
   assumes "$ok\<^sup>< \<sharp> P"
   shows "$ok\<^sup>< \<sharp> R2s(P)"
 proof - 
-  have "$ok\<^sup>< \<sharp> ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> P)"
+  have "$ok\<^sup>< \<sharp> ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> $tr\<^sup>> - $tr\<^sup><] \<dagger> P)"
     using assms by pred_auto
   thus ?thesis
-    by (simp add: R2s_def SEXP_def)
+    by (simp add: R2s_def)
 qed
 
 lemma unrest_ok'_R2s [unrest]:
   assumes "$ok\<^sup>> \<sharp> P"
   shows "$ok\<^sup>> \<sharp> R2s(P)"
 proof - 
-  have "$ok\<^sup>> \<sharp> ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> ($tr)\<^sup>> - ($tr)\<^sup><] \<dagger> P)"
+  have "$ok\<^sup>> \<sharp> ([tr\<^sup>< \<leadsto> 0, tr\<^sup>> \<leadsto> $tr\<^sup>> - $tr\<^sup><] \<dagger> P)"
     using assms by pred_auto
   thus ?thesis
-    by (simp add: R2s_def SEXP_def)
+    by (simp add: R2s_def)
 qed
 
 lemma cond_and: "(P \<triangleleft> b \<triangleright> Q) = ((P \<and> b) \<or> (Q \<and> \<not>b))"
