@@ -193,10 +193,13 @@ lemma st_subst_comp [usubst]:
   "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<circ>\<^sub>s \<lceil>\<rho>\<rceil>\<^sub>S\<^sub>\<sigma> = \<lceil>\<sigma> \<circ>\<^sub>s \<rho>\<rceil>\<^sub>S\<^sub>\<sigma>"
   by pred_auto
 
-definition lift_cond_srea ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<leftarrow>") where
-[pred]: "\<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> = \<lceil>b\<rceil>\<^sub>S\<^sub><"
+definition lift_cond_srea  where
+[pred]: "lift_cond_srea b = \<lceil>b\<rceil>\<^sub>S\<^sub><"
 
 expr_constructor lift_cond_srea
+
+syntax "_lift_cond_srea" :: "logic \<Rightarrow> logic" ("\<lceil>_\<rceil>\<^sub>S\<^sub>\<leftarrow>")
+translations "\<lceil>e\<rceil>\<^sub>S\<^sub>\<leftarrow>" == "CONST lift_cond_srea (e)\<^sub>e"
 
 lemma unrest_lift_cond_srea [unrest]:
   "x \<sharp> \<lceil>b\<rceil>\<^sub>S\<^sub>< \<Longrightarrow> x \<sharp> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow>"
@@ -296,20 +299,11 @@ text \<open> We guard the reactive conditional condition so that it can't be sim
   ('s,'t,'\<alpha>,'\<beta>) rsp_rel \<Rightarrow>
   ('s,'t,'\<alpha>,'\<beta>) rsp_rel" where *)
 
-abbreviation cond_srea ::
-  "('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel \<Rightarrow>
-  's pred \<Rightarrow>
-  ('s,'t,'\<alpha>,'\<beta>) rsp_rel \<Rightarrow>
-  ('s,'t,'\<alpha>,'\<beta>) rsp_rel" where
-"cond_srea P b Q \<equiv> P \<triangleleft> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> \<triangleright> Q"
-
 syntax
   "_cond_srea" :: "logic \<Rightarrow> logic \<Rightarrow> logic \<Rightarrow> logic" ("(3_ \<triangleleft> _ \<triangleright>\<^sub>R/ _)" [52,0,53] 52)
 
 translations
-  "_cond_srea P b Q" == "CONST cond_srea P b Q"
-
-expr_constructor cond_srea
+  "_cond_srea P b Q" == "P \<triangleleft> \<lceil>b\<rceil>\<^sub>S\<^sub>\<leftarrow> \<triangleright> Q"
 
 lemma st_cond_assigns [rpred]:
   "\<langle>\<sigma>\<rangle>\<^sub>r \<triangleleft> b \<triangleright>\<^sub>R \<langle>\<rho>\<rangle>\<^sub>r = \<langle>\<sigma> \<triangleleft> b \<triangleright> \<rho>\<rangle>\<^sub>r"
@@ -699,10 +693,10 @@ lemma cond_st_distr: "(P \<triangleleft> b \<triangleright>\<^sub>R Q) ;; R = (P
 lemma cond_st_miracle [rpred]: "P is R1 \<Longrightarrow> P \<triangleleft> b \<triangleright>\<^sub>R false = ([b]\<^sub>S\<^sub>< \<and> P)"
   by (pred_auto; blast)
 
-lemma cond_st_true [rpred]: "P \<triangleleft> true \<triangleright>\<^sub>R Q = P"
+lemma cond_st_true [rpred]: "P \<triangleleft> True \<triangleright>\<^sub>R Q = P"
   by pred_auto
     
-lemma cond_st_false [rpred]: "P \<triangleleft> false \<triangleright>\<^sub>R Q = Q"
+lemma cond_st_false [rpred]: "P \<triangleleft> False \<triangleright>\<^sub>R Q = Q"
   by pred_auto
     
 lemma st_cond_true_or [rpred]: "P is R1 \<Longrightarrow> (R1 true \<triangleleft> b \<triangleright>\<^sub>R P) = ([b]\<^sub>S\<^sub>< \<or> P)"  
