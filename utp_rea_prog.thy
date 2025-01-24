@@ -120,6 +120,13 @@ abbreviation lift_state_post ("\<lceil>_\<rceil>\<^sub>S\<^sub>>") where "\<lcei
 
 abbreviation drop_state_post ("\<lfloor>_\<rfloor>\<^sub>S\<^sub>>") where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>> \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub>>"
 
+expr_constructor lift_state_rel
+expr_constructor drop_state_rel
+expr_constructor lift_state_pre
+expr_constructor drop_state_pre
+expr_constructor lift_state_post
+expr_constructor drop_state_post
+
 lemma st_unrest_state_pre [unrest]: "(unrest \<top>\<^sub>S s) \<Longrightarrow> $st\<^sup>< \<sharp> \<lceil>s\<rceil>\<^sub>S\<^sub><"
   by pred_auto
 
@@ -426,7 +433,7 @@ abbreviation abs_st ("\<langle>_\<rangle>\<^sub>S") where
 "abs_st P \<equiv> P \<down> abs_st\<^sub>L"
 
 lemma rea_impl_aext_st [alpha]:
-  "(P \<longrightarrow>\<^sub>r Q) \<up> (map_st\<^sub>L[a] \<times> map_st\<^sub>L[a]) = (P \<up> map_st\<^sub>L[a] \<times> map_st\<^sub>L[a] \<longrightarrow>\<^sub>r Q \<up> map_st\<^sub>L[a] \<times> map_st\<^sub>L[a])"
+  "(P \<longrightarrow>\<^sub>r Q) \<up> (map_st\<^sub>L[a] \<times> map_st\<^sub>L[a]) = (P \<up>\<^sub>2 map_st\<^sub>L[a] \<longrightarrow>\<^sub>r Q \<up>\<^sub>2 map_st\<^sub>L[a])"
   by (pred_auto)
 
 lemma rea_true_ext_st [alpha]: 
