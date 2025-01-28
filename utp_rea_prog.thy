@@ -442,17 +442,15 @@ lemma rea_true_ext_st [alpha]:
 
 subsubsection \<open> Reactive Frames and Extensions \<close>
 
-(* TODO(@MattWindsor91) *)
-(*
 definition rea_frame :: "('\<alpha> \<Longrightarrow> '\<beta>) \<Rightarrow> ('\<beta>, 't::trace, 'r) rsp_hrel \<Rightarrow> ('\<beta>, 't, 'r) rsp_hrel" where
-[rel]: "rea_frame x P = frame (ok +\<^sub>L wait +\<^sub>L tr +\<^sub>L (x ;\<^sub>L st) +\<^sub>L \<^bold>v\<^sub>S) P"
+[pred]: "rea_frame x P = $(ok,wait,tr,st:x,\<^bold>v\<^sub>S):[P]"
 
 definition rea_frame_ext :: "('\<alpha> \<Longrightarrow> '\<beta>) \<Rightarrow> ('\<alpha>, 't::trace, 'r) rsp_hrel \<Rightarrow> ('\<beta>, 't, 'r) rsp_hrel" where
-[rel]: "rea_frame_ext a P = rea_frame a (P \<oplus>\<^sub>r map_st\<^sub>L[a])"
+[pred]: "rea_frame_ext a P = rea_frame a (P \<up>\<^sub>2 map_st\<^sub>L[a])"
 
 syntax
   "_rea_frame"     :: "salpha \<Rightarrow> logic \<Rightarrow> logic" ("_:[_]\<^sub>r" [99,0] 100)
-  "_rea_frame_ext" :: "salpha \<Rightarrow> logic \<Rightarrow> logic" ("_:[_]\<^sub>r\<^sup>+" [99,0] 100)
+  "_rea_frame_ext" :: "svid \<Rightarrow> logic \<Rightarrow> logic" ("_:[_]\<^sub>r\<^sup>+" [99,0] 100)
 
 translations
   "_rea_frame x P" => "CONST rea_frame x P"
@@ -461,106 +459,110 @@ translations
   "_rea_frame_ext (_salphaset (_salphamk x)) P" <= "CONST rea_frame_ext x P"
 
 lemma rea_frame_R1_closed [closure]: 
-  assumes "P is R1"
+  assumes "vwb_lens x" "P is R1"
   shows "x:[P]\<^sub>r is R1"
 proof -
-  have "R1(x:[R1 P]\<^sub>r) = x:[R1 P]\<^sub>r"
-    by (rel_auto)
+  from assms(1) have "R1(x:[R1 P]\<^sub>r) = x:[R1 P]\<^sub>r"
+    by (pred_auto)
   thus ?thesis
-    by (metis Healthy_if Healthy_intro assms)
+    by (metis Healthy_if Healthy_intro assms(2))
 qed
 
 lemma rea_frame_R2_closed [closure]: 
-  assumes "P is R2"
+  assumes "vwb_lens x" "P is R2"
   shows "x:[P]\<^sub>r is R2"
 proof -
-  have "R2(x:[R2 P]\<^sub>r) = x:[R2 P]\<^sub>r"
-    by (rel_auto)
+  from assms(1) have "R2(x:[R2 P]\<^sub>r) = x:[R2 P]\<^sub>r"
+    by (pred_auto)
   thus ?thesis
-    by (metis Healthy_if Healthy_intro assms)
+    by (metis Healthy_if Healthy_intro assms(2))
 qed
 
 lemma rea_frame_RR_closed [closure]: 
-  assumes "P is RR"
+  assumes "vwb_lens x" "P is RR"
   shows "x:[P]\<^sub>r is RR"
 proof -
-  have "RR(x:[RR P]\<^sub>r) = x:[RR P]\<^sub>r"
-    by (rel_auto)
+  from assms(1) have "RR(x:[RR P]\<^sub>r) = x:[RR P]\<^sub>r"
+    by (pred_auto)
   thus ?thesis
-    by (metis Healthy_if Healthy_intro assms)
+    by (metis Healthy_if Healthy_intro assms(2))
 qed
 
 lemma rea_aext_R1 [closure]:
   assumes "P is R1"
-  shows "rel_aext P (map_st\<^sub>L x) is R1"
+  shows "P \<up>\<^sub>2 map_st\<^sub>L[x] is R1"
 proof -
-  have "rel_aext (R1 P) (map_st\<^sub>L x) is R1"
-    by (rel_auto)
+  have "R1 P \<up>\<^sub>2 map_st\<^sub>L[x] is R1"
+    by (pred_auto)
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
 
 lemma rea_aext_R2 [closure]:
   assumes "P is R2"
-  shows "rel_aext P (map_st\<^sub>L x) is R2"
+  shows "P \<up>\<^sub>2 map_st\<^sub>L[x] is R2"
 proof -
-  have "rel_aext (R2 P) (map_st\<^sub>L x) is R2"
-    by (rel_auto)
+  have "R2 P \<up>\<^sub>2 map_st\<^sub>L[x] is R2"
+    by (pred_auto)
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
 
 lemma rea_aext_RR [closure]:
   assumes "P is RR"
-  shows "rel_aext P (map_st\<^sub>L x) is RR"
+  shows "P \<up>\<^sub>2 map_st\<^sub>L[x] is RR"
 proof -
-  have "rel_aext (RR P) (map_st\<^sub>L x) is RR"
-    by (rel_auto)
+  have "RR P \<up>\<^sub>2 map_st\<^sub>L[x] is RR"
+    by (pred_auto)
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
 
-lemma true_rea_map_st [alpha]: "(R1 true \<oplus>\<^sub>r map_st\<^sub>L[a]) = R1 true"
-  by (rel_auto)
+lemma true_rea_map_st [alpha]: "(R1 true \<up>\<^sub>2 map_st\<^sub>L[a]) = R1 true"
+  by (pred_auto)
 
 lemma rea_frame_ext_R1_closed [closure]:
-  "P is R1 \<Longrightarrow> x:[P]\<^sub>r\<^sup>+ is R1"
+  "\<lbrakk> vwb_lens x; P is R1 \<rbrakk> \<Longrightarrow> x:[P]\<^sub>r\<^sup>+ is R1"
   by (simp add: rea_frame_ext_def closure)
 
 lemma rea_frame_ext_R2_closed [closure]:
-  "P is R2 \<Longrightarrow> x:[P]\<^sub>r\<^sup>+ is R2"
+  "\<lbrakk> vwb_lens x; P is R2 \<rbrakk> \<Longrightarrow> x:[P]\<^sub>r\<^sup>+ is R2"
   by (simp add: rea_frame_ext_def closure)
 
 lemma rea_frame_ext_RR_closed [closure]:
-  "P is RR \<Longrightarrow> x:[P]\<^sub>r\<^sup>+ is RR"
+  "\<lbrakk> vwb_lens x; P is RR \<rbrakk> \<Longrightarrow> x:[P]\<^sub>r\<^sup>+ is RR"
   by (simp add: rea_frame_ext_def closure)
 
 lemma rel_aext_st_Instant_closed [closure]:
   "P is Instant \<Longrightarrow> rel_aext P (map_st\<^sub>L x) is Instant"
-  by (rel_auto)
+  by (pred_auto)
 
 lemma rea_frame_ext_false [frame]:
-  "x:[false]\<^sub>r\<^sup>+ = false"
-  by (rel_auto)
+  "vwb_lens x \<Longrightarrow> x:[false]\<^sub>r\<^sup>+ = false"
+  by (pred_auto)
   
 lemma rea_frame_ext_skip [frame]:
   "vwb_lens x \<Longrightarrow> x:[II\<^sub>r]\<^sub>r\<^sup>+ = II\<^sub>r"
-  by (rel_auto)
+  by (pred_auto)
 
+(*
 lemma rea_frame_ext_assigns [frame]:
   "vwb_lens x \<Longrightarrow> x:[\<langle>\<sigma>\<rangle>\<^sub>r]\<^sub>r\<^sup>+ = \<langle>\<sigma> \<up> x\<rangle>\<^sub>r"
-  by (rel_auto)
+  apply (pred_auto)
+*)
 
 lemma rea_frame_ext_cond [frame]:
-  "x:[P \<triangleleft> b \<triangleright>\<^sub>R Q]\<^sub>r\<^sup>+ = x:[P]\<^sub>r\<^sup>+ \<triangleleft> (b \<oplus>\<^sub>p x) \<triangleright>\<^sub>R x:[Q]\<^sub>r\<^sup>+"
-  by (rel_auto)
-    
+  "vwb_lens x \<Longrightarrow> x:[P \<triangleleft> b \<triangleright>\<^sub>R Q]\<^sub>r\<^sup>+ = x:[P]\<^sub>r\<^sup>+ \<triangleleft> (b \<up> x) \<triangleright>\<^sub>R x:[Q]\<^sub>r\<^sup>+"
+  by (pred_auto)
+
+(*
 lemma rea_frame_ext_seq [frame]:
   "vwb_lens x \<Longrightarrow> x:[P ;; Q]\<^sub>r\<^sup>+ = x:[P]\<^sub>r\<^sup>+ ;; x:[Q]\<^sub>r\<^sup>+"
+  apply (pred_auto)
   apply (simp add: rea_frame_ext_def rea_frame_def alpha frame)
   apply (subst frame_seq)
      apply (simp_all add: plus_vwb_lens closure)
-   apply (rel_auto)+
+   apply (pred_auto)+
   done
 
 lemma rea_frame_ext_subst_indep [usubst]:
@@ -568,7 +570,7 @@ lemma rea_frame_ext_subst_indep [usubst]:
   shows "\<sigma>(y \<mapsto>\<^sub>s v) \<dagger>\<^sub>S x:[P]\<^sub>r\<^sup>+ = (\<sigma> \<dagger>\<^sub>S x:[P]\<^sub>r\<^sup>+) ;; y :=\<^sub>r v"
 proof -
   from assms(1-2) have "\<sigma>(y \<mapsto>\<^sub>s v) \<dagger>\<^sub>S x:[RR P]\<^sub>r\<^sup>+ = (\<sigma> \<dagger>\<^sub>S x:[RR P]\<^sub>r\<^sup>+) ;; y :=\<^sub>r v"
-    by (rel_auto, (metis (no_types, lifting) lens_indep.lens_put_comm lens_indep_get)+)
+    by (pred_auto, (metis (no_types, lifting) lens_indep.lens_put_comm lens_indep_get)+)
   thus ?thesis
     by (simp add: Healthy_if assms)
 qed
@@ -578,19 +580,19 @@ lemma rea_frame_ext_subst_within [usubst]:
   shows "\<sigma>(x:y \<mapsto>\<^sub>s v) \<dagger>\<^sub>S x:[P]\<^sub>r\<^sup>+ = (\<sigma> \<dagger>\<^sub>S x:[y :=\<^sub>r (v \<restriction>\<^sub>e x) ;; P]\<^sub>r\<^sup>+)"
 proof -
   from assms(1,3) have "\<sigma>(x:y \<mapsto>\<^sub>s v) \<dagger>\<^sub>S x:[RR P]\<^sub>r\<^sup>+ = (\<sigma> \<dagger>\<^sub>S x:[y :=\<^sub>r (v \<restriction>\<^sub>e x) ;; RR(P)]\<^sub>r\<^sup>+)"
-    by (rel_auto, metis+)
+    by (pred_auto, metis+)
   thus ?thesis
     by (simp add: assms Healthy_if)
 qed
-
-lemma rea_frame_ext_UINF_ind [frame]:
-  "a:[\<Sqinter> x \<bullet> P x]\<^sub>r\<^sup>+ = (\<Sqinter> x \<bullet> a:[P x]\<^sub>r\<^sup>+)"
-  by (rel_auto)
-
-lemma rea_frame_ext_UINF_mem [frame]: 
-  "a:[\<Sqinter> x\<in>A \<bullet> P x]\<^sub>r\<^sup>+ = (\<Sqinter> x\<in>A \<bullet> a:[P x]\<^sub>r\<^sup>+)"
-  by (rel_auto)
 *)
+
+lemma rea_frame_ext_INF_ind [frame]:
+  "vwb_lens a \<Longrightarrow> a:[\<Sqinter> x. P x]\<^sub>r\<^sup>+ = (\<Sqinter> x. a:[P x]\<^sub>r\<^sup>+)"
+  by (pred_auto)
+
+lemma rea_frame_ext_INF_mem [frame]: 
+  "vwb_lens a \<Longrightarrow> a:[\<Sqinter> x\<in>A. P x]\<^sub>r\<^sup>+ = (\<Sqinter> x\<in>A. a:[P x]\<^sub>r\<^sup>+)"
+  by (pred_auto)
 
 subsection \<open> Stateful Reactive specifications \<close>
 

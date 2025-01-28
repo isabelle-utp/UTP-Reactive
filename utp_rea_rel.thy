@@ -13,8 +13,14 @@ text \<open> This theory defines a reactive relational calculus for @{term R1}-@
 
 subsection \<open> Healthiness Conditions \<close>
 
+(*
 definition RR :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
 [pred]: "RR(P) = (\<Sqinter> k k' w w' :: bool. (R2 P)\<lbrakk>\<guillemotleft>k\<guillemotright>,\<guillemotleft>k'\<guillemotright>,\<guillemotleft>w\<guillemotright>,\<guillemotleft>w'\<guillemotright>/ok\<^sup><,ok\<^sup>>,wait\<^sup><,wait\<^sup>>\<rbrakk>)"
+*)
+
+definition RR :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<alpha>, '\<beta>) rp_rel" where
+[pred]: "RR(P) = (\<exists> (ok\<^sup><,ok\<^sup>>,wait\<^sup><,wait\<^sup>>) \<Zspot> R2 P)"
+
 
 expr_constructor RR
 
@@ -860,16 +866,15 @@ method supernova = ((safe intro!: rrel_theory.Star_inductr rrel_theory.Star_indu
 
 find_theorems unrest expr_if
 
-(*
+
 subsection \<open> Instantaneous Reactive Relations \<close>
 
 text \<open> Instantaneous Reactive Relations, where the trace stays the same. \<close>
   
 abbreviation Instant :: "('t::trace, '\<alpha>) rp_hrel \<Rightarrow> ('t, '\<alpha>) rp_hrel" where
-"Instant(P) \<equiv> tr:\<lbrakk>P\<rbrakk>"
+"Instant(P) \<equiv> (- $tr):[P]"
 
 lemma skip_rea_Instant [closure]: "II\<^sub>r is Instant"
-  by (rel_auto)
-*)
+  by (pred_auto)
 
 end
