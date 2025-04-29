@@ -1,7 +1,7 @@
 section \<open> Events for Reactive Processes \<close>
 
 theory utp_rea_event
-imports "UTP2.utp" "Shallow-Expressions.Shallow_Expressions"
+imports "UTP2.utp"
 begin
 
 subsection \<open> Events \<close>

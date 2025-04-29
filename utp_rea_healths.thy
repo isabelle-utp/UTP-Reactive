@@ -644,15 +644,15 @@ lemma R2_seqr_form'':
 
 lemma R2_tr_middle:
   assumes "P is R2" "Q is R2"
-  shows "(\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> tr\<^sup>>)\<^sub>e) = (P ;; Q)"
+  shows "(\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> $tr\<^sup>>)\<^sub>e) = (P ;; Q)"
 proof -
   have "(P ;; Q) = (\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>))"
     by (simp add: seqr_middle)
   also have "... = (\<Sqinter> tr\<^sub>0. ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>))"
     by (simp add: assms Healthy_if)
-  also have "... = (\<Sqinter> tr\<^sub>0. ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> tr\<^sup>>)\<^sub>e)"
+  also have "... = (\<Sqinter> tr\<^sub>0. ((R2 P)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; (R2 Q)\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> $tr\<^sup>>)\<^sub>e)"
     by pred_auto
-  also have "... = (\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> tr\<^sup>>)\<^sub>e)"
+  also have "... = (\<Sqinter> tr\<^sub>0. (P\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup>>\<rbrakk> ;; Q\<lbrakk>\<guillemotleft>tr\<^sub>0\<guillemotright>/tr\<^sup><\<rbrakk>) \<and> (\<guillemotleft>tr\<^sub>0\<guillemotright> \<le> $tr\<^sup>>)\<^sub>e)"
     by (simp add: assms Healthy_if)
   finally show ?thesis ..
 qed

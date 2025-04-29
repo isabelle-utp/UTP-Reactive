@@ -458,7 +458,7 @@ translations
   "_rea_frame_ext x P" => "CONST rea_frame_ext x P"
   "_rea_frame_ext (_salphaset (_salphamk x)) P" <= "CONST rea_frame_ext x P"
 
-lemma rea_frame_R1_closed [closure]: 
+lemma rea_frame_R1_closed [closure]:
   assumes "vwb_lens x" "P is R1"
   shows "x:[P]\<^sub>r is R1"
 proof -
