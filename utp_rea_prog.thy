@@ -596,38 +596,41 @@ lemma rea_frame_ext_INF_mem [frame]:
 
 subsection \<open> Stateful Reactive specifications \<close>
 
-(* TODO(@MattWindsor91) *)
-(* :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
-definition rea_st_rel ("[_]\<^sub>S") where
+definition rea_st_rel :: "'s hrel \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel" ("[_]\<^sub>S") where
 [pred]: "rea_st_rel b = (\<lceil>(b)\<^sub>e\<rceil>\<^sub>S \<and> (tr\<^sup>> = tr\<^sup><)\<^sub>e)"
 
-(*  :: "'s hrel \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
-definition rea_st_rel'("[_]\<^sub>S''") where
+definition rea_st_rel' :: "'s hrel \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel" ("[_]\<^sub>S''") where
 [pred]: "rea_st_rel' b = R1(\<lceil>b\<rceil>\<^sub>S)"
 
-(*  :: "'s pred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
-definition rea_st_cond ("[_]\<^sub>S\<^sub><") where
+definition rea_st_cond :: "'s pred \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel" where
 [pred]: "rea_st_cond b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub><)"
 
 expr_constructor rea_st_cond
 
-(*  :: "'s upred \<Rightarrow> ('s, 't::trace, '\<alpha>, '\<beta>) rsp_rel" *)
-definition rea_st_post ("[_]\<^sub>S\<^sub>>") where
+syntax "_rea_st_cond" :: "logic \<Rightarrow> logic" ("[_]\<^sub>S\<^sub><")
+translations "_rea_st_cond b" == "CONST rea_st_cond (b)\<^sub>e"
+syntax_consts "_rea_st_cond" == rea_st_cond
+
+definition rea_st_post :: "'s pred \<Rightarrow> ('s,'t::trace,'\<alpha>,'\<beta>) rsp_rel" where
 [pred]: "rea_st_post b = R1(\<lceil>b\<rceil>\<^sub>S\<^sub>>)"
 
-(*
-lemma lift_state_pre_unrest [unrest]: "x \<bowtie> (st\<^sup><)\<^sub>v \<Longrightarrow> $x \<sharp> \<lceil>P\<rceil>\<^sub>S\<^sub><"
-  apply (pred_auto, simp add: lens_indep_def)
-  oops
+expr_constructor rea_st_post
+
+syntax "_rea_st_post" :: "logic \<Rightarrow> logic" ("[_]\<^sub>S\<^sub>>")
+translations "_rea_st_post b" == "CONST rea_st_post (b)\<^sub>e"
+syntax_consts "_rea_st_post" == rea_st_post
+
+lemma lift_state_pre_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (st\<^sup><)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> \<lceil>P\<rceil>\<^sub>S\<^sub><"
+  by (pred_auto, expr_simp add: lens_indep_def)
 
 lemma rea_st_rel_unrest [unrest]:
-  "\<lbrakk> x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; x \<bowtie> (st\<^sup><)\<^sub>v; x \<bowtie> (st\<^sup>>)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> [P]\<^sub>S\<^sub><"
-  by (simp add: rea_st_cond_def R1_def unrest lens_indep_sym)
+  "\<lbrakk> vwb_lens x; x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; x \<bowtie> (st\<^sup><)\<^sub>v; x \<bowtie> (st\<^sup>>)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> [P]\<^sub>S\<^sub><"
+  by (pred_simp, expr_simp add: lens_indep_def)
+
 
 lemma rea_st_cond_unrest [unrest]:
-  "\<lbrakk> x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; x \<bowtie> (st\<^sup><)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> [P]\<^sub>S\<^sub><"
-  by (simp add: add: rea_st_cond_def R1_def unrest lens_indep_sym)
-*)
+  "\<lbrakk> vwb_lens x; x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; x \<bowtie> (st\<^sup><)\<^sub>v \<rbrakk> \<Longrightarrow> $x \<sharp> [P]\<^sub>S\<^sub><"
+  by (pred_simp, expr_simp add: lens_indep_def)
 
 lemma subst_st_cond [usubst]: "\<lceil>\<sigma>\<rceil>\<^sub>S\<^sub>\<sigma> \<dagger> [P]\<^sub>S\<^sub>< = [\<sigma> \<dagger> P]\<^sub>S\<^sub><"
   by pred_auto
@@ -680,10 +683,10 @@ lemma rea_st_cond_RR [closure]: "[b]\<^sub>S\<^sub>< is RR"
 lemma rea_st_cond_RC [closure]: "[b]\<^sub>S\<^sub>< is RC"
   by (rule RC_intro, simp add: closure, pred_auto)
     
-lemma rea_st_cond_true [rpred]: "[true]\<^sub>S\<^sub>< = true\<^sub>r"
+lemma rea_st_cond_true [rpred]: "[True]\<^sub>S\<^sub>< = true\<^sub>r"
   by pred_auto
 
-lemma rea_st_cond_false [rpred]: "[false]\<^sub>S\<^sub>< = false"
+lemma rea_st_cond_false [rpred]: "[False]\<^sub>S\<^sub>< = false"
   by pred_auto
     
 lemma st_cond_not [rpred]: "(\<not>\<^sub>r [P]\<^sub>S\<^sub><) = [\<not> P]\<^sub>S\<^sub><"

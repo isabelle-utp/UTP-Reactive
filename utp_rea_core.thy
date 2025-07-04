@@ -1,7 +1,7 @@
 section \<open> Reactive Processes Core Definitions \<close>
 
 theory utp_rea_core
-  imports "UTP-Designs.utp_designs" "Circus_Toolkit.Trace_Algebra"
+  imports "UTP-Designs.utp_designs" "Circus_Toolkit.Trace_Algebra" "HOL-Library.Function_Algebras"
 begin
 
 subsection \<open> Alphabet and Signature \<close>
