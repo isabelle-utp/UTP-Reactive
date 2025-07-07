@@ -291,7 +291,7 @@ proof -
     by (simp add: R2c_def cond_and unrest_pred 1 2 assms unrest_ok_R2s)
 qed
 
-lemma R2s_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (tr ;\<^sub>L fst\<^sub>L); x \<bowtie> (tr ;\<^sub>L snd\<^sub>L); $x \<sharp> P \<rbrakk> \<Longrightarrow> $x \<sharp> R2s(P)"
+lemma R2s_unrest [unrest]: "\<lbrakk> vwb_lens x; x \<bowtie> (tr\<^sup><)\<^sub>v; x \<bowtie> (tr\<^sup>>)\<^sub>v; $x \<sharp> P \<rbrakk> \<Longrightarrow> $x \<sharp> R2s(P)"
   by (simp add: R2s_def unrest usubst lens_indep_sym)
      (simp add: lens_indep.lens_put_comm lens_indep.lens_put_irr2 ns_alpha_def subst_id_def subst_upd_def unrest_subst_apply unrest_subst_lens)
 
