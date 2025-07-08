@@ -42,8 +42,11 @@ text \<open>
 \<close>
 
 definition chan_apply ::
-  "('a, '\<theta>) chan \<Rightarrow> ('a, '\<alpha>) expr \<Rightarrow> ('\<theta> event, '\<alpha>) expr" ("'(_\<cdot>/_')\<^sub>u") where
-[pred]: "(c\<cdot>e)\<^sub>u = build\<^bsub>c\<^esub> \<circ> e"
+  "('a, '\<theta>) chan \<Rightarrow> ('a, '\<alpha>) expr \<Rightarrow> ('\<theta> event, '\<alpha>) expr"  where
+[pred]: "chan_apply c e = build\<^bsub>c\<^esub> \<circ> e"
+
+syntax "_chan_apply" :: "logic \<Rightarrow> logic \<Rightarrow> logic" ("'(_\<cdot>/_')\<^sub>u")
+translations "(c\<cdot>e)\<^sub>u" == "CONST chan_apply c (e)\<^sub>e"
 
 lemma unrest_chan_apply [unrest]: "x \<sharp> e \<Longrightarrow> x \<sharp> (c\<cdot>e)\<^sub>u"
   by pred_auto

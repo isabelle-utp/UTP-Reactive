@@ -112,7 +112,8 @@ abbreviation lift_state_rel ("\<lceil>_\<rceil>\<^sub>S") where "\<lceil>P\<rcei
 
 abbreviation drop_state_rel ("\<lfloor>_\<rfloor>\<^sub>S") where "\<lfloor>P\<rfloor>\<^sub>S \<equiv> P \<down> (\<^bold>v\<^sub>S\<^sup>2)"
 
-abbreviation lift_state_pre ("\<lceil>_\<rceil>\<^sub>S\<^sub><") where "\<lceil>p\<rceil>\<^sub>S\<^sub>< \<equiv> \<lceil>p\<^sup><\<rceil>\<^sub>S"
+syntax "_lift_state_pre" :: "logic \<Rightarrow> logic" ("\<lceil>_\<rceil>\<^sub>S\<^sub><")
+translations "_lift_state_pre e" == "\<lceil>(e\<^sup><)\<^sub>e\<rceil>\<^sub>S"
 
 abbreviation drop_state_pre ("\<lfloor>_\<rfloor>\<^sub>S\<^sub><") where "\<lfloor>p\<rfloor>\<^sub>S\<^sub>< \<equiv> (\<lfloor>p\<rfloor>\<^sub>S)\<^sub><"
 
@@ -122,7 +123,6 @@ abbreviation drop_state_post ("\<lfloor>_\<rfloor>\<^sub>S\<^sub>>") where "\<lf
 
 expr_constructor lift_state_rel
 expr_constructor drop_state_rel
-expr_constructor lift_state_pre
 expr_constructor drop_state_pre
 expr_constructor lift_state_post
 expr_constructor drop_state_post
