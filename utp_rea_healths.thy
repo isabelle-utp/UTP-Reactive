@@ -899,6 +899,9 @@ definition R5 :: "('t::trace, '\<alpha>, '\<beta>) rp_rel \<Rightarrow> ('t, '\<
 
 expr_constructor R5
 
+lemma R5_idem: "R5(R5 P) = R5 P"
+  by pred_auto
+
 lemma R5_implies_R1 [closure]: "P is R5 \<Longrightarrow> P is R1"
   by (pred_auto, metis order_refl)
 

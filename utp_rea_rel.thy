@@ -821,6 +821,7 @@ declare R4_disj [rpred]
 declare R4_R5 [rpred]
 declare R5_R4 [rpred]
 
+declare R5_idem [rpred]
 declare R5_conj [rpred]
 declare R5_disj [rpred]
 
