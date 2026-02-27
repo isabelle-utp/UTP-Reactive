@@ -437,7 +437,7 @@ lemma power_Suc_RR_closed [closure]:
   by (induct i, simp_all add: closure upred_semiring.power_Suc)
     
 lemma seqr_iter_RR_closed [closure]:
-  "\<lbrakk> I \<noteq> []; \<And> i. i \<in> set(I) \<Longrightarrow> P(i) is RR \<rbrakk> \<Longrightarrow> (;; i : I \<bullet> P(i)) is RR"
+  "\<lbrakk> I \<noteq> []; \<And> i. i \<in> set(I) \<Longrightarrow> P(i) is RR \<rbrakk> \<Longrightarrow> (;; i \<leftarrow> I. P(i)) is RR"
   apply (induct I, simp_all)
   apply (rename_tac i I)
   apply (case_tac I)
