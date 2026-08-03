@@ -121,7 +121,7 @@ translations
 lemma tcontr_alt_def: "(tt)\<^sub>e = (tr\<^sup>> - tr\<^sup><)"
   by pred_auto
 
-lemma tcontr_alt_def': "var tt = (tr\<^sup>> - tr\<^sup><)"
+lemma tcontr_alt_def': "get\<^bsub>tt\<^esub> = (tr\<^sup>> - tr\<^sup><)"
   by pred_auto
 
 lemma tt_indeps [simp]:

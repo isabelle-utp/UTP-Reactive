@@ -138,10 +138,10 @@ lemma subst_R1:
   assumes "$tr\<^sup>< \<sharp>\<^sub>s \<sigma>" "$tr\<^sup>> \<sharp>\<^sub>s \<sigma>"
   shows   "\<sigma> \<dagger> (R1 P) = R1(\<sigma> \<dagger> P)"
 proof -
-  have "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L fst\<^sub>L) = var (tr ;\<^sub>L fst\<^sub>L)"
+  have "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L fst\<^sub>L) = lens_get (tr ;\<^sub>L fst\<^sub>L)"
     using assms(1)
     by (simp add: comp_vwb_lens ns_alpha_def subst_apply_unrest)
-  moreover have "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L snd\<^sub>L) = var (tr ;\<^sub>L snd\<^sub>L)"
+  moreover have "\<langle>\<sigma>\<rangle>\<^sub>s (tr ;\<^sub>L snd\<^sub>L) = lens_get (tr ;\<^sub>L snd\<^sub>L)"
     using assms(2)
     by (simp add: comp_vwb_lens ns_alpha_def subst_apply_unrest)
   ultimately show ?thesis
