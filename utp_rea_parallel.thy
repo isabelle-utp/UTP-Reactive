@@ -40,6 +40,29 @@ lemma R2m'_form:
 lemma R1m_idem: "R1m(R1m(P)) = R1m(P)"
   by (pred_auto)
 
+lemma R1m_Idempotent [closure]: "Idempotent R1m"
+  by (simp add: Idempotent_def R1m_idem)
+
+lemma R1m_mono: "P \<sqsubseteq> Q \<Longrightarrow> R1m(P) \<sqsubseteq> R1m(Q)"
+  by (pred_auto)
+
+lemma R1m_Monotonic [closure]: "Monotonic R1m"
+  by (simp add: mono_def R1m_mono)
+     (pred_auto)
+
+lemma R1m'_idem: "R1m'(R1m'(P)) = R1m'(P)"
+  by (pred_auto)
+
+lemma R1m'_Idempotent [closure]: "Idempotent R1m'"
+  by (simp add: Idempotent_def R1m'_idem)
+
+lemma R1m'_mono: "P \<sqsubseteq> Q \<Longrightarrow> R1m'(P) \<sqsubseteq> R1m'(Q)"
+  by (pred_auto)
+
+lemma R1m'_Monotonic [closure]: "Monotonic R1m'"
+  by (simp add: mono_def R1m'_mono)
+     (pred_auto)
+
 lemma R1m_seq_lemma: "R1m(R1m(M) ;; R1(P)) = R1m(M) ;; R1(P)"
   by (pred_auto)
 
@@ -59,6 +82,42 @@ qed
 
 lemma R2m_idem: "R2m(R2m(P)) = R2m(P)"
   by (pred_auto)
+
+lemma R2m_Idempotent [closure]: "Idempotent R2m"
+  by (simp add: Idempotent_def R2m_idem)
+
+lemma R2m_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2m(P) \<sqsubseteq> R2m(Q)"
+  by (pred_auto)
+
+lemma R2m_Monotonic [closure]: "Monotonic R2m"
+  by (simp add: mono_def R2m_mono)
+     (pred_auto)
+
+lemma R2m'_idem: "R2m'(R2m'(P)) = R2m'(P)"
+  by (pred_auto)
+
+lemma R2m'_Idempotent [closure]: "Idempotent R2m'"
+  by (simp add: Idempotent_def R2m'_idem)
+
+lemma R2m'_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2m'(P) \<sqsubseteq> R2m'(Q)"
+  by (pred_auto)
+
+lemma R2m'_Monotonic [closure]: "Monotonic R2m'"
+  by (simp add: mono_def R2m'_mono)
+     (pred_auto)
+
+lemma R2cm_idem: "R2cm(R2cm(P)) = R2cm(P)"
+  by (pred_auto)
+
+lemma R2cm_Idempotent [closure]: "Idempotent R2cm"
+  by (simp add: Idempotent_def R2cm_idem)
+
+lemma R2cm_mono: "P \<sqsubseteq> Q \<Longrightarrow> R2cm(P) \<sqsubseteq> R2cm(Q)"
+  by (pred_auto)
+
+lemma R2cm_Monotonic [closure]: "Monotonic R2cm"
+  by (simp add: mono_def R2cm_mono)
+     (pred_auto)
 
 lemma R2m_seq_lemma: "R2m'(R2m'(M) ;; R2(P)) = R2m'(M) ;; R2(P)"
   apply (simp add: R2m'_form R2_form)
@@ -112,6 +171,19 @@ lemma R2m_conj: "R2m(P \<and> Q) = (R2m(P) \<and> R2m(Q))"
 
 definition R3m :: "('t :: trace, '\<alpha>) rp merge \<Rightarrow> ('t, '\<alpha>) rp merge" where
   [pred]: "R3m(M) = skip\<^sub>m \<triangleleft> $<:wait\<^sup>< \<triangleright> M"
+
+lemma R3m_idem: "R3m(R3m(P)) = R3m(P)"
+  by (pred_auto)
+
+lemma R3m_Idempotent [closure]: "Idempotent R3m"
+  by (simp add: Idempotent_def R3m_idem)
+
+lemma R3m_mono: "P \<sqsubseteq> Q \<Longrightarrow> R3m(P) \<sqsubseteq> R3m(Q)"
+  by (pred_auto)
+
+lemma R3m_Monotonic [closure]: "Monotonic R3m"
+  by (simp add: mono_def R3m_mono)
+     (pred_auto)
 
 lemma R3_par_by_merge:
   assumes
